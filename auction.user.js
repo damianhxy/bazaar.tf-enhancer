@@ -109,9 +109,10 @@
         return string;
     }
 
-    if (!localStorage.getItem("keyP") || !localStorage.getItem("budP") || !localStorage.getItem("lastupdt") || (new Date() - localStorage.getItem("lastupdt") >= 86400 * updateFreq))
+    if (!localStorage.getItem("keyP") || !localStorage.getItem("budP"))
         update();
-
+    else if (!localStorage.getItem("lastupdt") || (new Date() - localStorage.getItem("lastupdt") >= 86400 * updateFreq))
+        update();
 
     if (document.getElementsByClassName("fa-legal").length) {
         var keyP = localStorage.getItem("keyP"),
