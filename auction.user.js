@@ -2,12 +2,12 @@
 // @copyright           2014, Damian Ho
 // @description         Calculates value of trade items
 // @grant               GM_xmlhttpRequest
-// @include             http*://bazaar.tf/*
+// @include             /^https?:\/\/bazaar\.tf.*/
 // @name                Bazaar Trade Value
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/bazaar-auction-value/raw/master/bazaar-value.user.js
-// @version             1.3.2.2
+// @version             1.3.3
 // ==/UserScript==
 
 (function () {
