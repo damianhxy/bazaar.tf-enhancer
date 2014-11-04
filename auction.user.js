@@ -115,8 +115,8 @@
         update();
 
     if (document.getElementsByClassName("fa-legal").length && document.getElementsByClassName("fa-reply").length) {
-        var keyP = localStorage.getItem("keyP"),
-            budP = localStorage.getItem("budP"),
+        var keyP = +localStorage.getItem("keyP"),
+            budP = +localStorage.getItem("budP"),
             data = document.createElement("li"),
             text = document.createTextNode(sum(document.getElementsByClassName("offered-items")[0].children));
         data.setAttribute("style", "color: orange;");
