@@ -12,3 +12,4 @@ Features:
 + Better fraction handling than bazaar
 + Item counter
 + Automatic updating of currency prices
++ Customizable
