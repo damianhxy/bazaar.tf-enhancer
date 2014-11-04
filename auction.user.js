@@ -96,7 +96,7 @@
                         price = 0;
                 }
             }
-            	total += +price;
+            total += +price;
         }
         total = round(total);
         var string = total + " Refined";
