@@ -29,7 +29,6 @@
     }
 
     function update() {
-        console.log("Updating...")
         if (!localStorage.getItem("apikey"))
             localStorage.setItem("apikey", prompt("API Key not set, please enter below:"));
         if (localStorage.getItem("apikey").length !== 24) {
@@ -40,13 +39,10 @@
         GM_xmlhttpRequest({
             method: "GET",
             url: "http://backpack.tf/api/IGetPrices/v4/?key=" + localStorage.apikey + "&compress=1",
-            onreadystatechange: function(e) {
-                console.log("Requesting XML...");
-            },
             onload: function(e) {
                 var data = JSON.parse(e.response);
                 if (!data)
-                    alert("Nothing received...");
+                    alert("API Error: Received nothing");
                 else if (data.response.message)
                     alert(data.response.message);
                 var key = data.response.items["Mann Co. Supply Crate Key"]["prices"][6]["Tradable"]["Craftable"][0],
@@ -58,8 +54,7 @@
                     alert("Updated, Key: " + k + ", Bud: " + b);
                     localStorage.setItem("lastupdt", new Date());
             }
-        })
-        console.log("Finished Updating...");
+        });
     }
 
     function sum(arr) {
