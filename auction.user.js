@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.6
+// @version             1.3.6.1
 // ==/UserScript==
 
 (function () {
@@ -78,8 +78,9 @@
                     arr[a].style.borderStyle = "double";
                     parted++;
                 }
-                if (arr[a].getAttribute("data-notes").contains("Painted:"))
-                    painted++;
+                if (arr[a].hasAttribute("data-notes"))
+                    if (arr[a].getAttribute("data-notes").contains("Painted:"))
+                        painted++;
             }
             else {
                 switch (arr[a].getAttribute("data-name")) {
