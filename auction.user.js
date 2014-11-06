@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.5
+// @version             1.3.5.1
 // ==/UserScript==
 
 (function () {
@@ -58,9 +58,7 @@
     }
 
     function sum(arr) {
-        var total = 0,
-            unpriced = 0,
-            parted = 0;
+        var total = 0;
         for (var a = 0; a < arr.length; a++) {
             var price;
             if (arr[a].hasAttribute("data-price")) {
@@ -73,10 +71,6 @@
                     price *= keyP;
                 else if (arr[a].getAttribute("data-price").split(" ")[1].contains("Earbud"))
                     price *= keyP * budP;
-                if (arr[a].className.contains("q11") && arr[a].getAttribute("data-notes").match(/<p>/g).length > 1) {
-                    arr[a].style.borderStyle = "double";
-                    parted++;
-                }
             }
             else {
                 switch (arr[a].getAttribute("data-name")) {
@@ -95,7 +89,6 @@
                     default:
                         arr[a].style.borderColor = "grey";
                         arr[a].style.borderStyle = "double";
-                        unpriced++;
                         price = 0;
                 }
             }
@@ -107,8 +100,7 @@
             string += "/ " + (total / keyP).toFixed(2) + " Keys";
         if (total > keyP * budP)
             string += "/ " + (total / (keyP * budP)).toFixed(2) + " Buds";
-        string += " (" + arr.length + " item" + (arr.length === 1 ? "" : "s") + ": " +
-        unpriced + " unpriced, " + parted + " parted)";
+        string += " in " + arr.length + " item" + (arr.length === 1 ? "" : "s");
         return string;
     }
 
