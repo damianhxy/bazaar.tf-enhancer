@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.5.2
+// @version             1.3.6
 // ==/UserScript==
 
 (function () {
@@ -58,7 +58,10 @@
     }
 
     function sum(arr) {
-        var total = 0;
+        var total = 0,
+            parted = 0,
+            painted = 0,
+            unpriced = 0;
         for (var a = 0; a < arr.length; a++) {
             var price;
             if (arr[a].hasAttribute("data-price")) {
@@ -71,8 +74,12 @@
                     price *= keyP;
                 else if (arr[a].getAttribute("data-price").split(" ")[1].contains("Earbud"))
                     price *= keyP * budP;
-                if (arr[a].className.contains("q11") && arr[a].getAttribute("data-notes").match(/<p>/g).length > 1)
+                if (arr[a].className.contains("q11") && arr[a].getAttribute("data-notes").match(/<p>/g).length > 1) {
                     arr[a].style.borderStyle = "double";
+                    parted++;
+                }
+                if (arr[a].getAttribute("data-notes").contains("Painted:"))
+                    painted++;
             }
             else {
                 switch (arr[a].getAttribute("data-name")) {
@@ -91,6 +98,7 @@
                     default:
                         arr[a].style.borderColor = "grey";
                         arr[a].style.borderStyle = "double";
+                        unpriced++;
                         price = 0;
                 }
             }
@@ -103,6 +111,7 @@
         if (total > keyP * budP)
             string += "/ " + (total / (keyP * budP)).toFixed(2) + " Buds";
         string += " in " + arr.length + " item" + (arr.length === 1 ? "" : "s");
+        string += " [Contains: " + parted + " Parted, " + painted + " Painted & " + unpriced + " Unpriced Item(s)]";
         return string;
     }
 
