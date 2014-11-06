@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.5.1
+// @version             1.3.5.2
 // ==/UserScript==
 
 (function () {
@@ -71,6 +71,8 @@
                     price *= keyP;
                 else if (arr[a].getAttribute("data-price").split(" ")[1].contains("Earbud"))
                     price *= keyP * budP;
+                if (arr[a].className.contains("q11") && arr[a].getAttribute("data-notes").match(/<p>/g).length > 1)
+                    arr[a].style.borderStyle = "double";
             }
             else {
                 switch (arr[a].getAttribute("data-name")) {
