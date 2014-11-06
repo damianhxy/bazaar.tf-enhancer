@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.6.2
+// @version             1.3.6.3
 // ==/UserScript==
 
 (function () {
@@ -114,7 +114,7 @@
             string += "/ " + (total / (keyP * budP)).toFixed(2) + " Buds";
         string += " in " + arr.length + " item" + (arr.length === 1 ? "" : "s");
         if (verbose)
-            string += " [Contains: " + parted + " Parted, " + painted + " Painted & " + unpriced + " Unpriced Items]";
+            string += " (" + parted + " Parted, " + painted + " Painted & " + unpriced + " Unpriced Items)";
         return string;
     }
 
