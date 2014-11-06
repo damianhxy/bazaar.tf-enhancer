@@ -8,13 +8,14 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.6.1
+// @version             1.3.6.2
 // ==/UserScript==
 
 (function () {
     /*********** SETTINGS ***********/
     var updateFreq = 3,              //(days) currency price refresh frequency
-        highlightRetracted = 1;      //(boolean) highlight retracted offers
+        highlightRetracted = 1,      //(boolean) highlight retracted offers
+        verbose = 1;                 //(boolean) show extended details
     /******** END OF SETTINGS *******/
 
     function round(num) {
@@ -112,7 +113,8 @@
         if (total > keyP * budP)
             string += "/ " + (total / (keyP * budP)).toFixed(2) + " Buds";
         string += " in " + arr.length + " item" + (arr.length === 1 ? "" : "s");
-        string += " [Contains: " + parted + " Parted, " + painted + " Painted & " + unpriced + " Unpriced Item(s)]";
+        if (verbose)
+            string += " [Contains: " + parted + " Parted, " + painted + " Painted & " + unpriced + " Unpriced Items]";
         return string;
     }
 
