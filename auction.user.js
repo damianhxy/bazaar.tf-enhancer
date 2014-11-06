@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.6.3
+// @version             1.3.6.4
 // ==/UserScript==
 
 (function () {
@@ -120,7 +120,7 @@
 
     if (!localStorage.getItem("keyP") || !localStorage.getItem("budP"))
         update();
-    else if (!localStorage.getItem("lastupdt") || (new Date() - localStorage.getItem("lastupdt") >= 86400 * updateFreq))
+    else if (!localStorage.getItem("lastupdt") || (new Date() - Date.parse(localStorage.getItem("lastupdt")) >= 86400e3 * updateFreq))
         update();
 
     if (document.getElementsByClassName("fa-legal").length && document.getElementsByClassName("fa-reply").length) {
