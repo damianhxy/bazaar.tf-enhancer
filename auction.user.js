@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/bazaar-auction-value/raw/master/bazaar-value.meta.js
-// @version             1.3.4
+// @version             1.3.5
 // ==/UserScript==
 
 (function () {
@@ -58,7 +58,9 @@
     }
 
     function sum(arr) {
-        var total = 0;
+        var total = 0,
+            unpriced = 0,
+            parted = 0;
         for (var a = 0; a < arr.length; a++) {
             var price;
             if (arr[a].hasAttribute("data-price")) {
@@ -71,9 +73,10 @@
                     price *= keyP;
                 else if (arr[a].getAttribute("data-price").split(" ")[1].contains("Earbud"))
                     price *= keyP * budP;
-                if (arr[a].hasAttribute("data-notes") && arr[a].getAttribute("class").contains("q11-440"))
-                    if (arr[a].getAttribute("data-notes").match(/<p>/g).length > 1)
-                        arr[a].style.borderStyle = "double";
+                if (arr[a].className.contains("q11") && arr[a].getAttribute("data-notes").match(/<p>/g).length > 1) {
+                    arr[a].style.borderStyle = "double";
+                    parted++;
+                }
             }
             else {
                 switch (arr[a].getAttribute("data-name")) {
@@ -92,6 +95,7 @@
                     default:
                         arr[a].style.borderColor = "grey";
                         arr[a].style.borderStyle = "double";
+                        unpriced++;
                         price = 0;
                 }
             }
@@ -103,8 +107,8 @@
             string += "/ " + (total / keyP).toFixed(2) + " Keys";
         if (total > keyP * budP)
             string += "/ " + (total / (keyP * budP)).toFixed(2) + " Buds";
-        if (arr.length > 1)
-            string += " (" + arr.length + " items)";
+        string += " (" + arr.length + " item" + (arr.length === 1 ? "" : "s") + ": " +
+        unpriced + " unpriced, " + parted + " parted)";
         return string;
     }
 
@@ -128,7 +132,8 @@
             text = document.createTextNode(sum(offers[a].firstElementChild.children));
             data.setAttribute("style", "color: orange; float: right;");
             data.appendChild(text);
-            offers[a].previousElementSibling.lastElementChild.appendChild(data);
+            var notes = offers[a].previousElementSibling.lastElementChild;
+            notes.insertBefore(data, notes.firstElementChild);
         }
 
         if (highlightRetracted) {

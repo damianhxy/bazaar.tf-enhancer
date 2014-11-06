@@ -8,5 +8,5 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/bazaar-auction-value/raw/master/bazaar-value.meta.js
-// @version             1.3.4
+// @version             1.3.5
 // ==/UserScript==
