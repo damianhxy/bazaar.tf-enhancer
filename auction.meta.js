@@ -8,5 +8,5 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.6.7
+// @version             1.3.6.8
 // ==/UserScript==

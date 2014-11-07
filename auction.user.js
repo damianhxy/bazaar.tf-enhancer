@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.6.7
+// @version             1.3.6.8
 // ==/UserScript==
 
 (function () {
@@ -86,13 +86,15 @@
                     if (arr[a].getAttribute("data-notes").contains("Painted: "))
                         count--;
                     if (count > 1) {
-                        arr[a].innerHTML += "<li class='fa fa-cogs fa-border pull-left'>"
+                        arr[a].innerHTML += "<li class='fa fa-cogs fa-border pull-left'>";
                         parted++;
                     }
                 }
                 if (arr[a].hasAttribute("data-notes"))
-                    if (arr[a].getAttribute("data-notes").contains("Painted:"))
+                    if (arr[a].getAttribute("data-notes").contains("Painted:")) {
+                        arr[a].innerHTML += "<li class='fa fa-paint-brush fa-border pull-left'>";
                         painted++;
+                    }
             }
             else {
                 switch (arr[a].getAttribute("data-name")) {
