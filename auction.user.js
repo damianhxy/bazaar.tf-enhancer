@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.6.4
+// @version             1.3.6.5
 // ==/UserScript==
 
 (function () {
@@ -77,9 +77,14 @@
                     price *= keyP * budP;
                 else
                     price = round(price);
-                if (arr[a].className.contains("q11") && arr[a].getAttribute("data-notes").match(/<p>/g).length > 1) {
-                    arr[a].style.borderStyle = "double";
-                    parted++;
+                if (arr[a].className.contains("q11")) {
+                    var count = arr[a].getAttribute("data-notes").match(/<p>/g).length;
+                    if (arr[a].getAttribute("data-notes").contains("Painted: "))
+                        count--;
+                    if (count > 1) {
+                        arr[a].style.borderStyle = "double";
+                     parted++;
+                    }
                 }
                 if (arr[a].hasAttribute("data-notes"))
                     if (arr[a].getAttribute("data-notes").contains("Painted:"))
