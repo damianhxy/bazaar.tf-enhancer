@@ -75,6 +75,8 @@
                     price *= keyP;
                 else if (arr[a].getAttribute("data-price").split(" ")[1].contains("Earbud"))
                     price *= keyP * budP;
+                else
+                    price = round(price);
                 if (arr[a].className.contains("q11") && arr[a].getAttribute("data-notes").match(/<p>/g).length > 1) {
                     arr[a].style.borderStyle = "double";
                     parted++;
@@ -148,5 +150,5 @@
                 retracted[a].parentNode.parentNode.parentNode.parentNode.style.borderColor = "orange";
         }
     }
-    console.info("Script Loaded.");
+    console.info("Bazaar.tf Script Loaded. Version " + GM_info.script.version);
 }).call(this);
