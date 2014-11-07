@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.6.6
+// @version             1.3.6.7
 // ==/UserScript==
 
 (function () {
@@ -86,8 +86,8 @@
                     if (arr[a].getAttribute("data-notes").contains("Painted: "))
                         count--;
                     if (count > 1) {
-                        arr[a].style.borderStyle = "double";
-                     parted++;
+                        arr[a].innerHTML += "<li class='fa fa-cogs fa-border pull-left'>"
+                        parted++;
                     }
                 }
                 if (arr[a].hasAttribute("data-notes"))
@@ -109,8 +109,7 @@
                         price = 1 / 90;
                         break;
                     default:
-                        arr[a].style.borderColor = "grey";
-                        arr[a].style.borderStyle = "double";
+                        arr[a].innerHTML += "<li class='fa fa-question-circle fa-border pull-left'>";
                         unpriced++;
                         price = 0;
                 }
