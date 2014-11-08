@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.8
+// @version             1.3.8.1
 // ==/UserScript==
 
 (function () {
@@ -61,14 +61,16 @@
     }
 
     function getPrice(ele) {
-        var price;
+        var price = 0,
+            original = 0;
         if (ele.hasAttribute("data-price")) {
             var data = ele.getAttribute("data-price").split(" ");
+            original = data[0];
             if (data[0] === "Any")
                 price = 1 / 18;
             else if (data[0].contains("-")) {
                 var pts = data[0].split("-");
-                price = (pts[0] + pts[1]) / 2;
+                original = price = (+pts[0] + +pts[1]) / 2;
             }
             else
                 price = +data[0];
@@ -95,7 +97,7 @@
                         price = 1 / 90;
             }
         }
-        return price;
+        return [price, original];
     }
 
     function annotate(trade) {
@@ -104,34 +106,36 @@
         for (var a = 0; a < trade.length; a++) {
             if (trade[a].getAttribute("data-type") === "more-items-icon")
                 continue;
-            var children = trade[a].children;
-            for (var b = 0; b < children.length; b++) {
-                if (children[b].className === "ks") {
-                    children[b].style.display = "none";
-                    trade[a].innerHTML += "<i class='fa fa-bomb fa-inverse fa-border pull-left'></i>";
-                }
-            }
             if (trade[a].hasAttribute("data-notes") && trade[a].getAttribute("data-notes").contains("Painted:"))
                 trade[a].innerHTML += "<i class='fa fa-paint-brush fa-inverse fa-border pull-left'></i>";
             if (trade[a].className.contains("q11")) {
                 var count = trade[a].getAttribute("data-notes").match(/<p>/g).length;
                 if (trade[a].getAttribute("data-notes").contains("Painted: "))
                     count--;
-                if (count > 1)
+                if (count > 1) //Will break on Stranges with spells
                     trade[a].innerHTML += "<i class='fa fa-cogs fa-inverse fa-border pull-left'></i>";
             }
             price = getPrice(trade[a]);
-            if (price === 0) {
+            if (!+price[0]) {
                 if (trade[a].hasAttribute("data-special") && trade[a].getAttribute("data-special") === "Low craft #")
                     trade[a].innerHTML += "<i class='fa fa-exclamation-triangle fa-inverse fa-border pull-left'>";
+                else if (trade[a].firstElementChild.className === "ks") { //Will break on parted low #s, and if ks doesn't come first
+                    trade[a].firstElementChild.style.display = "none";
+                    trade[a].innerHTML += "<i class='fa fa-bomb fa-inverse fa-border pull-left'></i>";
+                }
                 else
                     trade[a].innerHTML += "<i class='fa fa-question-circle fa-inverse fa-border pull-left'></i>";
                 text = "Unpriced";
             }
             else if (trade[a].getAttribute("data-name").contains("Metal"))
-                text = price.toFixed(2) + " Refined";
-            else
-                text = trade[a].getAttribute("data-price");
+                text = (+price[0]).toFixed(2) + " Refined";
+            else {
+                var currency = trade[a].getAttribute("data-price").split(" ")[1];
+                if (currency.contains("Key") || currency.contains("Earbud"))
+                    text = (+price[1]).toFixed(2) + " " + currency;
+                else
+                    text = (+price[0]).toFixed(2) + " " + currency;
+            }
             var txt = document.createElement("span");
             txt.setAttribute("class", "item-text");
             txt.setAttribute("style", "bottom: 0; left: 0; right: 0;");
@@ -146,7 +150,7 @@
             parted = 0,
             unpriced = 0;
         for (var a = 0; a < trade.length; a++) {
-            var price = getPrice(trade[a]);
+            var price = getPrice(trade[a])[0];
             if (trade[a].className.contains("q11")) {
                 var count = trade[a].getAttribute("data-notes").match(/<p>/g).length;
                 if (trade[a].getAttribute("data-notes").contains("Painted: "))
@@ -167,7 +171,6 @@
         if (total > keyP * budP)
             string += "/ " + (total / (keyP * budP)).toFixed(2) + " Buds";
         string += " in " + trade.length + " item" + (trade.length === 1 ? "" : "s");
-        string += " (" + painted + " Painted, " + parted + " Parted & " + unpriced + " Unpriced Items)";
         return string;
     }
 
