@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.8.1
+// @version             1.3.8.2
 // ==/UserScript==
 
 (function () {
@@ -116,11 +116,17 @@
                     trade[a].innerHTML += "<i class='fa fa-cogs fa-inverse fa-border pull-left'></i>";
             }
             price = getPrice(trade[a]);
+            var isKillstreak = false,
+                itemDetails = trade[a].children,
+                depth;
+            for (depth = 0; depth < itemDetails.length; depth++)
+                if (itemDetails[depth].className === "ks")
+                    isKillstreak = true;
             if (!+price[0]) {
                 if (trade[a].hasAttribute("data-special") && trade[a].getAttribute("data-special") === "Low craft #")
                     trade[a].innerHTML += "<i class='fa fa-exclamation-triangle fa-inverse fa-border pull-left'>";
-                else if (trade[a].firstElementChild.className === "ks") { //Will break on parted low #s, and if ks doesn't come first
-                    trade[a].firstElementChild.style.display = "none";
+                else if (isKillstreak) { //Will break on ks low #s
+                    trade[a].children[depth - 1].style.display = "none";
                     trade[a].innerHTML += "<i class='fa fa-bomb fa-inverse fa-border pull-left'></i>";
                 }
                 else
