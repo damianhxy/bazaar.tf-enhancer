@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.7
+// @version             1.3.7.1
 // ==/UserScript==
 
 (function () {
@@ -26,7 +26,7 @@
             val = Math.floor(num) + (Math.round(num % 1 * 9)) / 9;
         if (val.toFixed(2) % 1 >= 5 / 90)
             val -= 0.005;
-        return val.toFixed(2);
+        return val;
     }
 
     function update() {
@@ -82,7 +82,7 @@
                     price *= keyP * budP;
                 else
                     price = round(price);
-                text = price + " " + arr[a].getAttribute("data-price").split(" ")[1];
+                text = price.toFixed(2) + " " + arr[a].getAttribute("data-price").split(" ")[1];
                 if (arr[a].className.contains("q11")) {
                     var count = arr[a].getAttribute("data-notes").match(/<p>/g).length;
                     if (arr[a].getAttribute("data-notes").contains("Painted: "))
@@ -132,7 +132,7 @@
             arr[a].appendChild(txt);
             total += +price;
         }
-        total = round(total);
+        total = round(total).toFixed(2);
         var string = total + " Refined";
         if (total > keyP)
             string += "/ " + (total / keyP).toFixed(2) + " Keys";
