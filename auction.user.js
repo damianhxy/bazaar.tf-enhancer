@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.6.9
+// @version             1.3.6.10
 // ==/UserScript==
 
 (function () {
@@ -86,15 +86,10 @@
                     if (arr[a].getAttribute("data-notes").contains("Painted: "))
                         count--;
                     if (count > 1) {
-                        arr[a].innerHTML += "<li class='fa fa-cogs fa-inverse fa-border pull-left'>";
+                        arr[a].innerHTML += "<i class='fa fa-cogs fa-inverse fa-border pull-left'></i>";
                         parted++;
                     }
                 }
-                if (arr[a].hasAttribute("data-notes"))
-                    if (arr[a].getAttribute("data-notes").contains("Painted:")) {
-                        arr[a].innerHTML += "<li class='fa fa-paint-brush fa-inverse fa-border pull-left'>";
-                        painted++;
-                    }
             }
             else {
                 switch (arr[a].getAttribute("data-name")) {
@@ -111,10 +106,19 @@
                         price = 1 / 90;
                         break;
                     default:
-                        arr[a].innerHTML += "<li class='fa fa-question-circle fa-inverse fa-border pull-left'>";
+                        if (arr[a].hasAttribute("data-special") && arr[a].getAttribute("data-special") === "Low craft #") {
+                            arr[a].firstElementChild.style.display = "none";
+                            arr[a].innerHTML += "<i class='fa fa-exclamation-triangle fa-inverse fa-border pull-left'>";
+                        }
+                        else
+                            arr[a].innerHTML += "<i class='fa fa-question-circle fa-inverse fa-border pull-left'></i>";
                         unpriced++;
                         price = 0;
                 }
+            }
+            if (arr[a].hasAttribute("data-notes") && arr[a].getAttribute("data-notes").contains("Painted:")) {
+                arr[a].innerHTML += "<i class='fa fa-paint-brush fa-inverse fa-border pull-left'></i>";
+                painted++;
             }
             total += +price;
         }
