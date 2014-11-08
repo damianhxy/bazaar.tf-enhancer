@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.6.10
+// @version             1.3.7
 // ==/UserScript==
 
 (function () {
@@ -64,9 +64,10 @@
 
     function sum(arr) {
         var total = 0,
-            parted = 0,
             painted = 0,
-            unpriced = 0;
+            parted = 0,
+            unpriced = 0,
+            text;
         for (var a = 0; a < arr.length; a++) {
             var price;
             if (arr[a].hasAttribute("data-price")) {
@@ -81,6 +82,7 @@
                     price *= keyP * budP;
                 else
                     price = round(price);
+                text = price + " " + arr[a].getAttribute("data-price").split(" ")[1];
                 if (arr[a].className.contains("q11")) {
                     var count = arr[a].getAttribute("data-notes").match(/<p>/g).length;
                     if (arr[a].getAttribute("data-notes").contains("Painted: "))
@@ -95,23 +97,26 @@
                 switch (arr[a].getAttribute("data-name")) {
                     case "Refined Metal":
                         price = 1;
+                        text = "1.00 refined";
                         break;
                     case "Reclaimed Metal":
                         price = 1 / 3;
+                        text = "0.33 refined";
                         break;
                     case "Scrap Metal":
                         price = 1 / 9;
+                        text = "0.11 refined";
                         break;
                     case "Mann Co. Supply Crate":
+                        text = "0.01 refined";
                         price = 1 / 90;
                         break;
                     default:
-                        if (arr[a].hasAttribute("data-special") && arr[a].getAttribute("data-special") === "Low craft #") {
-                            arr[a].firstElementChild.style.display = "none";
+                        if (arr[a].hasAttribute("data-special") && arr[a].getAttribute("data-special") === "Low craft #")
                             arr[a].innerHTML += "<i class='fa fa-exclamation-triangle fa-inverse fa-border pull-left'>";
-                        }
                         else
                             arr[a].innerHTML += "<i class='fa fa-question-circle fa-inverse fa-border pull-left'></i>";
+                        text = "Unpriced";
                         unpriced++;
                         price = 0;
                 }
@@ -120,6 +125,11 @@
                 arr[a].innerHTML += "<i class='fa fa-paint-brush fa-inverse fa-border pull-left'></i>";
                 painted++;
             }
+            var txt = document.createElement("span");
+            txt.setAttribute("class", "item-text");
+            txt.setAttribute("style", "bottom: 0; left: 0; right: 0;");
+            txt.innerHTML = text;
+            arr[a].appendChild(txt);
             total += +price;
         }
         total = round(total);
@@ -130,7 +140,7 @@
             string += "/ " + (total / (keyP * budP)).toFixed(2) + " Buds";
         string += " in " + arr.length + " item" + (arr.length === 1 ? "" : "s");
         if (verbose)
-            string += " (" + parted + " Parted, " + painted + " Painted & " + unpriced + " Unpriced Items)";
+            string += " (" + painted + " Painted, " + parted + " Parted & " + unpriced + " Unpriced Items)";
         return string;
     }
 
@@ -140,6 +150,10 @@
         update();
 
     if (document.getElementsByClassName("fa-legal").length && document.getElementsByClassName("fa-reply").length) {
+        var cNo = document.getElementsByClassName("item-number");
+        for (var a = 0; a < cNo.length; a++)
+            cNo[a].style.display = "none";
+
         var keyP = +localStorage.getItem("keyP"),
             budP = +localStorage.getItem("budP"),
             data = document.createElement("li"),
@@ -149,7 +163,7 @@
         document.getElementsByClassName("trade-stats")[0].appendChild(data);
 
         var offers = document.getElementsByClassName("comment-offers");
-        for (a = 0; a < offers.length; a++) {
+        for (var a = 0; a < offers.length; a++) {
             data = document.createElement("span");
             text = document.createTextNode(sum(offers[a].firstElementChild.children));
             data.setAttribute("style", "color: orange; float: right;");
@@ -160,7 +174,7 @@
 
         if (highlightRetracted) {
             var retracted = document.getElementsByClassName("btn-warning disabled");
-            for (a = 0; a < retracted.length; a++)
+            for (var a = 0; a < retracted.length; a++)
                 retracted[a].parentNode.parentNode.parentNode.parentNode.style.borderColor = "orange";
         }
     }
