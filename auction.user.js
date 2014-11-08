@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.8.4
+// @version             1.3.8.5
 // ==/UserScript==
 
 (function () {
@@ -170,24 +170,9 @@
     }
 
     function calc(trade) {
-        var total = 0,
-            painted = 0,
-            parted = 0,
-            unpriced = 0;
+        var total = 0;
         for (var a = 0; a < trade.length; a++) {
-            var price = getPrice(trade[a])[0];
-            if (trade[a].className.contains("q11")) {
-                var count = trade[a].getAttribute("data-notes").match(/<p>/g).length;
-                if (trade[a].getAttribute("data-notes").contains("Painted: "))
-                    count--;
-                if (count > 1)
-                    parted++;
-            }
-            if (trade[a].hasAttribute("data-notes") && trade[a].getAttribute("data-notes").contains("Painted:"))
-                painted++;
-            if (!price)
-                unpriced++;
-            total += price;
+            total += +getPrice(trade[a])[0];
         }
         total = round(total).toFixed(2);
         var string = total + " Refined";
