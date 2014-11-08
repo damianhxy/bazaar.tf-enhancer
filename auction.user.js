@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.7.2
+// @version             1.3.7.3
 // ==/UserScript==
 
 (function () {
@@ -84,7 +84,7 @@
                     price *= keyP * budP;
                 else
                     price = round(price);
-                text = price.toFixed(2) + " " + (data[1] === "Weapon" ? "Refined" : data[1]);
+                text = arr[a].getAttribute("data-price");
                 if (arr[a].className.contains("q11")) {
                     var count = arr[a].getAttribute("data-notes").match(/<p>/g).length;
                     if (arr[a].getAttribute("data-notes").contains("Painted: "))
@@ -151,7 +151,20 @@
     else if (!localStorage.getItem("lastupdt") || (new Date() - Date.parse(localStorage.getItem("lastupdt")) >= 86400e3 * updateFreq))
         update();
 
-    if (document.getElementsByClassName("fa-legal").length && document.getElementsByClassName("fa-reply").length) {
+    if (!(document.getElementsByClassName("fa-legal").length && document.getElementsByClassName("fa-reply").length)) {
+        var trades = document.querySelectorAll("div[id^='trade-']");
+        for (var a = 0; a < trades.length; a++) {
+            var items = trades[a].children[1].firstElementChild.children;
+            for (var b = 0; b < items.length; b++) {
+                var txt = document.createElement("span");
+                txt.setAttribute("class", "item-text");
+                txt.setAttribute("style", "bottom: 0; left: 0; right: 0;");
+                txt.innerHTML = items[b].hasAttribute("data-price") ? items[b].getAttribute("data-price") : "Unpriced";
+                items[b].appendChild(txt);
+            }
+        }
+    }
+    else {
         var cNo = document.getElementsByClassName("item-number");
         for (var a = 0; a < cNo.length; a++)
             cNo[a].style.display = "none";
