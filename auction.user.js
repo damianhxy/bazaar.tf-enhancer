@@ -8,14 +8,12 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.7.3
+// @version             1.3.8
 // ==/UserScript==
 
 (function () {
     /*********** SETTINGS ***********/
-    var updateFreq = 3,              //(days) currency price refresh frequency
-        highlightRetracted = 1,      //(boolean) highlight retracted offers
-        verbose = 1;                 //(boolean) show extended details
+    var updateFreq = 3;              //(days) currency price refresh frequency
     /******** END OF SETTINGS *******/
 
     function round(num) {
@@ -62,77 +60,105 @@
         });
     }
 
-    function sum(arr) {
-        var total = 0,
-            painted = 0,
-            parted = 0,
-            unpriced = 0,
-            text;
-        for (var a = 0; a < arr.length; a++) {
-            var price;
-            if (arr[a].hasAttribute("data-price")) {
-                var data = arr[a].getAttribute("data-price").split(" ");
-                price = data[0];
-                if (price === "Any") {
-                    price = 1 / 18;
-                }
-                else if (price.contains("-"))
-                    price = (parseFloat(price.split("-")[0]) + parseFloat(price.split("-")[1])) / 2;
-                if (data[1].contains("Key"))
-                    price *= keyP;
-                else if (data[1].contains("Earbud"))
-                    price *= keyP * budP;
-                else
-                    price = round(price);
-                text = arr[a].getAttribute("data-price");
-                if (arr[a].className.contains("q11")) {
-                    var count = arr[a].getAttribute("data-notes").match(/<p>/g).length;
-                    if (arr[a].getAttribute("data-notes").contains("Painted: "))
-                        count--;
-                    if (count > 1) {
-                        arr[a].innerHTML += "<i class='fa fa-cogs fa-inverse fa-border pull-left'></i>";
-                        parted++;
-                    }
-                }
+    function getPrice(ele) {
+        var price;
+        if (ele.hasAttribute("data-price")) {
+            var data = ele.getAttribute("data-price").split(" ");
+            if (data[0] === "Any")
+                price = 1 / 18;
+            else if (data[0].contains("-")) {
+                var pts = data[0].split("-");
+                price = (pts[0] + pts[1]) / 2;
             }
-            else {
-                switch (arr[a].getAttribute("data-name")) {
-                    case "Refined Metal":
-                        price = 1;
-                        text = "1.00 refined";
-                        break;
-                    case "Reclaimed Metal":
-                        price = 1 / 3;
-                        text = "0.33 refined";
-                        break;
-                    case "Scrap Metal":
-                        price = 1 / 9;
-                        text = "0.11 refined";
-                        break;
-                    case "Mann Co. Supply Crate":
-                        text = "0.01 refined";
+            else
+                price = +data[0];
+            if (data[1].contains("Key"))
+                price *= keyP;
+            else if (data[1].contains("Earbud"))
+                price *= keyP * budP;
+            else
+                price = round(price);
+        }
+        else {
+            switch (ele.getAttribute("data-name")) {
+                case "Refined Metal":
+                    price = 1;
+                    break;
+                case "Reclaimed Metal":
+                    price = 1 / 3;
+                    break;
+                case "Scrap Metal":
+                    price = 1 / 9;
+                    break;
+                default:
+                    if (ele.getAttribute("data-name").contains("Mann Co."))
                         price = 1 / 90;
-                        break;
-                    default:
-                        if (arr[a].hasAttribute("data-special") && arr[a].getAttribute("data-special") === "Low craft #")
-                            arr[a].innerHTML += "<i class='fa fa-exclamation-triangle fa-inverse fa-border pull-left'>";
-                        else
-                            arr[a].innerHTML += "<i class='fa fa-question-circle fa-inverse fa-border pull-left'></i>";
-                        text = "Unpriced";
-                        unpriced++;
-                        price = 0;
+            }
+        }
+        return price;
+    }
+
+    function annotate(trade) {
+        var text,
+            price;
+        for (var a = 0; a < trade.length; a++) {
+            if (trade[a].getAttribute("data-type") === "more-items-icon")
+                continue;
+            var children = trade[a].children;
+            for (var b = 0; b < children.length; b++) {
+                if (children[b].className === "ks") {
+                    children[b].style.display = "none";
+                    trade[a].innerHTML += "<i class='fa fa-bomb fa-inverse fa-border pull-left'></i>";
                 }
             }
-            if (arr[a].hasAttribute("data-notes") && arr[a].getAttribute("data-notes").contains("Painted:")) {
-                arr[a].innerHTML += "<i class='fa fa-paint-brush fa-inverse fa-border pull-left'></i>";
-                painted++;
+            if (trade[a].hasAttribute("data-notes") && trade[a].getAttribute("data-notes").contains("Painted:"))
+                trade[a].innerHTML += "<i class='fa fa-paint-brush fa-inverse fa-border pull-left'></i>";
+            if (trade[a].className.contains("q11")) {
+                var count = trade[a].getAttribute("data-notes").match(/<p>/g).length;
+                if (trade[a].getAttribute("data-notes").contains("Painted: "))
+                    count--;
+                if (count > 1)
+                    trade[a].innerHTML += "<i class='fa fa-cogs fa-inverse fa-border pull-left'></i>";
             }
+            price = getPrice(trade[a]);
+            if (price === 0) {
+                if (trade[a].hasAttribute("data-special") && trade[a].getAttribute("data-special") === "Low craft #")
+                    trade[a].innerHTML += "<i class='fa fa-exclamation-triangle fa-inverse fa-border pull-left'>";
+                else
+                    trade[a].innerHTML += "<i class='fa fa-question-circle fa-inverse fa-border pull-left'></i>";
+                text = "Unpriced";
+            }
+            else if (trade[a].getAttribute("data-name").contains("Metal"))
+                text = price.toFixed(2) + " Refined";
+            else
+                text = trade[a].getAttribute("data-price");
             var txt = document.createElement("span");
             txt.setAttribute("class", "item-text");
             txt.setAttribute("style", "bottom: 0; left: 0; right: 0;");
             txt.innerHTML = text;
-            arr[a].appendChild(txt);
-            total += +price;
+            trade[a].appendChild(txt);
+        }
+    }
+
+    function calc(trade) {
+        var total = 0,
+            painted = 0,
+            parted = 0,
+            unpriced = 0;
+        for (var a = 0; a < trade.length; a++) {
+            var price = getPrice(trade[a]);
+            if (trade[a].className.contains("q11")) {
+                var count = trade[a].getAttribute("data-notes").match(/<p>/g).length;
+                if (trade[a].getAttribute("data-notes").contains("Painted: "))
+                    count--;
+                if (count > 1)
+                    parted++;
+            }
+            if (trade[a].hasAttribute("data-notes") && trade[a].getAttribute("data-notes").contains("Painted:"))
+                painted++;
+            if (!price)
+                unpriced++;
+            total += price;
         }
         total = round(total).toFixed(2);
         var string = total + " Refined";
@@ -140,9 +166,8 @@
             string += "/ " + (total / keyP).toFixed(2) + " Keys";
         if (total > keyP * budP)
             string += "/ " + (total / (keyP * budP)).toFixed(2) + " Buds";
-        string += " in " + arr.length + " item" + (arr.length === 1 ? "" : "s");
-        if (verbose)
-            string += " (" + painted + " Painted, " + parted + " Parted & " + unpriced + " Unpriced Items)";
+        string += " in " + trade.length + " item" + (trade.length === 1 ? "" : "s");
+        string += " (" + painted + " Painted, " + parted + " Parted & " + unpriced + " Unpriced Items)";
         return string;
     }
 
@@ -151,47 +176,43 @@
     else if (!localStorage.getItem("lastupdt") || (new Date() - Date.parse(localStorage.getItem("lastupdt")) >= 86400e3 * updateFreq))
         update();
 
+    var keyP = +localStorage.getItem("keyP"),
+        budP = +localStorage.getItem("budP"),
+        cNo = document.getElementsByClassName("item-number");
+    for (var a = 0; a < cNo.length; a++)
+        cNo[a].style.display = "none";
+
     if (!(document.getElementsByClassName("fa-legal").length && document.getElementsByClassName("fa-reply").length)) {
         var trades = document.querySelectorAll("div[id^='trade-']");
         for (var a = 0; a < trades.length; a++) {
             var items = trades[a].children[1].firstElementChild.children;
-            for (var b = 0; b < items.length; b++) {
-                var txt = document.createElement("span");
-                txt.setAttribute("class", "item-text");
-                txt.setAttribute("style", "bottom: 0; left: 0; right: 0;");
-                txt.innerHTML = items[b].hasAttribute("data-price") ? items[b].getAttribute("data-price") : "Unpriced";
-                items[b].appendChild(txt);
-            }
+            annotate(items);
         }
     }
     else {
-        var cNo = document.getElementsByClassName("item-number");
-        for (var a = 0; a < cNo.length; a++)
-            cNo[a].style.display = "none";
-
-        var keyP = +localStorage.getItem("keyP"),
-            budP = +localStorage.getItem("budP"),
-            data = document.createElement("li"),
-            text = document.createTextNode(sum(document.getElementsByClassName("offered-items")[0].children));
+        var data = document.createElement("li"),
+            itms = document.getElementsByClassName("offered-items")[0].children,
+            text = document.createTextNode(calc(itms));
+        annotate(itms);
         data.setAttribute("style", "color: orange;");
         data.appendChild(text);
         document.getElementsByClassName("trade-stats")[0].appendChild(data);
 
         var offers = document.getElementsByClassName("comment-offers");
         for (var a = 0; a < offers.length; a++) {
-            data = document.createElement("span");
-            text = document.createTextNode(sum(offers[a].firstElementChild.children));
+            var data = document.createElement("span"),
+                itms = offers[a].firstElementChild.children,
+                text = document.createTextNode(calc(itms));
+            annotate(itms);
             data.setAttribute("style", "color: orange; float: right;");
             data.appendChild(text);
             var notes = offers[a].previousElementSibling.lastElementChild;
             notes.insertBefore(data, notes.firstElementChild);
         }
 
-        if (highlightRetracted) {
-            var retracted = document.getElementsByClassName("btn-warning disabled");
-            for (var a = 0; a < retracted.length; a++)
-                retracted[a].parentNode.parentNode.parentNode.parentNode.style.borderColor = "orange";
-        }
+        var retracted = document.getElementsByClassName("btn-warning disabled");
+        for (var a = 0; a < retracted.length; a++)
+            retracted[a].parentNode.parentNode.parentNode.parentNode.style.borderColor = "orange";
     }
     console.info("Bazaar.tf Script Loaded. Version " + GM_info.script.version);
 }).call(this);
