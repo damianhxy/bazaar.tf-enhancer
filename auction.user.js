@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.8.2
+// @version             1.3.8.3
 // ==/UserScript==
 
 (function () {
@@ -100,7 +100,7 @@
         return [price, original];
     }
 
-    function annotate(trade) {
+    function annotate(trade) { //Todo: Add Support for Australiums
         var text,
             price;
         for (var a = 0; a < trade.length; a++) {
@@ -112,26 +112,30 @@
                 var count = trade[a].getAttribute("data-notes").match(/<p>/g).length;
                 if (trade[a].getAttribute("data-notes").contains("Painted: "))
                     count--;
-                if (count > 1) //Will break on Stranges with spells
+                if (count > 1) //Will break on stranges with spells
                     trade[a].innerHTML += "<i class='fa fa-cogs fa-inverse fa-border pull-left'></i>";
             }
             price = getPrice(trade[a]);
             var isKillstreak = false,
                 itemDetails = trade[a].children,
                 depth;
-            for (depth = 0; depth < itemDetails.length; depth++)
-                if (itemDetails[depth].className === "ks")
+            for (depth = 0; depth < itemDetails.length; depth++) {
+                if (itemDetails[depth].className === "ks") {
                     isKillstreak = true;
+                    break;
+                }
+            }
             if (!+price[0]) {
                 if (trade[a].hasAttribute("data-special") && trade[a].getAttribute("data-special") === "Low craft #")
                     trade[a].innerHTML += "<i class='fa fa-exclamation-triangle fa-inverse fa-border pull-left'>";
-                else if (isKillstreak) { //Will break on ks low #s
-                    trade[a].children[depth - 1].style.display = "none";
+                if (isKillstreak) { //Will break on KS low #s
+                    trade[a].children[depth].style.display = "none";
                     trade[a].innerHTML += "<i class='fa fa-bomb fa-inverse fa-border pull-left'></i>";
                 }
-                else
+                else {
                     trade[a].innerHTML += "<i class='fa fa-question-circle fa-inverse fa-border pull-left'></i>";
-                text = "Unpriced";
+                    text = "Unpriced";
+                }
             }
             else if (trade[a].getAttribute("data-name").contains("Metal"))
                 text = (+price[0]).toFixed(2) + " Refined";
@@ -139,6 +143,8 @@
                 var currency = trade[a].getAttribute("data-price").split(" ")[1];
                 if (currency.contains("Key") || currency.contains("Earbud"))
                     text = (+price[1]).toFixed(2) + " " + currency;
+                else if (currency.contains("Weapon"))
+                    text = "Any Weapon";
                 else
                     text = (+price[0]).toFixed(2) + " " + currency;
             }
