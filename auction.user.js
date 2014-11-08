@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.8.5
+// @version             1.3.8.6
 // ==/UserScript==
 
 (function () {
@@ -106,7 +106,7 @@
         var text,
             price;
         for (var a = 0; a < trade.length; a++) {
-            if (trade[a].hasAttribute("data-type") && trade[a].getAttribute("data-type") === "more-items-icon")
+            if (trade[a].getAttribute("data-type") === "more-items-icon")
                 continue;
             if (trade[a].getAttribute("data-game") !== "440")
                 continue;
@@ -127,6 +127,7 @@
                 trade[a].innerHTML += "<i class='fa fa-money fa-inverse fa-border pull-left'></i>";
             price = getPrice(trade[a]);
             var isKillstreak = false,
+                isLowCraft = trade[a].getAttribute("data-special") === "Low craft #",
                 itemDetails = trade[a].children,
                 depth;
             for (depth = 0; depth < itemDetails.length; depth++) {
@@ -136,13 +137,13 @@
                 }
             }
             if (!+price[0]) {
-                if (trade[a].hasAttribute("data-special") && trade[a].getAttribute("data-special") === "Low craft #")
+                if (isLowCraft)
                     trade[a].innerHTML += "<i class='fa fa-exclamation-triangle fa-inverse fa-border pull-left'>";
-                else if (isKillstreak) { //Will break on KS low #s
+                if (isKillstreak) {
                     trade[a].children[depth].style.display = "none";
                     trade[a].innerHTML += "<i class='fa fa-bomb fa-inverse fa-border pull-left'></i>";
                 }
-                else
+                else if (!isLowCraft && !isKillstreak)
                     trade[a].innerHTML += "<i class='fa fa-question-circle fa-inverse fa-border pull-left'></i>";
                 text = "Unpriced";
             }
@@ -150,7 +151,7 @@
                 text = (+price[0]).toFixed(2) + " Refined";
             else {
                 if (price[1] === "Crate")
-                    text = "0.11 Refined";
+                    text = "0.01 Refined";
                 else {
                     var currency = trade[a].getAttribute("data-price").split(" ")[1];
                     if (currency.contains("Key") || currency.contains("Earbud"))
