@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.7.1
+// @version             1.3.7.2
 // ==/UserScript==
 
 (function () {
@@ -71,18 +71,20 @@
         for (var a = 0; a < arr.length; a++) {
             var price;
             if (arr[a].hasAttribute("data-price")) {
-                price = arr[a].getAttribute("data-price").split(" ")[0];
-                if (price === "Any")
+                var data = arr[a].getAttribute("data-price").split(" ");
+                price = data[0];
+                if (price === "Any") {
                     price = 1 / 18;
+                }
                 else if (price.contains("-"))
                     price = (parseFloat(price.split("-")[0]) + parseFloat(price.split("-")[1])) / 2;
-                if (arr[a].getAttribute("data-price").split(" ")[1].contains("Key"))
+                if (data[1].contains("Key"))
                     price *= keyP;
-                else if (arr[a].getAttribute("data-price").split(" ")[1].contains("Earbud"))
+                else if (data[1].contains("Earbud"))
                     price *= keyP * budP;
                 else
                     price = round(price);
-                text = price.toFixed(2) + " " + arr[a].getAttribute("data-price").split(" ")[1];
+                text = price.toFixed(2) + " " + (data[1] === "Weapon" ? "Refined" : data[1]);
                 if (arr[a].className.contains("q11")) {
                     var count = arr[a].getAttribute("data-notes").match(/<p>/g).length;
                     if (arr[a].getAttribute("data-notes").contains("Painted: "))
