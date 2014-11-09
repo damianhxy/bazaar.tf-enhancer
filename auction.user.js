@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.9.1
+// @version             1.3.9.2
 // ==/UserScript==
 
 (function () {
@@ -97,6 +97,7 @@
         var total = 0;
         for (var a = 0; a < trade.length; a++)
             total += +getPrice(trade[a])[0];
+        total = round(total);
         if (total % 1 >= 5 / 9)
             total -= 0.005;
         total = total.toFixed(2);
