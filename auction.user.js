@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.8.9
+// @version             1.3.9
 // ==/UserScript==
 
 (function () {
@@ -123,7 +123,8 @@
                 price = round(price);
         }
         else {
-            switch (ele.getAttribute("data-name")) {
+            var name = ele.getAttribute("data-name");
+            switch (name) {
                 case "Refined Metal":
                     price = 1;
                     break;
@@ -134,7 +135,6 @@
                     price = 1 / 9;
                     break;
                 default:
-                    var name = ele.getAttribute("data-name");
                     if (name.contains("Mann Co.") || name.contains("Crate")) {
                         price = 1 / 90;
                         original = "Crate";
@@ -149,8 +149,8 @@
         if (num <= 5 / 90)
             val = Math.round(num * 90) / 90;
         else
-            val = Math.floor(num) + (Math.round(num % 1 * 9)) / 9;
-        if (val.toFixed(2) % 1 >= 5 / 90)
+            val = Math.floor(num) + (Math.round(num % 1 * 18)) / 18;
+        if (val.toFixed(2) % 0.1 >= 5 / 90)
             val -= 0.005;
         return val;
     }
