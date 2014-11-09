@@ -16,48 +16,90 @@
     var updateFreq = 3;              //(days) currency price refresh frequency
     /******** END OF SETTINGS *******/
 
-    function round(num) {
-        var val;
-        if (num <= 5 / 90)
-            val = Math.round(num * 90) / 90;
-        else
-            val = Math.floor(num) + (Math.round(num % 1 * 9)) / 9;
-        if (val.toFixed(2) % 1 >= 5 / 90)
-            val -= 0.005;
-        return val;
+    function annotate(trade) {
+        var text = "",
+            price;
+        for (var a = 0; a < trade.length; a++) {
+            if (+trade[a].getAttribute("data-defindex") < 0)
+                continue;
+            if (trade[a].getAttribute("data-game") !== "440")
+                continue;
+            if (trade[a].hasAttribute("data-notes")) {
+                if (trade[a].getAttribute("data-notes").contains("Gifted"))
+                    trade[a].innerHTML += "<i class='fa fa-gift fa-inverse fa-border pull-left'></i>";
+                if (trade[a].getAttribute("data-notes").contains("Painted:"))
+                    trade[a].innerHTML += "<i class='fa fa-paint-brush fa-inverse fa-border pull-left'></i>";
+            }
+            if (trade[a].className.contains("q11")) {
+                var notes = trade[a].getAttribute("data-notes"),
+                    count = notes.match(/<p>/g).length;
+                if (notes.contains("Painted: "))
+                    count--;
+                if (notes.contains("Gifted"))
+                    count--;
+                if (count > 1) //Will break on stranges with spells
+                    trade[a].innerHTML += "<i class='fa fa-cogs fa-inverse fa-border pull-left'></i>";
+            }
+            if (trade[a].getAttribute("data-name").contains("Australium"))
+                trade[a].innerHTML += "<i class='fa fa-money fa-inverse fa-border pull-left'></i>";
+            price = getPrice(trade[a]);
+            var isKillstreak = false,
+                isLowCraft = trade[a].getAttribute("data-special") === "Low craft #",
+                itemDetails = trade[a].children;
+            for (var depth = 0; depth < itemDetails.length; depth++) {
+                if (itemDetails[depth].className === "ks") {
+                    isKillstreak = true;
+                    break;
+                }
+            }
+            if (!+price[0]) {
+                if (isLowCraft)
+                    trade[a].innerHTML += "<i class='fa fa-exclamation-triangle fa-inverse fa-border pull-left'>";
+                if (isKillstreak) {
+                    trade[a].children[depth].style.display = "none";
+                    trade[a].innerHTML += "<i class='fa fa-bomb fa-inverse fa-border pull-left'></i>";
+                }
+                else if (!isLowCraft && !isKillstreak)
+                    trade[a].innerHTML += "<i class='fa fa-question-circle fa-inverse fa-border pull-left'></i>";
+                text += "Unpriced";
+            }
+            else if (trade[a].getAttribute("data-name").contains("Metal"))
+                text += (+price[0]).toFixed(2) + " Refined";
+            else {
+                if (trade[a].hasAttribute("data-price"))
+                    currency = trade[a].getAttribute("data-price").split(" ")[1];
+                if (trade[a].hasAttribute("data-crate"))
+                    text = "#" + trade[a].getAttribute("data-crate") + ": ";
+                if (price[1] === "Crate")
+                    text += "0.01 Refined";
+                else if (currency.contains("Weapon"))
+                    text += "Any Weapon";
+                else if (currency.contains("Key") || currency.contains("Earbud"))
+                    text += (+price[1]).toFixed(2) + " " + currency;
+                else
+                    text += (+price[0]).toFixed(2) + " " + currency;
+            }
+            var txt = document.createElement("span");
+            txt.setAttribute("class", "item-text");
+            txt.setAttribute("style", "bottom: 0; left: 0; right: 0;");
+            txt.innerHTML = text;
+            trade[a].appendChild(txt);
+        }
     }
 
-    function update() {
-        if (!localStorage.getItem("apikey"))
-            localStorage.setItem("apikey", prompt("API Key not set, please enter below:"));
-        if (localStorage.getItem("apikey").length !== 24) {
-            alert("Invalid API Key");
-            localStorage.removeItem("apikey");
-            update();
+    function calc(trade) {
+        var total = 0;
+        for (var a = 0; a < trade.length; a++) {
+            total += +getPrice(trade[a])[0];
         }
-        GM_xmlhttpRequest({
-            method: "GET",
-            url: "http://backpack.tf/api/IGetPrices/v4/?key=" + localStorage.apikey + "&compress=1",
-            onload: function(e) {
-                var data = JSON.parse(e.response);
-                if (!data)
-                    alert("API Error: Empty Response");
-                else if (data.response.message)
-                    alert(data.response.message);
-                var key = data.response.items["Mann Co. Supply Crate Key"]["prices"][6]["Tradable"]["Craftable"][0],
-                    bud = data.response.items["Earbuds"]["prices"][6]["Tradable"]["Craftable"][0],
-                    k = key.value_high ? ((key.value + key.value_high) / 2) : key.value,
-                    b = bud.value_high ? ((bud.value + bud.value_high) / 2) : bud.value;
-                    kOld = +localStorage.getItem("keyP");
-                    bOld = +localStorage.getItem("budP");
-                    kChange = " (" + (k === kOld ? "=" : (k < kOld ? "↓" : "↑")) + ")";
-                    bChange = " (" + (b === bOld ? "=" : (b < bOld ? "↓" : "↑")) + ")";
-                    localStorage.setItem("keyP", k);
-                    localStorage.setItem("budP", b);
-                    alert("Updated Prices, Key: " + k + " refined" + kChange + ", Bud: " + b + " keys" + bChange);
-                    localStorage.setItem("lastupdt", new Date());
-            }
-        });
+        total = round(total).toFixed(2);
+        var string = total + " Refined";
+        if (total > keyP)
+            string += "/ " + (total / keyP).toFixed(2) + " Keys";
+        if (total > keyP * budP)
+            string += "/ " + (total / (keyP * budP)).toFixed(2) + " Buds";
+        string += " in " + trade.length + " item" + (trade.length === 1 ? "" : "s");
+        return string;
     }
 
     function getPrice(ele) {
@@ -103,90 +145,48 @@
         return [price, original];
     }
 
-    function annotate(trade) {
-        var text,
-            price;
-        for (var a = 0; a < trade.length; a++) {
-            if (+trade[a].getAttribute("data-defindex") < 0)
-                continue;
-            if (trade[a].getAttribute("data-game") !== "440")
-                continue;
-            if (trade[a].hasAttribute("data-notes")) {
-                if (trade[a].getAttribute("data-notes").contains("Gifted"))
-                    trade[a].innerHTML += "<i class='fa fa-gift fa-inverse fa-border pull-left'></i>";
-                if (trade[a].getAttribute("data-notes").contains("Painted:"))
-                    trade[a].innerHTML += "<i class='fa fa-paint-brush fa-inverse fa-border pull-left'></i>";
-            }
-            if (trade[a].className.contains("q11")) {
-                var notes = trade[a].getAttribute("data-notes"),
-                    count = notes.match(/<p>/g).length;
-                if (notes.contains("Painted: "))
-                    count--;
-                if (notes.contains("Gifted"))
-                    count--;
-                if (count > 1) //Will break on stranges with spells
-                    trade[a].innerHTML += "<i class='fa fa-cogs fa-inverse fa-border pull-left'></i>";
-            }
-            if (trade[a].getAttribute("data-name").contains("Australium"))
-                trade[a].innerHTML += "<i class='fa fa-money fa-inverse fa-border pull-left'></i>";
-            price = getPrice(trade[a]);
-            var isKillstreak = false,
-                isLowCraft = trade[a].getAttribute("data-special") === "Low craft #",
-                itemDetails = trade[a].children,
-                depth;
-            for (depth = 0; depth < itemDetails.length; depth++) {
-                if (itemDetails[depth].className === "ks") {
-                    isKillstreak = true;
-                    break;
-                }
-            }
-            if (!+price[0]) {
-                if (isLowCraft)
-                    trade[a].innerHTML += "<i class='fa fa-exclamation-triangle fa-inverse fa-border pull-left'>";
-                if (isKillstreak) {
-                    trade[a].children[depth].style.display = "none";
-                    trade[a].innerHTML += "<i class='fa fa-bomb fa-inverse fa-border pull-left'></i>";
-                }
-                else if (!isLowCraft && !isKillstreak)
-                    trade[a].innerHTML += "<i class='fa fa-question-circle fa-inverse fa-border pull-left'></i>";
-                text = "Unpriced";
-            }
-            else if (trade[a].getAttribute("data-name").contains("Metal"))
-                text = (+price[0]).toFixed(2) + " Refined";
-            else {
-                if (price[1] === "Crate")
-                    text = "0.01 Refined";
-                else {
-                    var currency = trade[a].getAttribute("data-price").split(" ")[1];
-                    if (currency.contains("Key") || currency.contains("Earbud"))
-                        text = (+price[1]).toFixed(2) + " " + currency;
-                    else if (currency.contains("Weapon"))
-                        text = "Any Weapon";
-                    else
-                        text = (+price[0]).toFixed(2) + " " + currency;
-                }
-            }
-            var txt = document.createElement("span");
-            txt.setAttribute("class", "item-text");
-            txt.setAttribute("style", "bottom: 0; left: 0; right: 0;");
-            txt.innerHTML = text;
-            trade[a].appendChild(txt);
-        }
+    function round(num) {
+        var val;
+        if (num <= 5 / 90)
+            val = Math.round(num * 90) / 90;
+        else
+            val = Math.floor(num) + (Math.round(num % 1 * 9)) / 9;
+        if (val.toFixed(2) % 1 >= 5 / 90)
+            val -= 0.005;
+        return val;
     }
 
-    function calc(trade) {
-        var total = 0;
-        for (var a = 0; a < trade.length; a++) {
-            total += +getPrice(trade[a])[0];
+    function update() {
+        if (!localStorage.getItem("apikey"))
+            localStorage.setItem("apikey", prompt("API Key not set, please enter below:"));
+        if (localStorage.getItem("apikey").length !== 24) {
+            alert("Invalid API Key");
+            localStorage.removeItem("apikey");
+            update();
         }
-        total = round(total).toFixed(2);
-        var string = total + " Refined";
-        if (total > keyP)
-            string += "/ " + (total / keyP).toFixed(2) + " Keys";
-        if (total > keyP * budP)
-            string += "/ " + (total / (keyP * budP)).toFixed(2) + " Buds";
-        string += " in " + trade.length + " item" + (trade.length === 1 ? "" : "s");
-        return string;
+        GM_xmlhttpRequest({
+            method: "GET",
+            url: "http://backpack.tf/api/IGetPrices/v4/?key=" + localStorage.apikey + "&compress=1",
+            onload: function(e) {
+                var data = JSON.parse(e.response);
+                if (!data)
+                    alert("API Error: Empty Response");
+                else if (data.response.message)
+                    alert(data.response.message);
+                var key = data.response.items["Mann Co. Supply Crate Key"]["prices"][6]["Tradable"]["Craftable"][0],
+                    bud = data.response.items["Earbuds"]["prices"][6]["Tradable"]["Craftable"][0],
+                    k = key.value_high ? ((key.value + key.value_high) / 2) : key.value,
+                    b = bud.value_high ? ((bud.value + bud.value_high) / 2) : bud.value;
+                    kOld = +localStorage.getItem("keyP");
+                    bOld = +localStorage.getItem("budP");
+                    kChange = " (" + (k === kOld ? "=" : (k < kOld ? "↓" : "↑")) + ")";
+                    bChange = " (" + (b === bOld ? "=" : (b < bOld ? "↓" : "↑")) + ")";
+                    localStorage.setItem("keyP", k);
+                    localStorage.setItem("budP", b);
+                    alert("Updated Prices, Key: " + k + " refined" + kChange + ", Bud: " + b + " keys" + bChange);
+                    localStorage.setItem("lastupdt", new Date());
+            }
+        });
     }
 
     if (!localStorage.getItem("keyP") || !localStorage.getItem("budP"))
