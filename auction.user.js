@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.9.5
+// @version             1.3.9.6
 // ==/UserScript==
 
 (function () {
@@ -37,7 +37,7 @@
                 if (trade[a].getAttribute("data-notes").contains("Painted:"))
                     trade[a].innerHTML += "<i class='fa fa-paint-brush fa-inverse fa-border pull-left'></i>";
             }
-            if (trade[a].className.contains("q11")) {
+            if (trade[a].className.contains("q11") && trade[a].hasAttribute("data-notes")) {
                 var notes = trade[a].getAttribute("data-notes"),
                     count = notes.match(/<p>/g).length;
                 if (notes.contains("Painted: "))
