@@ -89,7 +89,7 @@
             }
             var txt = document.createElement("span");
             txt.setAttribute("class", "item-text");
-            txt.setAttribute("style", "bottom: 0; left: 0; right: 0;" + (price[2] ? "font-style: italic;" : ""));
+            txt.setAttribute("style", "bottom: 0; left: 0; right: 0;");
             txt.innerHTML = text;
             trade[a].appendChild(txt);
         }
