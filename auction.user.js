@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.9.3
+// @version             1.3.9.4
 // ==/UserScript==
 
 (function () {
@@ -28,7 +28,7 @@
                 isKillstreak = false,
                 isLowCraft = trade[a].getAttribute("data-special") === "Low craft #",
                 itemDetails = trade[a].children;
-            if (+price[0] % 1 >= 5 / 9)
+            if (+price[0] % 1 >= 0.5 && !price[2])
                 price[0] -= 0.005;
             price[0] = price[0].toFixed(2);
             if (trade[a].hasAttribute("data-notes")) {
@@ -96,14 +96,19 @@
     }
 
     function calc(trade) {
-        var total = 0;
-        for (var a = 0; a < trade.length; a++)
-            total += +getPrice(trade[a])[0];
+        var total = 0,
+            allPure = true;
+        for (var a = 0; a < trade.length; a++) {
+            response = getPrice(trade[a]);
+            total += +response[0];
+            if (!response[3])
+                allPure = false;
+        }
         total = round(total);
-        if (total % 1 >= 5 / 9)
+        if (total % 1 >= 0.5)
             total -= 0.005;
         total = total.toFixed(2);
-        var string = (+total ? "~" : "") + total + " Refined";
+        var string = (!allPure && +total ? "~" : "") + total + " Refined";
         if (total > keyP)
             string += "/ " + (total / keyP).toFixed(2) + " Keys";
         if (total > keyP * budP)
@@ -116,7 +121,8 @@
         var price = 0,
             original = 0,
             name = ele.getAttribute("data-name"),
-            hasRange = false;
+            hasRange = false,
+            isPure = false;
         if (ele.hasAttribute("data-price")) {
             var data = ele.getAttribute("data-price").split(" ");
             price = original = +data[0];
@@ -135,6 +141,7 @@
                 price = round(price);
         }
         else {
+            isPure = true;
             switch (name) {
                 case "Refined Metal":
                     price = 1;
@@ -146,13 +153,14 @@
                     price = 1 / 9;
                     break;
                 default:
+                    isPure = false;
                     if (name.contains("Crate") || name.contains("Reel")) {
                         price = 1 / 90;
                         original = "Crate";
                     }
             }
         }
-        return [price, original, hasRange];
+        return [price, original, hasRange, isPure];
     }
 
     function round(num) {
