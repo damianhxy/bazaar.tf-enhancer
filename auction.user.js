@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.9.4
+// @version             1.3.9.5
 // ==/UserScript==
 
 (function () {
@@ -104,9 +104,11 @@
             if (!response[3])
                 allPure = false;
         }
-        total = round(total);
-        if (total % 1 >= 0.5)
-            total -= 0.005;
+        if (!allPure) {
+            total = round(total);
+            if (total % 1 >= 0.5)
+                total -= 0.005;
+        }
         total = total.toFixed(2);
         var string = (!allPure && +total ? "~" : "") + total + " Refined";
         if (total > keyP)
@@ -137,7 +139,11 @@
                 price *= keyP;
             else if (data[1].contains("Earbud"))
                 price *= keyP * budP;
-            else if (!name.contains("Token") && !hasRange)
+            else if (name.contains("Token")) {
+                price = 3 / 2;
+                isPure = true;
+            }
+            else if (!hasRange)
                 price = round(price);
         }
         else {
