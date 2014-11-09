@@ -41,16 +41,16 @@
             if (trade[a].getAttribute("data-name").contains("Australium"))
                 trade[a].innerHTML += "<i class='fa fa-money fa-inverse fa-border pull-left'></i>";
             var price = getPrice(trade[a]),
-                text = "";
+                text = "",
+                name = trade[a].getAttribute("data-name");
             var isKillstreak = false,
                 isLowCraft = trade[a].getAttribute("data-special") === "Low craft #",
                 itemDetails = trade[a].children;
-            for (var depth = 0; depth < itemDetails.length; depth++) {
+            for (var depth = 0; depth < itemDetails.length; depth++)
                 if (itemDetails[depth].className === "ks") {
                     isKillstreak = true;
                     break;
                 }
-            }
             if (!+price[0]) {
                 if (isLowCraft)
                     trade[a].innerHTML += "<i class='fa fa-exclamation-triangle fa-inverse fa-border pull-left'>";
@@ -62,8 +62,12 @@
                     trade[a].innerHTML += "<i class='fa fa-question-circle fa-inverse fa-border pull-left'></i>";
                 text += "Unpriced";
             }
-            else if (trade[a].getAttribute("data-name").contains("Metal"))
+            else if (name.contains("Metal"))
                 text += (+price[0]).toFixed(2) + " Refined";
+            else if (name.contains("Key"))
+                text += keyP.toFixed(2) + " Refined";
+            else if (name.contains("Earbud"))
+                text += budP.toFixed(2) + " Keys";
             else {
                 if (trade[a].hasAttribute("data-price"))
                     currency = trade[a].getAttribute("data-price").split(" ")[1];
@@ -113,7 +117,7 @@
                 var pts = data[0].split("-");
                 original = price = (+pts[0] + +pts[1]) / 2;
             }
-            else
+            else if (!ele.getAttribute("data-name").contains("Token"))
                 price = +data[0];
             if (data[1].contains("Key"))
                 price *= keyP;
@@ -135,7 +139,7 @@
                     price = 1 / 9;
                     break;
                 default:
-                    if (name.contains("Mann Co.") || name.contains("Crate")) {
+                    if (name.contains("Crate") || name.contains("Reel")) {
                         price = 1 / 90;
                         original = "Crate";
                     }
@@ -149,7 +153,7 @@
         if (num <= 5 / 90)
             val = Math.round(num * 90) / 90;
         else
-            val = Math.floor(num) + (Math.round(num % 1 * 18)) / 18;
+            val = Math.floor(num) + (Math.round(num % 1 * 9)) / 9;
         if (val.toFixed(2) % 0.1 >= 5 / 90)
             val -= 0.005;
         return val;
@@ -204,8 +208,9 @@
     if (!document.getElementsByClassName("fa-reply").length) {
         var trades = document.querySelectorAll("div[id^='trade-']");
         for (var a = 0; a < trades.length; a++) {
-            var items = trades[a].children[1].firstElementChild.children;
-            annotate(items);
+            var items = trades[a].children[1].children;
+            annotate(items[0].children);
+            annotate(items[2].children);
         }
     }
     else if (!document.getElementsByClassName("fa-legal").length) {
