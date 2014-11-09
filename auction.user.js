@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.9.2
+// @version             1.3.9.3
 // ==/UserScript==
 
 (function () {
@@ -55,8 +55,10 @@
                     break;
                 }
             if (!+price[0]) {
-                if (isLowCraft)
+                if (isLowCraft) {
                     trade[a].innerHTML += "<i class='fa fa-exclamation-triangle fa-inverse fa-border pull-left'>";
+                    text = "#" + trade[a].getAttribute("data-craft") + ": ";
+                }
                 if (isKillstreak) {
                     trade[a].children[depth].style.display = "none";
                     trade[a].innerHTML += "<i class='fa fa-bomb fa-inverse fa-border pull-left'></i>";
@@ -101,7 +103,7 @@
         if (total % 1 >= 5 / 9)
             total -= 0.005;
         total = total.toFixed(2);
-        var string = total + " Refined";
+        var string = (+total ? "~" : "") + total + " Refined";
         if (total > keyP)
             string += "/ " + (total / keyP).toFixed(2) + " Keys";
         if (total > keyP * budP)
@@ -113,7 +115,8 @@
     function getPrice(ele) {
         var price = 0,
             original = 0,
-            name = ele.getAttribute("data-name");
+            name = ele.getAttribute("data-name"),
+            hasRange = false;
         if (ele.hasAttribute("data-price")) {
             var data = ele.getAttribute("data-price").split(" ");
             price = original = +data[0];
@@ -122,12 +125,13 @@
             else if (data[0].contains("-")) {
                 var pts = data[0].split("-");
                 original = price = (+pts[0] + +pts[1]) / 2;
+                hasRange = true;
             }
             if (data[1].contains("Key"))
                 price *= keyP;
             else if (data[1].contains("Earbud"))
                 price *= keyP * budP;
-            else if (!name.contains("Token"))
+            else if (!name.contains("Token") && !hasRange)
                 price = round(price);
         }
         else {
