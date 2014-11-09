@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.8.6
+// @version             1.3.8.7
 // ==/UserScript==
 
 (function () {
@@ -93,7 +93,8 @@
                     price = 1 / 9;
                     break;
                 default:
-                    if (ele.getAttribute("data-name").contains("Mann Co.")) {
+                    var name = ele.getAttribute("data-name");
+                    if (name.contains("Mann Co.") || name.contains("Crate")) {
                         price = 1 / 90;
                         original = "Crate";
                     }
@@ -106,7 +107,7 @@
         var text,
             price;
         for (var a = 0; a < trade.length; a++) {
-            if (trade[a].getAttribute("data-type") === "more-items-icon")
+            if (+trade[a].getAttribute("data-defindex") < 0)
                 continue;
             if (trade[a].getAttribute("data-game") !== "440")
                 continue;
@@ -117,10 +118,13 @@
                     trade[a].innerHTML += "<i class='fa fa-paint-brush fa-inverse fa-border pull-left'></i>";
             }
             if (trade[a].className.contains("q11")) {
-                var count = trade[a].getAttribute("data-notes").match(/<p>/g).length;
-                if (trade[a].getAttribute("data-notes").contains("Painted: "))
+                var notes = trade[a].getAttribute("data-notes"),
+                    count = notes.match(/<p>/g).length;
+                if (notes.contains("Painted: "))
                     count--;
-                if (count > 1) //Will break on stranges with spells, and gifted stranges
+                if (notes.contains("Gifted"))
+                    count--;
+                if (count > 1) //Will break on stranges with spells
                     trade[a].innerHTML += "<i class='fa fa-cogs fa-inverse fa-border pull-left'></i>";
             }
             if (trade[a].getAttribute("data-name").contains("Australium"))
