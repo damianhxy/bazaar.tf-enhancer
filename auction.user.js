@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.8.8
+// @version             1.3.8.9
 // ==/UserScript==
 
 (function () {
@@ -211,6 +211,9 @@
     else if (!document.getElementsByClassName("fa-legal").length) {
         annotate(document.getElementsByClassName("offered-items")[0].children);
         annotate(document.getElementsByClassName("wanted-items")[0].children);
+        var offers = document.getElementsByClassName("comment-offers");
+        for (var a = 0; a < offers.length; a++)
+            annotate(offers[a].firstElementChild.children);
     }
     else {
         var data = document.createElement("li"),
