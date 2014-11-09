@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.9
+// @version             1.3.9.1
 // ==/UserScript==
 
 (function () {
@@ -22,6 +22,15 @@
                 continue;
             if (trade[a].getAttribute("data-game") !== "440")
                 continue;
+            var price = getPrice(trade[a]),
+                text = "",
+                name = trade[a].getAttribute("data-name"),
+                isKillstreak = false,
+                isLowCraft = trade[a].getAttribute("data-special") === "Low craft #",
+                itemDetails = trade[a].children;
+            if (+price[0] % 1 >= 5 / 9)
+                price[0] -= 0.005;
+            price[0] = price[0].toFixed(2);
             if (trade[a].hasAttribute("data-notes")) {
                 if (trade[a].getAttribute("data-notes").contains("Gifted"))
                     trade[a].innerHTML += "<i class='fa fa-gift fa-inverse fa-border pull-left'></i>";
@@ -40,12 +49,6 @@
             }
             if (trade[a].getAttribute("data-name").contains("Australium"))
                 trade[a].innerHTML += "<i class='fa fa-money fa-inverse fa-border pull-left'></i>";
-            var price = getPrice(trade[a]),
-                text = "",
-                name = trade[a].getAttribute("data-name");
-            var isKillstreak = false,
-                isLowCraft = trade[a].getAttribute("data-special") === "Low craft #",
-                itemDetails = trade[a].children;
             for (var depth = 0; depth < itemDetails.length; depth++)
                 if (itemDetails[depth].className === "ks") {
                     isKillstreak = true;
@@ -92,10 +95,11 @@
 
     function calc(trade) {
         var total = 0;
-        for (var a = 0; a < trade.length; a++) {
+        for (var a = 0; a < trade.length; a++)
             total += +getPrice(trade[a])[0];
-        }
-        total = round(total).toFixed(2);
+        if (total % 1 >= 5 / 9)
+            total -= 0.005;
+        total = total.toFixed(2);
         var string = total + " Refined";
         if (total > keyP)
             string += "/ " + (total / keyP).toFixed(2) + " Keys";
@@ -107,27 +111,25 @@
 
     function getPrice(ele) {
         var price = 0,
-            original = 0;
+            original = 0,
+            name = ele.getAttribute("data-name");
         if (ele.hasAttribute("data-price")) {
             var data = ele.getAttribute("data-price").split(" ");
-            original = data[0];
+            price = original = +data[0];
             if (data[0] === "Any")
                 price = 1 / 18;
             else if (data[0].contains("-")) {
                 var pts = data[0].split("-");
                 original = price = (+pts[0] + +pts[1]) / 2;
             }
-            else if (!ele.getAttribute("data-name").contains("Token"))
-                price = +data[0];
             if (data[1].contains("Key"))
                 price *= keyP;
             else if (data[1].contains("Earbud"))
                 price *= keyP * budP;
-            else
+            else if (!name.contains("Token"))
                 price = round(price);
         }
         else {
-            var name = ele.getAttribute("data-name");
             switch (name) {
                 case "Refined Metal":
                     price = 1;
@@ -154,8 +156,6 @@
             val = Math.round(num * 90) / 90;
         else
             val = Math.floor(num) + (Math.round(num % 1 * 9)) / 9;
-        if (val.toFixed(2) % 0.1 >= 5 / 90)
-            val -= 0.005;
         return val;
     }
 
