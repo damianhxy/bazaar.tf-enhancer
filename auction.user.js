@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.8.7
+// @version             1.3.8.8
 // ==/UserScript==
 
 (function () {
@@ -17,8 +17,6 @@
     /******** END OF SETTINGS *******/
 
     function annotate(trade) {
-        var text = "",
-            price;
         for (var a = 0; a < trade.length; a++) {
             if (+trade[a].getAttribute("data-defindex") < 0)
                 continue;
@@ -42,7 +40,8 @@
             }
             if (trade[a].getAttribute("data-name").contains("Australium"))
                 trade[a].innerHTML += "<i class='fa fa-money fa-inverse fa-border pull-left'></i>";
-            price = getPrice(trade[a]);
+            var price = getPrice(trade[a]),
+                text = "";
             var isKillstreak = false,
                 isLowCraft = trade[a].getAttribute("data-special") === "Low craft #",
                 itemDetails = trade[a].children;
