@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.9.6
+// @version             1.3.9.7
 // ==/UserScript==
 
 (function () {
@@ -24,10 +24,7 @@
                 continue;
             var price = getPrice(trade[a]),
                 text = "",
-                name = trade[a].getAttribute("data-name"),
-                isKillstreak = false,
-                isLowCraft = trade[a].getAttribute("data-special") === "Low craft #",
-                itemDetails = trade[a].children;
+                name = trade[a].getAttribute("data-name");
             if (+price[0] % 1 >= 0.5 && !price[2])
                 price[0] -= 0.005;
             price[0] = price[0].toFixed(2);
@@ -35,7 +32,8 @@
                 if (trade[a].getAttribute("data-notes").contains("Gifted"))
                     trade[a].innerHTML += "<i class='fa fa-gift fa-inverse fa-border pull-left'></i>";
                 if (trade[a].getAttribute("data-notes").contains("Painted:"))
-                    trade[a].innerHTML += "<i class='fa fa-paint-brush fa-inverse fa-border pull-left'></i>";
+                    if (!trade[a].getAttribute("data-notes").contains(name))
+                        trade[a].innerHTML += "<i class='fa fa-paint-brush fa-inverse fa-border pull-left'></i>";
             }
             if (trade[a].className.contains("q11") && trade[a].hasAttribute("data-notes")) {
                 var notes = trade[a].getAttribute("data-notes"),
@@ -49,20 +47,15 @@
             }
             if (trade[a].getAttribute("data-name").contains("Australium"))
                 trade[a].innerHTML += "<i class='fa fa-money fa-inverse fa-border pull-left'></i>";
-            for (var depth = 0; depth < itemDetails.length; depth++)
-                if (itemDetails[depth].className === "ks") {
-                    isKillstreak = true;
-                    break;
-                }
+            var isKillstreak = trade[a].getAttribute("data-details").contains("Killstreak"),
+                isLowCraft = trade[a].getAttribute("data-special") === "Low craft #";
             if (!+price[0]) {
                 if (isLowCraft) {
                     trade[a].innerHTML += "<i class='fa fa-exclamation-triangle fa-inverse fa-border pull-left'>";
                     text = "#" + trade[a].getAttribute("data-craft") + ": ";
                 }
-                if (isKillstreak) {
-                    trade[a].children[depth].style.display = "none";
+                if (isKillstreak)
                     trade[a].innerHTML += "<i class='fa fa-bomb fa-inverse fa-border pull-left'></i>";
-                }
                 else if (!isLowCraft && !isKillstreak)
                     trade[a].innerHTML += "<i class='fa fa-question-circle fa-inverse fa-border pull-left'></i>";
                 text += "Unpriced";
@@ -180,7 +173,7 @@
 
     function update() {
         if (!localStorage.getItem("apikey"))
-            localStorage.setItem("apikey", prompt("API Key not set, please enter below:"));
+            localStorage.setItem("apikey", prompt("API Key not set, get yours from http://backpack.tf/api/ and enter below"));
         if (localStorage.getItem("apikey").length !== 24) {
             alert("Invalid API Key");
             localStorage.removeItem("apikey");
@@ -218,11 +211,12 @@
 
     var keyP = +localStorage.getItem("keyP"),
         budP = +localStorage.getItem("budP"),
-        cNo = document.getElementsByClassName("item-number");
-    for (var a = 0; a < cNo.length; a++) {
-        if (cNo[a].firstChild.nodeValue.contains("#"))
-            cNo[a].style.display = "none";
-    }
+        cNo = document.getElementsByClassName("item-number"),
+        ks = document.getElementsByClassName("ks");
+    for (var a = 0; a < cNo.length; a++)
+        cNo[a].style.display = "none";
+    for (var a = 0; a < ks.length; a++)
+        ks[a].style.display = "none";
 
     if (!document.getElementsByClassName("fa-reply").length) {
         var trades = document.querySelectorAll("div[id^='trade-']");
