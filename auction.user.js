@@ -8,12 +8,12 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.9.9
+// @version             1.4.0
 // ==/UserScript==
 
 (function () {
     /*********** SETTINGS ***********/
-    var updateFreq = 3;              //(days) currency price refresh frequency
+    var updateFreq = 3;              //(days) price refresh frequency
     /******** END OF SETTINGS *******/
 
     function annotate(trade) {
@@ -34,7 +34,7 @@
                     count = notes.match(/<\\\/p>/g).length;
                 if (notes.contains("Gifted"))  {
                     trade[a].innerHTML += "<i class='fa fa-gift fa-inverse fa-border pull-left'></i>";
-                    count--
+                    count--;
                 }
                 if (notes.contains("Painted:") && !notes.contains(name)) {
                     trade[a].innerHTML += "<i class='fa fa-paint-brush fa-inverse fa-border pull-left'></i>";
@@ -73,10 +73,9 @@
             else if (name.contains("Earbud"))
                 text += budP.toFixed(2) + " Keys";
             else {
-                if (trade[a].hasAttribute("data-price"))
-                    currency = trade[a].getAttribute("data-price").split(" ")[1];
                 if (trade[a].hasAttribute("data-crate"))
                     text = "#" + trade[a].getAttribute("data-crate") + ": ";
+                var currency = trade[a].getAttribute("data-price").split(" ")[1];
                 if (price[1] === "Crate")
                     text += "0.01 Refined";
                 else if (currency.contains("Weapon"))
@@ -98,7 +97,7 @@
         var total = 0,
             allPure = true;
         for (var a = 0; a < trade.length; a++) {
-            response = getPrice(trade[a]);
+            var response = getPrice(trade[a]);
             total += +response[0];
             if (!response[3])
                 allPure = false;
@@ -131,7 +130,7 @@
                 price = 1 / 18;
             else if (data[0].contains("-")) {
                 var pts = data[0].split("-");
-                original = price = (+pts[0] + +pts[1]) / 2;
+                price = original = (+pts[0] + +pts[1]) / 2;
                 hasRange = true;
             }
             if (data[1].contains("Key"))
@@ -197,10 +196,10 @@
                 var key = data.response.items["Mann Co. Supply Crate Key"]["prices"][6]["Tradable"]["Craftable"][0],
                     bud = data.response.items["Earbuds"]["prices"][6]["Tradable"]["Craftable"][0],
                     k = key.value_high ? ((key.value + key.value_high) / 2) : key.value,
-                    b = bud.value_high ? ((bud.value + bud.value_high) / 2) : bud.value;
-                    kOld = +localStorage.getItem("keyP");
-                    bOld = +localStorage.getItem("budP");
-                    kChange = " (" + (k === kOld ? "=" : (k < kOld ? "↓" : "↑")) + ")";
+                    b = bud.value_high ? ((bud.value + bud.value_high) / 2) : bud.value,
+                    kOld = +localStorage.getItem("keyP"),
+                    bOld = +localStorage.getItem("budP"),
+                    kChange = " (" + (k === kOld ? "=" : (k < kOld ? "↓" : "↑")) + ")",
                     bChange = " (" + (b === bOld ? "=" : (b < bOld ? "↓" : "↑")) + ")";
                     localStorage.setItem("keyP", k);
                     localStorage.setItem("budP", b);
