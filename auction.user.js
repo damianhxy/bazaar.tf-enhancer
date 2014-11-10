@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.4.0.1
+// @version             1.4.0.2
 // ==/UserScript==
 
 (function () {
@@ -76,7 +76,8 @@
             else {
                 if (trade[a].hasAttribute("data-crate"))
                     text = "#" + trade[a].getAttribute("data-crate") + ": ";
-                var currency = trade[a].getAttribute("data-price").split(" ")[1];
+                if (trade[a].hasAttribute("data-price"))
+                    var currency = trade[a].getAttribute("data-price").split(" ")[1];
                 if (price[1] === "Crate")
                     text += "0.01 Refined";
                 else if (currency.contains("Weapon"))
