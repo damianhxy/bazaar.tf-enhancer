@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.9.8
+// @version             1.3.9.9
 // ==/UserScript==
 
 (function () {
@@ -54,10 +54,16 @@
                     trade[a].innerHTML += "<i class='fa fa-exclamation-triangle fa-inverse fa-border pull-left'>";
                     text = "#" + trade[a].getAttribute("data-craft") + ": ";
                 }
-                if (isKillstreak)
-                    trade[a].innerHTML += "<i class='fa fa-bomb fa-inverse fa-border pull-left'></i>";
-                else if (!isLowCraft && !isKillstreak)
-                    trade[a].innerHTML += "<i class='fa fa-question-circle fa-inverse fa-border pull-left'></i>";
+                if (isKillstreak) {
+                    var colour;
+                    if (details.contains("Professional"))
+                        colour = "#ffd700";
+                    else if (details.contains("Specialized"))
+                        colour = "#c0c0c0";
+                    else
+                        colour = "#cd7f32";
+                    trade[a].innerHTML += "<i class='fa fa-bomb fa-border pull-left' style='color: " + colour + "'></i>";
+                }
                 text += "Unpriced";
             }
             else if (name.contains("Metal"))
