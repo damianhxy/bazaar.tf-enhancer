@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.3.9.7
+// @version             1.3.9.8
 // ==/UserScript==
 
 (function () {
@@ -24,30 +24,30 @@
                 continue;
             var price = getPrice(trade[a]),
                 text = "",
-                name = trade[a].getAttribute("data-name");
+                name = trade[a].getAttribute("data-name"),
+                details = trade[a].getAttribute("data-details");
             if (+price[0] % 1 >= 0.5 && !price[2])
                 price[0] -= 0.005;
             price[0] = price[0].toFixed(2);
             if (trade[a].hasAttribute("data-notes")) {
-                if (trade[a].getAttribute("data-notes").contains("Gifted"))
-                    trade[a].innerHTML += "<i class='fa fa-gift fa-inverse fa-border pull-left'></i>";
-                if (trade[a].getAttribute("data-notes").contains("Painted:"))
-                    if (!trade[a].getAttribute("data-notes").contains(name))
-                        trade[a].innerHTML += "<i class='fa fa-paint-brush fa-inverse fa-border pull-left'></i>";
-            }
-            if (trade[a].className.contains("q11") && trade[a].hasAttribute("data-notes")) {
                 var notes = trade[a].getAttribute("data-notes"),
-                    count = notes.match(/<p>/g).length;
-                if (notes.contains("Painted: "))
+                    count = notes.match(/<\\\/p>/g).length;
+                if (notes.contains("Gifted"))  {
+                    trade[a].innerHTML += "<i class='fa fa-gift fa-inverse fa-border pull-left'></i>";
+                    count--
+                }
+                if (notes.contains("Painted:") && !notes.contains(name)) {
+                    trade[a].innerHTML += "<i class='fa fa-paint-brush fa-inverse fa-border pull-left'></i>";
                     count--;
-                if (notes.contains("Gifted"))
+                }
+                if (notes.contains("Crafted"))
                     count--;
-                if (count > 1) //Will break on stranges with spells
+                if (trade[a].className.contains("q11") && count > 1) //Will break on stranges with spells
                     trade[a].innerHTML += "<i class='fa fa-cogs fa-inverse fa-border pull-left'></i>";
             }
-            if (trade[a].getAttribute("data-name").contains("Australium"))
+            if (name.contains("Australium"))
                 trade[a].innerHTML += "<i class='fa fa-money fa-inverse fa-border pull-left'></i>";
-            var isKillstreak = trade[a].getAttribute("data-details").contains("Killstreak"),
+            var isKillstreak = details.contains("Killstreak") && !details.contains("Kit"),
                 isLowCraft = trade[a].getAttribute("data-special") === "Low craft #";
             if (!+price[0]) {
                 if (isLowCraft) {
@@ -115,9 +115,9 @@
     function getPrice(ele) {
         var price = 0,
             original = 0,
-            name = ele.getAttribute("data-name"),
             hasRange = false,
-            isPure = false;
+            isPure = false,
+            name = ele.getAttribute("data-name");
         if (ele.hasAttribute("data-price")) {
             var data = ele.getAttribute("data-price").split(" ");
             price = original = +data[0];
