@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.4.0
+// @version             1.4.0.1
 // ==/UserScript==
 
 (function () {
@@ -47,7 +47,7 @@
             }
             if (name.contains("Australium"))
                 trade[a].innerHTML += "<i class='fa fa-money fa-inverse fa-border pull-left'></i>";
-            var isKillstreak = details.contains("Killstreak") && !details.contains("Kit"),
+            var isKillstreak = details.contains("Killstreak"),
                 isLowCraft = trade[a].getAttribute("data-special") === "Low craft #";
             if (!+price[0]) {
                 if (isLowCraft) {
@@ -62,7 +62,8 @@
                         colour = "#c0c0c0";
                     else
                         colour = "#cd7f32";
-                    trade[a].innerHTML += "<i class='fa fa-bomb fa-border pull-left' style='color: " + colour + "'></i>";
+                    trade[a].innerHTML += "<i class='fa fa-bomb fa-border pull-left' " +
+                                         "style='color: " + colour + "; background-color: white'></i>";
                 }
                 text += "Unpriced";
             }
