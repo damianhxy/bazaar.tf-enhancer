@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.4.0.3
+// @version             1.4.0.4
 // ==/UserScript==
 
 (function () {
@@ -261,7 +261,7 @@
             notes.insertBefore(data, notes.firstElementChild);
         }
 
-        var retracted = document.getElementsByClassName("btn-warning disabled");
+        var retracted = document.getElementsByClassName("btn-warning accept-bid-btn disabled");
         for (var a = 0; a < retracted.length; a++)
             retracted[a].parentNode.parentNode.parentNode.parentNode.style.borderColor = "orange";
     }
