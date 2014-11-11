@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.4.0.2
+// @version             1.4.0.3
 // ==/UserScript==
 
 (function () {
@@ -26,7 +26,7 @@
                 text = "",
                 name = trade[a].getAttribute("data-name"),
                 details = trade[a].getAttribute("data-details");
-            if (+price[0] % 1 >= 0.5 && !price[2])
+            if (+price[0] % 1 * 10 >= 0.5 && !price[2])
                 price[0] -= 0.005;
             price[0] = price[0].toFixed(2);
             if (trade[a].hasAttribute("data-notes")) {
@@ -106,7 +106,7 @@
         }
         if (!allPure) {
             total = round(total);
-            if (total % 1 >= 0.5)
+            if (total % 1 * 10 >= 0.5)
                 total -= 0.005;
         }
         total = total.toFixed(2);
