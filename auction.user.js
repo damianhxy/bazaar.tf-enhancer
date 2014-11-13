@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.4.0.4
+// @version             1.4.0.5
 // ==/UserScript==
 
 (function () {
@@ -41,6 +41,8 @@
                     count--;
                 }
                 if (notes.contains("Crafted"))
+                    count--;
+                if (notes.contains("Not Craftable"))
                     count--;
                 if (trade[a].className.contains("q11") && count > 1) //Will break on stranges with spells
                     trade[a].innerHTML += "<i class='fa fa-cogs fa-inverse fa-border pull-left'></i>";
