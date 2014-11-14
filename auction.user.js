@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @run-at              document-end
 // @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.4.0.5
+// @version             1.4.0.6
 // ==/UserScript==
 
 (function () {
@@ -53,7 +53,7 @@
                 isLowCraft = trade[a].getAttribute("data-special") === "Low craft #";
             if (!+price[0]) {
                 if (isLowCraft) {
-                    trade[a].innerHTML += "<i class='fa fa-exclamation-triangle fa-inverse fa-border pull-left'>";
+                    trade[a].innerHTML += "<i class='fa fa-exclamation-triangle fa-inverse fa-border pull-left'></i>";
                     text = "#" + trade[a].getAttribute("data-craft") + ": ";
                 }
                 if (isKillstreak) {
