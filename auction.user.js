@@ -7,7 +7,7 @@
 // @name                Bazaar Trade Value
 // @namespace           localhost
 // @run-at              document-end
-// @version             1.4.0.7
+// @version             1.4.0.8
 // ==/UserScript==
 
 (function () {
@@ -141,7 +141,7 @@
             else if (data[1].contains("Earbud"))
                 price *= keyP * budP;
             else if (name.contains("Token")) {
-                price = 3 / 2;
+                price = 1 / 6;
                 isPure = true;
             }
             else if (!hasRange)
