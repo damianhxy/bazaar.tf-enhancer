@@ -7,8 +7,7 @@
 // @name                Bazaar Trade Value
 // @namespace           localhost
 // @run-at              document-end
-// @updateURL           https://github.com/damianhxy/Auction-Helper/raw/master/auction.meta.js
-// @version             1.4.0.6
+// @version             1.4.0.7
 // ==/UserScript==
 
 (function () {
@@ -180,6 +179,17 @@
         return val;
     }
 
+    function timeUpdate() {
+        var lastUpdt = Date.parse(localStorage.getItem("lastupdt")),
+            curTime = new Date(),
+            diff = 864e5 * updateFreq - (curTime - lastUpdt),
+            days = Math.floor(diff / 864e5),
+            hours = Math.floor((diff % 864e5) / 36e5),
+            minutes = Math.floor((diff % 36e5) / 6e4),
+            str = "Prices will update in " + days + " day(s), " + hours + " hour(s), and " + minutes + " minute(s).";
+        return str;
+    }
+
     function update() {
         if (!localStorage.getItem("apikey"))
             localStorage.setItem("apikey", prompt("API Key not set, get yours from http://backpack.tf/api/ and enter below"));
@@ -268,4 +278,5 @@
             retracted[a].parentNode.parentNode.parentNode.parentNode.style.borderColor = "orange";
     }
     console.info("Bazaar.tf Script Loaded. Version " + GM_info.script.version);
+    console.info(timeUpdate());
 }).call(this);
