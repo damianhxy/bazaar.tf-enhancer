@@ -7,7 +7,7 @@
 // @name                Bazaar Trade Value
 // @namespace           localhost
 // @run-at              document-end
-// @version             1.4.0.9
+// @version             1.4.1.0
 // ==/UserScript==
 
 (function () {
@@ -176,26 +176,15 @@
         return val;
     }
 
-    function timeUpdate() {
-        var lastUpdt = Date.parse(localStorage.getItem("lastupdt")),
-            curTime = new Date(),
-            diff = 864e5 * updateFreq - (curTime - lastUpdt),
-            days = Math.floor(diff / 864e5),
-            hours = Math.floor((diff % 864e5) / 36e5),
-            minutes = Math.floor((diff % 36e5) / 6e4),
-            str = "Prices will update in " + days + " day(s), " + hours + " hour(s), and " + minutes + " minute(s).";
-        return str;
-    }
-
     function update() {
         if (!localStorage.getItem("apikey"))
-            localStorage.setItem("apikey", prompt("API Key not set, get yours from http://backpack.tf/api/"));
+            localStorage.setItem("apikey", prompt("API Key not set, please get one from http://backpack.tf/api/"));
         if (localStorage.getItem("apikey").length !== 24) {
             alert("Invalid API Key Entered");
             localStorage.removeItem("apikey");
             update();
         }
-        if (!localStorage.getItem("keyP") || !localStorage.getItem("budP") || (new Date() - Date.parse(localStorage.getItem("lastupdt")) >= 864e5 * updateFreq)) {
+        if (!localStorage.getItem("keyP") || !localStorage.getItem("budP") || (new Date() - (Date.parse(localStorage.getItem("lastupdt")) || 0) >= 864e5 * updateFreq)) {
             GM_xmlhttpRequest({
                 method: "GET",
                 url: "http://backpack.tf/api/IGetPrices/v4/?key=" + localStorage.apikey + "&compress=1",
@@ -221,6 +210,12 @@
             });
             location.reload();
         }
+        var diff = 864e5 * updateFreq - (new Date() - Date.parse(localStorage.getItem("lastupdt"))),
+            days = Math.floor(diff / 864e5),
+            hours = Math.floor((diff % 864e5) / 36e5),
+            minutes = Math.floor((diff % 36e5) / 6e4),
+            str = "Prices will update in " + days + " day(s), " + hours + " hour(s), and " + minutes + " minute(s).";
+        console.info(str);
     }
 
     update();
@@ -274,5 +269,4 @@
             retracted[a].parentNode.parentNode.parentNode.parentNode.style.borderColor = "orange";
     }
     console.info("Bazaar.tf Script Loaded. Version " + GM_info.script.version);
-    console.info(timeUpdate());
 }).call(this);
