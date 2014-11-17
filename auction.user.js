@@ -7,7 +7,7 @@
 // @name                Bazaar Trade Value
 // @namespace           localhost
 // @run-at              document-end
-// @version             1.4.0.8
+// @version             1.4.0.9
 // ==/UserScript==
 
 (function () {
@@ -17,9 +17,7 @@
 
     function annotate(trade) {
         for (var a = 0; a < trade.length; a++) {
-            if (+trade[a].getAttribute("data-defindex") < 0)
-                continue;
-            if (trade[a].getAttribute("data-game") !== "440")
+            if (+trade[a].getAttribute("data-defindex") < 0 || trade[a].getAttribute("data-game") !== "440")
                 continue;
             var price = getPrice(trade[a]),
                 text = "",
@@ -43,19 +41,17 @@
                     count--;
                 if (notes.contains("Not Craftable"))
                     count--;
-                if (trade[a].className.contains("q11") && count > 1) //Will break on stranges with spells
+                if (trade[a].className.contains("q11") && count > 1)
                     trade[a].innerHTML += "<i class='fa fa-cogs fa-inverse fa-border pull-left'></i>";
             }
             if (name.contains("Australium"))
                 trade[a].innerHTML += "<i class='fa fa-money fa-inverse fa-border pull-left'></i>";
-            var isKillstreak = details.contains("Killstreak"),
-                isLowCraft = trade[a].getAttribute("data-special") === "Low craft #";
             if (!+price[0]) {
-                if (isLowCraft) {
+                if (trade[a].getAttribute("data-special") === "Low craft #") {
                     trade[a].innerHTML += "<i class='fa fa-exclamation-triangle fa-inverse fa-border pull-left'></i>";
                     text = "#" + trade[a].getAttribute("data-craft") + ": ";
                 }
-                if (isKillstreak) {
+                if (details.contains("Killstreak")) {
                     var colour;
                     if (details.contains("Professional"))
                         colour = "#ffd700";
@@ -77,16 +73,17 @@
             else {
                 if (trade[a].hasAttribute("data-crate"))
                     text = "#" + trade[a].getAttribute("data-crate") + ": ";
-                if (trade[a].hasAttribute("data-price"))
-                    var currency = trade[a].getAttribute("data-price").split(" ")[1];
                 if (price[1] === "Crate")
                     text += "0.01 Refined";
-                else if (currency.contains("Weapon"))
-                    text += "Any Weapon";
-                else if (currency.contains("Key") || currency.contains("Earbud"))
-                    text += (+price[1]).toFixed(2) + " " + currency;
-                else
-                    text += (+price[0]).toFixed(2) + " " + currency;
+                else {
+                    var currency = trade[a].getAttribute("data-price").split(" ")[1];
+                    if (currency.contains("Weapon"))
+                        text += "Any Weapon";
+                    else if (currency.contains("Key") || currency.contains("Earbud"))
+                        text += (+price[1]).toFixed(2) + " " + currency;
+                    else
+                        text += (+price[0]).toFixed(2) + " " + currency;
+                }
             }
             var txt = document.createElement("span");
             txt.setAttribute("class", "item-text");
@@ -192,42 +189,41 @@
 
     function update() {
         if (!localStorage.getItem("apikey"))
-            localStorage.setItem("apikey", prompt("API Key not set, get yours from http://backpack.tf/api/ and enter below"));
+            localStorage.setItem("apikey", prompt("API Key not set, get yours from http://backpack.tf/api/"));
         if (localStorage.getItem("apikey").length !== 24) {
-            alert("Invalid API Key");
+            alert("Invalid API Key Entered");
             localStorage.removeItem("apikey");
             update();
         }
-        GM_xmlhttpRequest({
-            method: "GET",
-            url: "http://backpack.tf/api/IGetPrices/v4/?key=" + localStorage.apikey + "&compress=1",
-            onload: function(e) {
-                var data = JSON.parse(e.response);
-                if (!data)
-                    alert("API Error: Empty Response");
-                else if (data.response.message)
-                    alert(data.response.message);
-                var key = data.response.items["Mann Co. Supply Crate Key"]["prices"][6]["Tradable"]["Craftable"][0],
-                    bud = data.response.items["Earbuds"]["prices"][6]["Tradable"]["Craftable"][0],
-                    k = key.value_high ? ((key.value + key.value_high) / 2) : key.value,
-                    b = bud.value_high ? ((bud.value + bud.value_high) / 2) : bud.value,
-                    kOld = +localStorage.getItem("keyP"),
-                    bOld = +localStorage.getItem("budP"),
-                    kChange = " (" + (k === kOld ? "=" : (k < kOld ? "↓" : "↑")) + ")",
-                    bChange = " (" + (b === bOld ? "=" : (b < bOld ? "↓" : "↑")) + ")";
+        if (!localStorage.getItem("keyP") || !localStorage.getItem("budP") || (new Date() - Date.parse(localStorage.getItem("lastupdt")) >= 864e5 * updateFreq)) {
+            GM_xmlhttpRequest({
+                method: "GET",
+                url: "http://backpack.tf/api/IGetPrices/v4/?key=" + localStorage.apikey + "&compress=1",
+                onload: function(e) {
+                    var data = JSON.parse(e.response);
+                    if (!data)
+                        alert("API Error: Empty Response");
+                    else if (data.response.message)
+                        alert("Received Error: " + data.response.message);
+                    var key = data.response.items["Mann Co. Supply Crate Key"]["prices"][6]["Tradable"]["Craftable"][0],
+                        bud = data.response.items["Earbuds"]["prices"][6]["Tradable"]["Craftable"][0],
+                        k = key.value_high ? ((key.value + key.value_high) / 2) : key.value,
+                        b = bud.value_high ? ((bud.value + bud.value_high) / 2) : bud.value,
+                        kOld = +localStorage.getItem("keyP"),
+                        bOld = +localStorage.getItem("budP"),
+                        kChange = " (" + (k === kOld ? "=" : (k < kOld ? "↓" : "↑")) + ")",
+                        bChange = " (" + (b === bOld ? "=" : (b < bOld ? "↓" : "↑")) + ")";
                     localStorage.setItem("keyP", k);
                     localStorage.setItem("budP", b);
-                    alert("Updated Prices, Key: " + k + " refined" + kChange + ", Bud: " + b + " keys" + bChange);
+                    alert("Prices updated, Key: " + k + " refined" + kChange + ", Bud: " + b + " keys" + bChange);
                     localStorage.setItem("lastupdt", new Date());
-            }
-        });
+                }
+            });
+            location.reload();
+        }
     }
 
-    if (!localStorage.getItem("keyP") || !localStorage.getItem("budP"))
-        update();
-    else if (!localStorage.getItem("lastupdt") || (new Date() - Date.parse(localStorage.getItem("lastupdt")) >= 86400e3 * updateFreq))
-        update();
-
+    update();
     var keyP = +localStorage.getItem("keyP"),
         budP = +localStorage.getItem("budP"),
         cNo = document.getElementsByClassName("item-number"),
