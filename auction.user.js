@@ -7,7 +7,7 @@
 // @name                Bazaar Trade Value
 // @namespace           localhost
 // @run-at              document-end
-// @version             1.4.1.2
+// @version             1.4.1.3
 // ==/UserScript==
 
 (function () {
@@ -48,6 +48,8 @@
             }
             if (name.contains("Australium"))
                 trade[a].innerHTML += "<i class='fa fa-money fa-inverse fa-border pull-left'></i>";
+            if (trade[a].hasAttribute("data-crate"))
+                text = "#" + trade[a].getAttribute("data-crate") + ": ";
             if (!+price[0]) {
                 if (trade[a].getAttribute("data-special") === "Low craft #") {
                     trade[a].innerHTML += "<i class='fa fa-exclamation-triangle fa-inverse fa-border pull-left'></i>";
@@ -62,11 +64,8 @@
                     else
                         colour = "#cd7f32";
                     trade[a].innerHTML += "<i class='fa fa-bomb fa-border pull-left' " +
-                                         "style='color: " + colour + "; background-color: white'></i>";
+                                          "style='color: " + colour + "; background-color: white'></i>";
                     text = "KS:";
-                }
-                else if (price[1] === "crate") {
-                    text = "#" + trade[a].getAttribute("data-crate") + ":";
                 }
                 text += " Unpriced";
             }
@@ -76,15 +75,16 @@
                 text = keyP.toFixed(2) + " Refined";
             else if (name.contains("Earbud"))
                 text = budP.toFixed(2) + " Keys";
+            else if (price[1] === "crate")
+                text += "0.01 Refined";
             else {
                 var currency = trade[a].getAttribute("data-price").split(" ")[1];
                 if (currency.contains("Weapon"))
-                    text = "Any Weapon";
-                else if (currency.contains("Key") || currency.contains("Earbud")) {
-                    text = price[1].toFixed(2) + " " + currency;
-                }
+                    text += "Any Weapon";
+                else if (currency.contains("Key") || currency.contains("Earbud"))
+                    text += price[1].toFixed(2) + " " + currency;
                 else
-                    text = price[0] + " " + currency;
+                    text += price[0] + " " + currency;
             }
             var txt = document.createElement("span");
             txt.setAttribute("class", "item-text");
@@ -166,8 +166,10 @@
                     isPure = true;
                     break;
                 default:
-                    if (ele.hasAttribute("data-crate"))
+                    if (ele.hasAttribute("data-crate")) {
+                        price = 1 / 90;
                         original = "crate";
+                    }
             }
         }
         return [price, original, hasRange, isPure];
