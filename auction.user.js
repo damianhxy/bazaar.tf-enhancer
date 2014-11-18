@@ -7,14 +7,16 @@
 // @name                Bazaar Trade Value
 // @namespace           localhost
 // @run-at              document-end
-// @version             1.4.1.1
+// @version             1.4.1.2
 // ==/UserScript==
 
 (function () {
     /*********** SETTINGS ***********/
-    var updateFreq = 3;              //(days) price refresh frequency
+    var updateFreq = 3,              //[days] price refresh frequency
+        highlighting = 1;            //[boolean] turn on offer highlighting?
     /******** END OF SETTINGS *******/
 
+    //FUNCTION DECLARATIONS
     function annotate(trade) {
         for (var a = 0; a < trade.length; a++) {
             if (+trade[a].getAttribute("data-defindex") < 0 || trade[a].getAttribute("data-game") !== "440")
@@ -23,7 +25,7 @@
                 text = "",
                 name = trade[a].getAttribute("data-name"),
                 details = trade[a].getAttribute("data-details");
-            if (+price[0] % 1 * 10 >= 0.5 && !price[2])
+            if (price[0] % 1 * 10 >= 0.5 && !price[2])
                 price[0] -= 0.005;
             price[0] = price[0].toFixed(2);
             if (trade[a].hasAttribute("data-notes")) {
@@ -49,7 +51,7 @@
             if (!+price[0]) {
                 if (trade[a].getAttribute("data-special") === "Low craft #") {
                     trade[a].innerHTML += "<i class='fa fa-exclamation-triangle fa-inverse fa-border pull-left'></i>";
-                    text = "#" + trade[a].getAttribute("data-craft") + ": ";
+                    text = "#" + trade[a].getAttribute("data-craft") + ":";
                 }
                 if (details.contains("Killstreak")) {
                     var colour;
@@ -61,29 +63,28 @@
                         colour = "#cd7f32";
                     trade[a].innerHTML += "<i class='fa fa-bomb fa-border pull-left' " +
                                          "style='color: " + colour + "; background-color: white'></i>";
+                    text = "KS:";
                 }
-                text += "Unpriced";
+                else if (price[1] === "crate") {
+                    text = "#" + trade[a].getAttribute("data-crate") + ":";
+                }
+                text += " Unpriced";
             }
             else if (name.contains("Metal"))
-                text += (+price[0]).toFixed(2) + " Refined";
+                text = price[0] + " Refined";
             else if (name.contains("Key"))
-                text += keyP.toFixed(2) + " Refined";
+                text = keyP.toFixed(2) + " Refined";
             else if (name.contains("Earbud"))
-                text += budP.toFixed(2) + " Keys";
+                text = budP.toFixed(2) + " Keys";
             else {
-                if (trade[a].hasAttribute("data-crate"))
-                    text = "#" + trade[a].getAttribute("data-crate") + ": ";
-                if (price[1] === "Crate")
-                    text += "0.01 Refined";
-                else {
-                    var currency = trade[a].getAttribute("data-price").split(" ")[1];
-                    if (currency.contains("Weapon"))
-                        text += "Any Weapon";
-                    else if (currency.contains("Key") || currency.contains("Earbud"))
-                        text += (+price[1]).toFixed(2) + " " + currency;
-                    else
-                        text += (+price[0]).toFixed(2) + " " + currency;
+                var currency = trade[a].getAttribute("data-price").split(" ")[1];
+                if (currency.contains("Weapon"))
+                    text = "Any Weapon";
+                else if (currency.contains("Key") || currency.contains("Earbud")) {
+                    text = price[1].toFixed(2) + " " + currency;
                 }
+                else
+                    text = price[0] + " " + currency;
             }
             var txt = document.createElement("span");
             txt.setAttribute("class", "item-text");
@@ -109,10 +110,11 @@
         }
         total = total.toFixed(2);
         var string = (!allPure && +total ? "~" : "") + total + " Refined";
-        if (total > keyP)
+        if (total > keyP) {
             string += "/ " + (total / keyP).toFixed(2) + " Keys";
-        if (total > keyP * budP)
-            string += "/ " + (total / (keyP * budP)).toFixed(2) + " Buds";
+            if (total > keyP * budP)
+                string += "/ " + (total / (keyP * budP)).toFixed(2) + " Buds";
+        }
         string += " in " + trade.length + " item" + (trade.length === 1 ? "" : "s");
         return string;
     }
@@ -125,7 +127,6 @@
             name = ele.getAttribute("data-name");
         if (ele.hasAttribute("data-price")) {
             var data = ele.getAttribute("data-price").split(" ");
-            price = original = +data[0];
             if (data[0] === "Any")
                 price = 1 / 18;
             else if (data[0].contains("-")) {
@@ -133,10 +134,16 @@
                 price = original = (+pts[0] + +pts[1]) / 2;
                 hasRange = true;
             }
-            if (data[1].contains("Key"))
+            else
+                price = original = +data[0];
+            if (data[1].contains("Key")) {
                 price *= keyP;
-            else if (data[1].contains("Earbud"))
+                isPure = true;
+            }
+            else if (data[1].contains("Earbud")) {
                 price *= keyP * budP;
+                isPure = true;
+            }
             else if (name.contains("Token")) {
                 price = 1 / 6;
                 isPure = true;
@@ -145,23 +152,22 @@
                 price = round(price);
         }
         else {
-            isPure = true;
             switch (name) {
                 case "Refined Metal":
                     price = 1;
+                    isPure = true;
                     break;
                 case "Reclaimed Metal":
                     price = 1 / 3;
+                    isPure = true;
                     break;
                 case "Scrap Metal":
                     price = 1 / 9;
+                    isPure = true;
                     break;
                 default:
-                    isPure = false;
-                    if (name.contains("Crate") || name.contains("Reel")) {
-                        price = 1 / 90;
-                        original = "Crate";
-                    }
+                    if (ele.hasAttribute("data-crate"))
+                        original = "crate";
             }
         }
         return [price, original, hasRange, isPure];
@@ -178,9 +184,9 @@
 
     function update() {
         if (!localStorage.getItem("apikey"))
-            localStorage.setItem("apikey", prompt("API Key not set, please get one from http://backpack.tf/api/"));
+            localStorage.setItem("apikey", prompt("API key not set, register one from http://backpack.tf/api/"));
         if (localStorage.getItem("apikey").length !== 24) {
-            alert("Invalid API Key Entered");
+            alert("Incorrect API key length");
             localStorage.removeItem("apikey");
             update();
         }
@@ -191,9 +197,16 @@
                 onload: function(e) {
                     var data = JSON.parse(e.response);
                     if (!data)
-                        alert("API Error: Empty Response");
-                    else if (data.response.message)
-                        alert("Received Error: " + data.response.message);
+                        alert("Error: API returned empty response");
+                    else if (!data.response.success) {
+                        if (data.response.message === "API key does not exist.") {
+                            alert("Invalid API key")
+                            localStorage.removeItem("apikey");
+                            update();
+                        }
+                        else
+                            alert("Error occurred: " + data.response.message);
+                    }
                     var key = data.response.items["Mann Co. Supply Crate Key"]["prices"][6]["Tradable"]["Craftable"][0],
                         bud = data.response.items["Earbuds"]["prices"][6]["Tradable"]["Craftable"][0],
                         k = key.value_high ? ((key.value + key.value_high) / 2) : key.value,
@@ -204,7 +217,7 @@
                         bChange = " (" + (b === bOld ? "=" : (b < bOld ? "↓" : "↑")) + ")";
                     localStorage.setItem("keyP", k);
                     localStorage.setItem("budP", b);
-                    alert("Prices updated, Key: " + k + " refined" + kChange + ", Bud: " + b + " keys" + bChange);
+                    alert("Prices updated, Keys: " + k + " Refined" + kChange + ", Earbuds: " + b + " Keys" + bChange);
                     localStorage.setItem("lastupdt", new Date());
                 }
             });
@@ -214,20 +227,27 @@
             days = Math.floor(diff / 864e5),
             hours = Math.floor((diff % 864e5) / 36e5),
             minutes = Math.floor((diff % 36e5) / 6e4);
-            console.info("Prices update in " + days + " day(s), " + hours + " hour(s), and " + minutes + " min(s).");
+        console.info("Prices will update in " + days + " day(s), " + hours + " hour(s), and " + minutes + " min(s)");
     }
 
+    //START OF SCRIPT
+try {
+    /******** SCRIPT GLOBALS ********/
     update();
-    var keyP = +localStorage.getItem("keyP"),
-        budP = +localStorage.getItem("budP"),
-        cNo = document.getElementsByClassName("item-number"),
+    var tradeView = document.getElementsByClassName("fa-reply").length,
+        isAuction = document.getElementsByClassName("fa-legal").length,
+        keyP = +localStorage.getItem("keyP"),
+        budP = +localStorage.getItem("budP");
+    /****** END SCRIPT GLOBALS ******/
+
+    var cNo = document.getElementsByClassName("item-number"),
         ks = document.getElementsByClassName("ks");
     for (var a = 0; a < cNo.length; a++)
         cNo[a].style.display = "none";
     for (var a = 0; a < ks.length; a++)
         ks[a].style.display = "none";
 
-    if (!document.getElementsByClassName("fa-reply").length) {
+    if (!tradeView) {
         var trades = document.querySelectorAll("div[id^='trade-']");
         for (var a = 0; a < trades.length; a++) {
             var items = trades[a].children[1].children;
@@ -235,14 +255,14 @@
             annotate(items[2].children);
         }
     }
-    else if (!document.getElementsByClassName("fa-legal").length) {
+    else if (!isAuction && tradeView) {
         annotate(document.getElementsByClassName("offered-items")[0].children);
         annotate(document.getElementsByClassName("wanted-items")[0].children);
         var offers = document.getElementsByClassName("comment-offers");
         for (var a = 0; a < offers.length; a++)
             annotate(offers[a].firstElementChild.children);
     }
-    else {
+    else if (isAuction && tradeView) {
         var data = document.createElement("li"),
             itms = document.getElementsByClassName("offered-items")[0].children,
             text = document.createTextNode(calc(itms));
@@ -255,17 +275,24 @@
         for (var a = 0; a < offers.length; a++) {
             var data = document.createElement("span"),
                 itms = offers[a].firstElementChild.children,
-                text = document.createTextNode(calc(itms));
+                text = document.createTextNode(calc(itms)),
+                notes = offers[a].previousElementSibling.lastElementChild;
             annotate(itms);
             data.setAttribute("style", "color: orange; float: right;");
             data.appendChild(text);
-            var notes = offers[a].previousElementSibling.lastElementChild;
             notes.insertBefore(data, notes.firstElementChild);
         }
 
-        var retracted = document.getElementsByClassName("btn-warning accept-bid-btn disabled");
-        for (var a = 0; a < retracted.length; a++)
-            retracted[a].parentNode.parentNode.parentNode.parentNode.style.borderColor = "orange";
+        if (highlighting) {
+            var notice = document.getElementsByClassName("accept-bid-btn disabled");
+            for (var a = 0; a < notice.length; a++)
+                notice[a].parentNode.parentNode.parentNode.parentNode.style.borderColor =
+                notice[a].className.contains("btn-success") ? "lime" : "orange";
+        }
     }
     console.info("Bazaar.tf Script Loaded. Version " + GM_info.script.version);
-}).call(this);
+}
+catch(e) {
+    alert("An error has occured: " + e.message + "\nStack Trace: " + e.stack);
+}
+})();
