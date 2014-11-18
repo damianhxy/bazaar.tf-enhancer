@@ -7,7 +7,7 @@
 // @name                Bazaar Trade Value
 // @namespace           localhost
 // @run-at              document-end
-// @version             1.4.1.0
+// @version             1.4.1.1
 // ==/UserScript==
 
 (function () {
@@ -213,9 +213,8 @@
         var diff = 864e5 * updateFreq - (new Date() - Date.parse(localStorage.getItem("lastupdt"))),
             days = Math.floor(diff / 864e5),
             hours = Math.floor((diff % 864e5) / 36e5),
-            minutes = Math.floor((diff % 36e5) / 6e4),
-            str = "Prices will update in " + days + " day(s), " + hours + " hour(s), and " + minutes + " minute(s).";
-        console.info(str);
+            minutes = Math.floor((diff % 36e5) / 6e4);
+            console.info("Prices update in " + days + " day(s), " + hours + " hour(s), and " + minutes + " min(s).");
     }
 
     update();
