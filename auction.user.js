@@ -7,7 +7,7 @@
 // @name                Bazaar Trade Value
 // @namespace           localhost
 // @run-at              document-end
-// @version             1.4.1.3
+// @version             1.4.1.4
 // ==/UserScript==
 
 (function () {
@@ -53,7 +53,7 @@
             if (!+price[0]) {
                 if (trade[a].getAttribute("data-special") === "Low craft #") {
                     trade[a].innerHTML += "<i class='fa fa-exclamation-triangle fa-inverse fa-border pull-left'></i>";
-                    text = "#" + trade[a].getAttribute("data-craft") + ":";
+                    text = "#" + trade[a].getAttribute("data-craft") + ": ";
                 }
                 if (details.contains("Killstreak")) {
                     var colour;
@@ -65,9 +65,9 @@
                         colour = "#cd7f32";
                     trade[a].innerHTML += "<i class='fa fa-bomb fa-border pull-left' " +
                                           "style='color: " + colour + "; background-color: white'></i>";
-                    text = "KS:";
+                    text = "KS: ";
                 }
-                text += " Unpriced";
+                text += "Unpriced";
             }
             else if (name.contains("Metal"))
                 text = price[0] + " Refined";
@@ -237,6 +237,7 @@ try {
     /******** SCRIPT GLOBALS ********/
     update();
     var tradeView = document.getElementsByClassName("fa-reply").length,
+        tradeList = document.getElementsByClassName("fa-share").length,
         isAuction = document.getElementsByClassName("fa-legal").length,
         keyP = +localStorage.getItem("keyP"),
         budP = +localStorage.getItem("budP");
@@ -249,7 +250,7 @@ try {
     for (var a = 0; a < ks.length; a++)
         ks[a].style.display = "none";
 
-    if (!tradeView) {
+    if (tradeList) {
         var trades = document.querySelectorAll("div[id^='trade-']");
         for (var a = 0; a < trades.length; a++) {
             var items = trades[a].children[1].children;
