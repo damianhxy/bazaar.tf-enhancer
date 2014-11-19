@@ -7,7 +7,7 @@
 // @name                Bazaar Trade Value
 // @namespace           localhost
 // @run-at              document-end
-// @version             1.4.1.5
+// @version             1.4.1.6
 // ==/UserScript==
 
 (function () {
@@ -56,13 +56,11 @@
                     text = "#" + trade[a].getAttribute("data-craft") + ": ";
                 }
                 if (details.contains("Killstreak")) {
-                    var colour;
-                    if (details.contains("Professional"))
-                        colour = "#ffd700";
-                    else if (details.contains("Specialized"))
+                    var colour = "#cd7f32";
+                    if (details.contains("Specialized"))
                         colour = "#c0c0c0";
-                    else
-                        colour = "#cd7f32";
+                    else if (details.contains("Professional"))
+                        colour = "#ffd700";
                     trade[a].innerHTML += "<i class='fa fa-bomb fa-border pull-left' " +
                                           "style='color: " + colour + "; background-color: white'></i>";
                     text = "KS: ";
