@@ -7,7 +7,7 @@
 // @name                Bazaar Trade Value
 // @namespace           localhost
 // @run-at              document-end
-// @version             1.4.1.4
+// @version             1.4.1.5
 // ==/UserScript==
 
 (function () {
@@ -287,10 +287,10 @@ try {
         }
 
         if (highlighting) {
-            var notice = document.getElementsByClassName("accept-bid-btn disabled");
+            document.getElementsByClassName("comment accepted")[0].style.borderColor = "lime";
+            var notice = document.getElementsByClassName("btn-warning accept-bid-btn disabled");
             for (var a = 0; a < notice.length; a++)
-                notice[a].parentNode.parentNode.parentNode.parentNode.style.borderColor =
-                notice[a].className.contains("btn-success") ? "lime" : "orange";
+                notice[a].parentNode.parentNode.parentNode.parentNode.style.borderColor = "orange";
         }
     }
     console.info("Bazaar.tf Script Loaded. Version " + GM_info.script.version);
