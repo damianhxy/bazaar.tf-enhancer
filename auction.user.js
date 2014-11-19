@@ -7,7 +7,7 @@
 // @name                Bazaar Trade Value
 // @namespace           localhost
 // @run-at              document-end
-// @version             1.4.1.7
+// @version             1.4.1.8
 // ==/UserScript==
 
 (function () {
@@ -25,9 +25,9 @@
                 text = "",
                 name = trade[a].getAttribute("data-name"),
                 details = trade[a].getAttribute("data-details");
-            if (price[0] % 1 * 10 >= 0.5 && !price[2])
+            if (price[0] * 100 % 1 >= 0.5 && !price[2])
                 price[0] -= 0.005;
-            price[0] = price[0].toFixed(2);
+            price[0] = +price[0].toFixed(2);
             if (trade[a].hasAttribute("data-notes")) {
                 var notes = trade[a].getAttribute("data-notes"),
                     count = notes.match(/<\\\/p>/g).length;
@@ -50,7 +50,7 @@
                 trade[a].innerHTML += "<i class='fa fa-money fa-inverse fa-border pull-left'></i>";
             if (trade[a].hasAttribute("data-crate"))
                 text = "#" + trade[a].getAttribute("data-crate") + ": ";
-            if (!+price[0]) {
+            if (!price[0]) {
                 if (trade[a].getAttribute("data-special") === "Low craft #") {
                     trade[a].innerHTML += "<i class='fa fa-exclamation-triangle fa-inverse fa-border pull-left'></i>";
                     text = "#" + trade[a].getAttribute("data-craft") + ": ";
@@ -103,11 +103,11 @@
         }
         if (!allPure) {
             total = round(total);
-            if (total % 1 * 10 >= 0.5)
+            if (total * 100 % 1 >= 0.5)
                 total -= 0.005;
         }
-        total = total.toFixed(2);
-        var string = (!allPure && +total ? "~" : "") + total + " Refined";
+        total = +total.toFixed(2);
+        var string = (!allPure && total ? "~" : "") + total + " Refined";
         if (total > keyP) {
             string += "/ " + (total / keyP).toFixed(2) + " Keys";
             if (total > keyP * budP)
@@ -176,7 +176,7 @@
     function round(num) {
         var val;
         if (num <= 5 / 90)
-            val = Math.round(num * 90) / 90;
+            val = +num;
         else
             val = Math.floor(num) + (Math.round(num % 1 * 9)) / 9;
         return val;
