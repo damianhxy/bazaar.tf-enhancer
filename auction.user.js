@@ -7,7 +7,7 @@
 // @name                Bazaar Trade Value
 // @namespace           localhost
 // @run-at              document-end
-// @version             1.4.1.8
+// @version             1.4.1.9
 // ==/UserScript==
 
 (function () {
@@ -52,8 +52,9 @@
                 text = "#" + trade[a].getAttribute("data-crate") + ": ";
             if (!price[0]) {
                 if (trade[a].getAttribute("data-special") === "Low craft #") {
-                    trade[a].innerHTML += "<i class='fa fa-exclamation-triangle fa-inverse fa-border pull-left'></i>";
-                    text = "#" + trade[a].getAttribute("data-craft") + ": ";
+                    trade[a].innerHTML += "<i class='fa fa-exclamation-triangle fa-inverse fa-border pull-left'>" +
+                                          "#" + trade[a].getAttribute("data-craft") + "</i>";
+                    text = "Low #: ";
                 }
                 if (details.contains("Killstreak")) {
                     var colour = "#cd7f32";
