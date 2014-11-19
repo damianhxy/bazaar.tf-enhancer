@@ -7,7 +7,7 @@
 // @name                Bazaar Trade Value
 // @namespace           localhost
 // @run-at              document-end
-// @version             1.4.1.6
+// @version             1.4.1.7
 // ==/UserScript==
 
 (function () {
@@ -285,15 +285,17 @@ try {
         }
 
         if (highlighting) {
-            document.getElementsByClassName("comment accepted")[0].style.borderColor = "lime";
-            var notice = document.getElementsByClassName("btn-warning accept-bid-btn disabled");
-            for (var a = 0; a < notice.length; a++)
-                notice[a].parentNode.parentNode.parentNode.parentNode.style.borderColor = "orange";
+            var retract = document.getElementsByClassName("btn-warning accept-bid-btn disabled"),
+                accept = document.getElementsByClassName("comment accepted");
+            for (var a = 0; a < retract.length; a++)
+                retract[a].parentNode.parentNode.parentNode.parentNode.style.borderColor = "orange";
+            if (accept.length)
+                accept[0].style.borderColor = "lime";
         }
     }
     console.info("Bazaar.tf Script Loaded. Version " + GM_info.script.version);
 }
 catch(e) {
-    alert("An error has occured: " + e.message + "\nStack Trace: " + e.stack);
+    alert("[An error has occured]\n" + e.message + "\n[Stack Trace]\n" + e.stack);
 }
 })();
