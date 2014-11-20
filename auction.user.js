@@ -7,7 +7,7 @@
 // @name                Bazaar Trade Value
 // @namespace           localhost
 // @run-at              document-end
-// @version             1.4.1.9
+// @version             1.4.2.0
 // ==/UserScript==
 
 (function () {
@@ -18,42 +18,44 @@
 
     //FUNCTION DECLARATIONS
     function annotate(trade) {
-        for (var a = 0; a < trade.length; a++) {
-            if (+trade[a].getAttribute("data-defindex") < 0 || trade[a].getAttribute("data-game") !== "440")
-                continue;
-            var price = getPrice(trade[a]),
+        Array.prototype.forEach.call(trade, function(e) {
+            if (+e.getAttribute("data-defindex") < 0 || e.getAttribute("data-game") !== "440")
+                return;
+            var price = getPrice(e),
                 text = "",
-                name = trade[a].getAttribute("data-name"),
-                details = trade[a].getAttribute("data-details");
+                name = e.getAttribute("data-name"),
+                details = e.getAttribute("data-details");
             if (price[0] * 100 % 1 >= 0.5 && !price[2])
                 price[0] -= 0.005;
             price[0] = +price[0].toFixed(2);
-            if (trade[a].hasAttribute("data-notes")) {
-                var notes = trade[a].getAttribute("data-notes"),
+            if (e.hasAttribute("data-notes")) {
+                var notes = e.getAttribute("data-notes"),
                     count = notes.match(/<\\\/p>/g).length;
                 if (notes.contains("Gifted"))  {
-                    trade[a].innerHTML += "<i class='fa fa-gift fa-inverse fa-border pull-left'></i>";
+                    e.insertAdjacentHTML("beforeend", "<i class='fa fa-gift fa-inverse fa-border pull-left'></i>");
                     count--;
                 }
                 if (notes.contains("Painted:") && !notes.contains(name)) {
-                    trade[a].innerHTML += "<i class='fa fa-paint-brush fa-inverse fa-border pull-left'></i>";
+                    e.insertAdjacentHTML("beforeend", "<i class='fa fa-paint-brush fa-inverse fa-border" +
+                                                "pull-left'></i>");
                     count--;
                 }
                 if (notes.contains("Crafted"))
                     count--;
                 if (notes.contains("Not Craftable"))
                     count--;
-                if (trade[a].className.contains("q11") && count > 1)
-                    trade[a].innerHTML += "<i class='fa fa-cogs fa-inverse fa-border pull-left'></i>";
+                if (e.className.contains("q11") && count > 1)
+                    e.insertAdjacentHTML("beforeend", "<i class='fa fa-cogs fa-inverse fa-border pull-left'></i>");
             }
             if (name.contains("Australium"))
-                trade[a].innerHTML += "<i class='fa fa-money fa-inverse fa-border pull-left'></i>";
-            if (trade[a].hasAttribute("data-crate"))
-                text = "#" + trade[a].getAttribute("data-crate") + ": ";
+                e.insertAdjacentHTML("beforeend", "<i class='fa fa-money fa-inverse fa-border pull-left'></i>");
+            if (e.hasAttribute("data-crate"))
+                text = "#" + e.getAttribute("data-crate") + ": ";
             if (!price[0]) {
-                if (trade[a].getAttribute("data-special") === "Low craft #") {
-                    trade[a].innerHTML += "<i class='fa fa-exclamation-triangle fa-inverse fa-border pull-left'>" +
-                                          "#" + trade[a].getAttribute("data-craft") + "</i>";
+                if (e.getAttribute("data-special") === "Low craft #") {
+                    e.insertAdjacentHTML("beforeend", "<i class='fa fa-exclamation-triangle fa-inverse " +
+                                                "fa-border pull-left'>" + "#" + e.getAttribute("data-craft") +
+                                                "</i>");
                     text = "Low #: ";
                 }
                 if (details.contains("Killstreak")) {
@@ -62,8 +64,8 @@
                         colour = "#c0c0c0";
                     else if (details.contains("Professional"))
                         colour = "#ffd700";
-                    trade[a].innerHTML += "<i class='fa fa-bomb fa-border pull-left' " +
-                                          "style='color: " + colour + "; background-color: white'></i>";
+                    e.insertAdjacentHTML("beforeend", "<i class='fa fa-bomb fa-border pull-left' " +
+                                                "style='color: " + colour + "; background-color: white'></i>");
                     text = "KS: ";
                 }
                 text += "Unpriced";
@@ -77,7 +79,7 @@
             else if (price[1] === "crate")
                 text += "0.01 Refined";
             else {
-                var currency = trade[a].getAttribute("data-price").split(" ")[1];
+                var currency = e.getAttribute("data-price").split(" ")[1];
                 if (currency.contains("Weapon"))
                     text += "Any Weapon";
                 else if (currency.contains("Key") || currency.contains("Earbud"))
@@ -85,23 +87,24 @@
                 else
                     text += price[0] + " " + currency;
             }
-            var txt = document.createElement("span");
+            var txt = document.createElement("span"),
+                content = document.createTextNode(text);
             txt.setAttribute("class", "item-text");
             txt.setAttribute("style", "bottom: 0; left: 0; right: 0;");
-            txt.innerHTML = text;
-            trade[a].appendChild(txt);
-        }
+            txt.appendChild(content);
+            e.appendChild(txt);
+        });
     }
 
     function calc(trade) {
         var total = 0,
             allPure = true;
-        for (var a = 0; a < trade.length; a++) {
-            var response = getPrice(trade[a]);
+        Array.prototype.forEach.call(trade, function(e) {
+            var response = getPrice(e);
             total += +response[0];
-            if (!response[3])
+            if (allPure && !response[3])
                 allPure = false;
-        }
+        });
         if (!allPure) {
             total = round(total);
             if (total * 100 % 1 >= 0.5)
@@ -201,7 +204,7 @@
                         alert("Error: API returned empty response");
                     else if (!data.response.success) {
                         if (data.response.message === "API key does not exist.") {
-                            alert("Invalid API key")
+                            alert("Invalid API key");
                             localStorage.removeItem("apikey");
                             update();
                         }
@@ -242,27 +245,27 @@ try {
         budP = +localStorage.getItem("budP");
     /****** END SCRIPT GLOBALS ******/
 
-    var cNo = document.getElementsByClassName("item-number"),
-        ks = document.getElementsByClassName("ks");
-    for (var a = 0; a < cNo.length; a++)
-        cNo[a].style.display = "none";
-    for (var a = 0; a < ks.length; a++)
-        ks[a].style.display = "none";
+    Array.prototype.forEach.call(document.getElementsByClassName("item-number"), function(e) {
+        e.style.display = "none";
+    });
+    Array.prototype.forEach.call(document.getElementsByClassName("ks"), function(e) {
+        e.style.display = "none";
+    });
 
     if (tradeList) {
-        var trades = document.querySelectorAll("div[id^='trade-']");
-        for (var a = 0; a < trades.length; a++) {
-            var items = trades[a].children[1].children;
+        Array.prototype.forEach.call(document.querySelectorAll("div[id^='trade-']"), function(e) {
+            var items = e.children[1].children;
             annotate(items[0].children);
-            annotate(items[2].children);
-        }
+            if (!items[1].firstElementChild.firstElementChild.className.contains("fa-legal"))
+                annotate(items[2].children);
+        });
     }
     else if (!isAuction && tradeView) {
         annotate(document.getElementsByClassName("offered-items")[0].children);
         annotate(document.getElementsByClassName("wanted-items")[0].children);
-        var offers = document.getElementsByClassName("comment-offers");
-        for (var a = 0; a < offers.length; a++)
-            annotate(offers[a].firstElementChild.children);
+        Array.prototype.forEach.call(document.getElementsByClassName("comment-offers"), function(e) {
+            annotate(e.firstElementChild.children);
+        });
     }
     else if (isAuction && tradeView) {
         var data = document.createElement("li"),
@@ -273,23 +276,22 @@ try {
         data.appendChild(text);
         document.getElementsByClassName("trade-stats")[0].appendChild(data);
 
-        var offers = document.getElementsByClassName("comment-offers");
-        for (var a = 0; a < offers.length; a++) {
+        Array.prototype.forEach.call(document.getElementsByClassName("comment-offers"), function(e) {
             var data = document.createElement("span"),
-                itms = offers[a].firstElementChild.children,
+                itms = e.firstElementChild.children,
                 text = document.createTextNode(calc(itms)),
-                notes = offers[a].previousElementSibling.lastElementChild;
+                notes = e.previousElementSibling.lastElementChild;
             annotate(itms);
             data.setAttribute("style", "color: orange; float: right;");
             data.appendChild(text);
             notes.insertBefore(data, notes.firstElementChild);
-        }
+        });
 
         if (highlighting) {
-            var retract = document.getElementsByClassName("btn-warning accept-bid-btn disabled"),
-                accept = document.getElementsByClassName("comment accepted");
-            for (var a = 0; a < retract.length; a++)
-                retract[a].parentNode.parentNode.parentNode.parentNode.style.borderColor = "orange";
+            Array.prototype.forEach.call(document.getElementsByClassName("btn-warning disabled"), function(e) {
+                e.parentNode.parentNode.parentNode.parentNode.style.borderColor = "orange";
+            });
+            var accept = document.getElementsByClassName("comment accepted");
             if (accept.length)
                 accept[0].style.borderColor = "lime";
         }
