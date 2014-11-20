@@ -7,7 +7,7 @@
 // @name                Bazaar Trade Value
 // @namespace           localhost
 // @run-at              document-end
-// @version             1.4.2.0
+// @version             1.4.2.1
 // ==/UserScript==
 
 (function () {
@@ -36,8 +36,8 @@
                     count--;
                 }
                 if (notes.contains("Painted:") && !notes.contains(name)) {
-                    e.insertAdjacentHTML("beforeend", "<i class='fa fa-paint-brush fa-inverse fa-border" +
-                                                "pull-left'></i>");
+                    e.insertAdjacentHTML("beforeend", "<i class='fa fa-paint-brush fa-inverse fa-border " +
+                                                      "pull-left'></i>");
                     count--;
                 }
                 if (notes.contains("Crafted"))
