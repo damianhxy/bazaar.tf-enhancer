@@ -3,7 +3,7 @@
 // @description         Calculates value of trade items
 // @downloadURL         https://github.com/damianhxy/Auction-Helper/raw/master/auction.user.js
 // @grant               GM_xmlhttpRequest
-// @include             /^https?:\/\/bazaar\.tf.*/
+// @include             /^http:\/\/bazaar\.tf.*/
 // @name                Bazaar Trade Value
 // @namespace           localhost
 // @noframes
