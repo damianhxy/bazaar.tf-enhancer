@@ -6,6 +6,7 @@
 // @include             /^https?:\/\/bazaar\.tf.*/
 // @name                Bazaar Trade Value
 // @namespace           localhost
+// @noframes
 // @run-at              document-end
 // @version             1.4.2.3
 // ==/UserScript==
