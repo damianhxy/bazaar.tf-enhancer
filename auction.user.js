@@ -7,7 +7,7 @@
 // @name                Bazaar Trade Value
 // @namespace           localhost
 // @run-at              document-end
-// @version             1.4.2.2
+// @version             1.4.2.3
 // ==/UserScript==
 
 (function () {
@@ -261,20 +261,20 @@ try {
         });
     }
     else if (!isAuction && tradeView) {
-        annotate(document.getElementsByClassName("offered-items")[0].children);
-        annotate(document.getElementsByClassName("wanted-items")[0].children);
+        annotate(document.querySelector(".offered-items").children);
+        annotate(document.querySelector(".wanted-items").children);
         Array.prototype.forEach.call(document.getElementsByClassName("comment-offers"), function(e) {
             annotate(e.firstElementChild.children);
         });
     }
     else if (isAuction && tradeView) {
         var data = document.createElement("li"),
-            itms = document.getElementsByClassName("offered-items")[0].children,
+            itms = document.querySelector(".offered-items").children,
             text = document.createTextNode(calc(itms));
         annotate(itms);
         data.setAttribute("style", "color: orange;");
         data.appendChild(text);
-        document.getElementsByClassName("trade-stats")[0].appendChild(data);
+        document.querySelector(".trade-stats").appendChild(data);
 
         Array.prototype.forEach.call(document.getElementsByClassName("comment-offers"), function(e) {
             var data = document.createElement("span"),
@@ -291,9 +291,9 @@ try {
             Array.prototype.forEach.call(document.getElementsByClassName("btn-warning disabled"), function(e) {
                 e.parentNode.parentNode.parentNode.parentNode.style.borderColor = "orange";
             });
-            var accept = document.getElementsByClassName("btn-success disabled");
-            if (accept.length)
-                accept[0].parentNode.parentNode.parentNode.parentNode.style.borderColor = "lime";
+            var accept = document.querySelector("btn-success disabled");
+            if (accept)
+                accept.parentNode.parentNode.parentNode.parentNode.style.borderColor = "lime";
         }
     }
     console.info("Bazaar.tf Script Loaded. Version " + GM_info.script.version);
