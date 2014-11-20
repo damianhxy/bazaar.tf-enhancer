@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @noframes
 // @run-at              document-end
-// @version             1.4.2.3
+// @version             1.4.2.4
 // ==/UserScript==
 
 (function () {
@@ -38,7 +38,7 @@
                 }
                 if (notes.contains("Painted:") && !notes.contains(name)) {
                     e.insertAdjacentHTML("beforeend", "<i class='fa fa-paint-brush fa-inverse fa-border " +
-                                                      "pull-left'></i>");
+                                         "pull-left'></i>");
                     count--;
                 }
                 if (notes.contains("Crafted"))
@@ -55,8 +55,7 @@
             if (!price[0]) {
                 if (e.getAttribute("data-special") === "Low craft #") {
                     e.insertAdjacentHTML("beforeend", "<i class='fa fa-exclamation-triangle fa-inverse " +
-                                                "fa-border pull-left'>" + "#" + e.getAttribute("data-craft") +
-                                                "</i>");
+                                         "fa-border pull-left'>" + "#" + e.getAttribute("data-craft") + "</i>");
                     text = "Low #: ";
                 }
                 if (details.contains("Killstreak")) {
@@ -66,7 +65,7 @@
                     else if (details.contains("Professional"))
                         colour = "#ffd700";
                     e.insertAdjacentHTML("beforeend", "<i class='fa fa-bomb fa-border pull-left' " +
-                                                "style='color: " + colour + "; background-color: white'></i>");
+                                         "style='color: " + colour + "; background-color: white'></i>");
                     text = "KS: ";
                 }
                 text += "Unpriced";
@@ -102,7 +101,7 @@
             allPure = true;
         Array.prototype.forEach.call(trade, function(e) {
             var response = getPrice(e);
-            total += +response[0];
+            total += response[0];
             if (allPure && !response[3])
                 allPure = false;
         });
@@ -139,14 +138,12 @@
             }
             else
                 price = original = +data[0];
-            if (data[1].contains("Key")) {
+            if (name.contains("Key") || name.contains("Earbud"))
+                isPure = true;
+            if (data[1].contains("Key"))
                 price *= keyP;
-                isPure = true;
-            }
-            else if (data[1].contains("Earbud")) {
+            else if (data[1].contains("Earbud"))
                 price *= keyP * budP;
-                isPure = true;
-            }
             else if (name.contains("Token")) {
                 price = 1 / 6;
                 isPure = true;
