@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @noframes
 // @run-at              document-end
-// @version             1.4.2.4
+// @version             1.4.2.5
 // ==/UserScript==
 
 (function () {
@@ -223,7 +223,6 @@
                     localStorage.setItem("lastupdt", new Date());
                 }
             });
-            location.reload();
         }
         var diff = 864e5 * updateFreq - (new Date() - Date.parse(localStorage.getItem("lastupdt"))),
             days = Math.floor(diff / 864e5),
