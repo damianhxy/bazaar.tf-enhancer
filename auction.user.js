@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @noframes
 // @run-at              document-end
-// @version             1.4.2.5
+// @version             1.4.2.6
 // ==/UserScript==
 
 (function () {
@@ -152,39 +152,33 @@
                 price = round(price);
         }
         else {
-            switch (name) {
-                case "Refined Metal":
-                    price = 1;
-                    isPure = true;
-                    break;
-                case "Reclaimed Metal":
-                    price = 1 / 3;
-                    isPure = true;
-                    break;
-                case "Scrap Metal":
-                    price = 1 / 9;
-                    isPure = true;
-                    break;
-                default:
-                    if (ele.hasAttribute("data-crate")) {
-                        price = 1 / 90;
-                        original = "crate";
-                    }
+            isPure = true;
+            if (name === "Refined Metal")
+                price = 1;
+            else if (name === "Reclaimed Metal")
+                price = 1 / 3;
+            else if (name === "Scrap Metal")
+                price = 1 / 9;
+            else
+                if (ele.hasAttribute("data-crate")) {
+                    isPure = false;
+                    price = 1 / 90;
+                    original = crate;
             }
         }
         return [price, original, hasRange, isPure];
     }
 
     function round(num) {
-        var val;
-        if (num <= 5 / 90)
-            val = +num;
-        else
-            val = Math.floor(num) + (Math.round(num % 1 * 9)) / 9;
+        var val = +num;
+        if (num > 5 / 90)
+            val = Math.floor(val) + (Math.round(val % 1 * 9)) / 9;
         return val;
     }
 
     function update() {
+        if (document.getElementById("UserLoginForm"))
+            console.info("Bazaar.tf Script Paused. Version " + GM_info.script.version);
         if (!localStorage.getItem("apikey"))
             localStorage.setItem("apikey", prompt("API key not set, register one from http://backpack.tf/api/"));
         if (localStorage.getItem("apikey").length !== 24) {
@@ -192,7 +186,8 @@
             localStorage.removeItem("apikey");
             update();
         }
-        if (!localStorage.getItem("keyP") || !localStorage.getItem("budP") || (new Date() - (Date.parse(localStorage.getItem("lastupdt")) || 0) >= 864e5 * updateFreq)) {
+        if (!localStorage.getItem("keyP") || !localStorage.getItem("budP")
+            || (new Date() - (Date.parse(localStorage.getItem("lastupdt")) || 0) >= 864e5 * updateFreq)) {
             GM_xmlhttpRequest({
                 method: "GET",
                 url: "http://backpack.tf/api/IGetPrices/v4/?key=" + localStorage.apikey + "&compress=1",
