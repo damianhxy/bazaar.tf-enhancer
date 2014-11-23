@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @noframes
 // @run-at              document-end
-// @version             1.4.2.6
+// @version             1.4.2.7
 // ==/UserScript==
 
 (function () {
@@ -163,7 +163,7 @@
                 if (ele.hasAttribute("data-crate")) {
                     isPure = false;
                     price = 1 / 90;
-                    original = crate;
+                    original = "crate";
             }
         }
         return [price, original, hasRange, isPure];
