@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @noframes
 // @run-at              document-end
-// @version             1.4.2.7
+// @version             1.4.2.8
 // ==/UserScript==
 
 (function () {
@@ -55,8 +55,8 @@
             if (!price[0]) {
                 if (e.getAttribute("data-special") === "Low craft #") {
                     e.insertAdjacentHTML("beforeend", "<i class='fa fa-exclamation-triangle fa-inverse " +
-                                         "fa-border pull-left'>" + "#" + e.getAttribute("data-craft") + "</i>");
-                    text = "Low #: ";
+                                         "fa-border pull-left'>" + " #" + e.getAttribute("data-craft") + "</i>");
+                    text = "↓#: ";
                 }
                 if (details.contains("Killstreak")) {
                     var colour = "#cd7f32";
@@ -73,9 +73,9 @@
             else if (name.contains("Metal"))
                 text = price[0] + " Refined";
             else if (name.contains("Key"))
-                text = keyP.toFixed(2) + " Refined";
+                text = +keyP.toFixed(2) + " Refined";
             else if (name.contains("Earbud"))
-                text = budP.toFixed(2) + " Keys";
+                text = +budP.toFixed(2) + " Keys";
             else if (price[1] === "crate")
                 text += "0.01 Refined";
             else {
@@ -83,7 +83,7 @@
                 if (currency.contains("Weapon"))
                     text += "Any Weapon";
                 else if (currency.contains("Key") || currency.contains("Earbud"))
-                    text += price[1].toFixed(2) + " " + currency;
+                    text += +price[1].toFixed(2) + " " + currency;
                 else
                     text += price[0] + " " + currency;
             }
@@ -112,9 +112,9 @@
         }
         total = +total.toFixed(2);
         var string = (!allPure && total ? "~" : "") + total + " Refined";
-        if (total > keyP) {
+        if (total > +(keyP).toFixed(2)) {
             string += "/ " + (total / keyP).toFixed(2) + " Keys";
-            if (total > keyP * budP)
+            if (total > +(keyP * budP).toFixed(2))
                 string += "/ " + (total / (keyP * budP)).toFixed(2) + " Buds";
         }
         string += " in " + trade.length + " item" + (trade.length === 1 ? "" : "s");
