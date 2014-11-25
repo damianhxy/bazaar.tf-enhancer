@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @noframes
 // @run-at              document-end
-// @version             1.4.3.0
+// @version             1.4.3.1
 // ==/UserScript==
 
 (function () {
@@ -43,6 +43,8 @@
                 if (notes.contains("Crafted"))
                     count--;
                 if (notes.contains("Not Craftable"))
+                    count--;
+                if (notes.contains("Not Tradable"))
                     count--;
                 if (e.className.contains("q11") && count > 1)
                     e.insertAdjacentHTML("beforeend", "<i class='fa fa-cogs fa-inverse fa-border pull-left'></i>");
