@@ -1,14 +1,14 @@
 // ==UserScript==
 // @copyright           2014, Damian Ho
-// @description         Calculates value of trade items
+// @description         Helper script for Bazaar.tf
 // @downloadURL         https://github.com/damianhxy/Auction-Helper/raw/master/auction.user.js
 // @grant               GM_xmlhttpRequest
 // @include             /^http:\/\/bazaar\.tf.*/
-// @name                Bazaar Trade Value
+// @name                Bazaar.tf Enhancer
 // @namespace           localhost
 // @noframes
 // @run-at              document-end
-// @version             1.4.2.8
+// @version             1.4.2.9
 // ==/UserScript==
 
 (function () {
@@ -17,7 +17,6 @@
         highlighting = 1;            //[boolean] turn on offer highlighting?
     /******** END OF SETTINGS *******/
 
-    //FUNCTION DECLARATIONS
     function annotate(trade) {
         Array.prototype.forEach.call(trade, function(e) {
             if (+e.getAttribute("data-defindex") < 0 || e.getAttribute("data-game") !== "440")
@@ -102,8 +101,8 @@
         Array.prototype.forEach.call(trade, function(e) {
             var response = getPrice(e);
             total += response[0];
-            if (allPure && !response[3])
-                allPure = false;
+            if (allPure)
+                allPure &= response[3];
         });
         if (!allPure) {
             total = round(total);
@@ -177,10 +176,10 @@
     }
 
     function update() {
-        if (document.getElementById("UserLoginForm"))
-            console.info("Bazaar.tf Script Paused. Version " + GM_info.script.version);
+        if (document.getElementById("login"))
+            console.info("Backpack.tf Script Paused. Version " + GM_info.script.version);
         if (!localStorage.getItem("apikey"))
-            localStorage.setItem("apikey", prompt("API key not set, register one from http://backpack.tf/api/"));
+            localStorage.setItem("apikey", prompt("API key not set, register yours from http://backpack.tf/api/"));
         if (localStorage.getItem("apikey").length !== 24) {
             alert("Incorrect API key length");
             localStorage.removeItem("apikey");
@@ -193,28 +192,24 @@
                 url: "http://backpack.tf/api/IGetPrices/v4/?key=" + localStorage.apikey + "&compress=1",
                 onload: function(e) {
                     var data = JSON.parse(e.response);
-                    if (!data)
-                        alert("Error: API returned empty response");
-                    else if (!data.response.success) {
+                    if (!data.response.success) {
                         if (data.response.message === "API key does not exist.") {
                             alert("Invalid API key");
                             localStorage.removeItem("apikey");
                             update();
                         }
                         else
-                            alert("Error occurred: " + data.response.message);
+                            alert("Error: " + data.response.message);
                     }
                     var key = data.response.items["Mann Co. Supply Crate Key"]["prices"][6]["Tradable"]["Craftable"][0],
                         bud = data.response.items["Earbuds"]["prices"][6]["Tradable"]["Craftable"][0],
-                        k = key.value_high ? ((key.value + key.value_high) / 2) : key.value,
-                        b = bud.value_high ? ((bud.value + bud.value_high) / 2) : bud.value,
-                        kOld = +localStorage.getItem("keyP"),
-                        bOld = +localStorage.getItem("budP"),
-                        kChange = " (" + (k === kOld ? "=" : (k < kOld ? "↓" : "↑")) + ")",
-                        bChange = " (" + (b === bOld ? "=" : (b < bOld ? "↓" : "↑")) + ")";
+                        k = (key.value + key.value_high || key.value) / 2,
+                        b = (bud.value + bud.value_high || bud.value) / 2,
+                        kDiff = " (" + (k === keyP ? "=" : (k < keyP ? "↓" : "↑")) + ")",
+                        bDiff = " (" + (b === budP ? "=" : (b < budP ? "↓" : "↑")) + ")";
                     localStorage.setItem("keyP", k);
                     localStorage.setItem("budP", b);
-                    alert("Prices updated, Keys: " + k + " Refined" + kChange + ", Earbuds: " + b + " Keys" + bChange);
+                    alert("Prices updated, Keys: " + k + " Refined" + kDiff + ", Earbuds: " + b + " Keys" + bDiff);
                     localStorage.setItem("lastupdt", new Date());
                 }
             });
@@ -226,15 +221,14 @@
         console.info("Prices will update in " + days + " day(s), " + hours + " hour(s), and " + minutes + " min(s)");
     }
 
-    //START OF SCRIPT
 try {
     /******** SCRIPT GLOBALS ********/
-    update();
     var tradeView = document.getElementsByClassName("fa-reply").length,
         tradeList = document.getElementsByClassName("fa-share").length,
         isAuction = document.getElementsByClassName("fa-legal").length,
         keyP = +localStorage.getItem("keyP"),
         budP = +localStorage.getItem("budP");
+    update();
     /****** END SCRIPT GLOBALS ******/
 
     Array.prototype.forEach.call(document.getElementsByClassName("item-number"), function(e) {
@@ -246,10 +240,10 @@ try {
 
     if (tradeList) {
         Array.prototype.forEach.call(document.querySelectorAll("div[id^='trade-']"), function(e) {
-            var items = e.children[1].children;
-            annotate(items[0].children);
-            if (!items[1].firstElementChild.firstElementChild.className.contains("fa-legal"))
-                annotate(items[2].children);
+
+            annotate(e.querySelector(".offered-items").children);
+            if (!items[1].querySelector(".fa-legal"))
+                annotate(e.querySelector(".wanted-items").children);
         });
     }
     else if (!isAuction && tradeView) {
