@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @noframes
 // @run-at              document-end
-// @version             1.4.2.9
+// @version             1.4.3.0
 // ==/UserScript==
 
 (function () {
@@ -240,9 +240,8 @@ try {
 
     if (tradeList) {
         Array.prototype.forEach.call(document.querySelectorAll("div[id^='trade-']"), function(e) {
-
             annotate(e.querySelector(".offered-items").children);
-            if (!items[1].querySelector(".fa-legal"))
+            if (!e.querySelector(".fa-legal"))
                 annotate(e.querySelector(".wanted-items").children);
         });
     }
