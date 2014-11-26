@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @noframes
 // @run-at              document-end
-// @version             1.4.3.1
+// @version             1.4.3.2
 // ==/UserScript==
 
 (function () {
@@ -40,12 +40,7 @@
                                          "pull-left'></i>");
                     count--;
                 }
-                if (notes.contains("Crafted"))
-                    count--;
-                if (notes.contains("Not Craftable"))
-                    count--;
-                if (notes.contains("Not Tradable"))
-                    count--;
+                count -= notes.match(/(Craft|Trad)(able|ed)/g).length;
                 if (e.className.contains("q11") && count > 1)
                     e.insertAdjacentHTML("beforeend", "<i class='fa fa-cogs fa-inverse fa-border pull-left'></i>");
             }
