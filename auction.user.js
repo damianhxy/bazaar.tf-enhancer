@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @noframes
 // @run-at              document-end
-// @version             1.4.3.4
+// @version             1.4.3.5
 // ==/UserScript==
 
 (function () {
@@ -31,17 +31,12 @@
             if (e.hasAttribute("data-notes")) {
                 var notes = e.getAttribute("data-notes"),
                     count = notes.match(/<\\\/p>/g).length;
-                if (notes.contains("Gifted"))  {
+                if (notes.contains("Gifted"))
                     e.insertAdjacentHTML("beforeend", "<i class='fa fa-gift fa-inverse fa-border pull-left'></i>");
-                    count--;
-                }
-                if (notes.contains("Painted:") && !notes.contains(name)) {
+                if (notes.contains("Painted:") && !notes.contains(name))
                     e.insertAdjacentHTML("beforeend", "<i class='fa fa-paint-brush fa-inverse fa-border " +
                                          "pull-left'></i>");
-                    count--;
-                }
-                if (/(Craft|Trad)(able|ed)/g.test(notes))
-                    count -= notes.match(/(Craft|Trad)(able|ed)/g).length;
+                count -= (notes.match(/(Craft|Trad|Paint|Gift)(able|ed)/g) || "").length;
                 if (e.className.contains("q11") && count > 1)
                     e.insertAdjacentHTML("beforeend", "<i class='fa fa-cogs fa-inverse fa-border pull-left'></i>");
             }
