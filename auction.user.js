@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @noframes
 // @run-at              document-end
-// @version             1.4.3.3
+// @version             1.4.3.4
 // ==/UserScript==
 
 (function () {
@@ -183,8 +183,8 @@
             localStorage.removeItem("apikey");
             update();
         }
-        if (!localStorage.getItem("keyP") || !localStorage.getItem("budP")
-            || (new Date() - (Date.parse(localStorage.getItem("lastupdt")) || 0) >= 864e5 * updateFreq)) {
+        if (!localStorage.getItem("keyP") || !localStorage.getItem("budP") ||
+            (new Date() - (Date.parse(localStorage.getItem("lastupdt")) || 0) >= 864e5 * updateFreq)) {
             GM_xmlhttpRequest({
                 method: "GET",
                 url: "http://backpack.tf/api/IGetPrices/v4/?key=" + localStorage.apikey + "&compress=1",
