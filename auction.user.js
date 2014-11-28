@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @noframes
 // @run-at              document-end
-// @version             1.4.3.5
+// @version             1.4.3.6
 // ==/UserScript==
 
 (function () {
@@ -204,6 +204,8 @@
                     localStorage.setItem("budP", b);
                     alert("Prices updated, Keys: " + k + " Refined" + kDiff + ", Earbuds: " + b + " Keys" + bDiff);
                     localStorage.setItem("lastupdt", new Date());
+                    location.reload();
+                    return;
                 }
             });
         }
