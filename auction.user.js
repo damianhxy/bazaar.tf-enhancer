@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @noframes
 // @run-at              document-end
-// @version             1.4.3.6
+// @version             1.4.3.6a
 // ==/UserScript==
 
 (function () {
@@ -182,7 +182,7 @@
             (new Date() - (Date.parse(localStorage.getItem("lastupdt")) || 0) >= 864e5 * updateFreq)) {
             GM_xmlhttpRequest({
                 method: "GET",
-                url: "http://backpack.tf/api/IGetPrices/v4/?key=" + localStorage.apikey + "&compress=1",
+                url: "http://backpack.tf/api/IGetPrices/v4/?key=" + localStorage.apikey,
                 onload: function(e) {
                     var data = JSON.parse(e.response);
                     if (!data.response.success) {
