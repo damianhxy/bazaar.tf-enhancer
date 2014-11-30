@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @noframes
 // @run-at              document-end
-// @version             1.4.3.6a
+// @version             1.4.3.7
 // ==/UserScript==
 
 (function () {
@@ -196,8 +196,8 @@
                     }
                     var key = data.response.items["Mann Co. Supply Crate Key"]["prices"][6]["Tradable"]["Craftable"][0],
                         bud = data.response.items["Earbuds"]["prices"][6]["Tradable"]["Craftable"][0],
-                        k = (key.value + key.value_high || key.value) / 2,
-                        b = (bud.value + bud.value_high || bud.value) / 2,
+                        k = (key.value + (key.value_high || key.value)) / 2,
+                        b = (bud.value + (bud.value_high || bud.value)) / 2,
                         kDiff = " (" + (k === keyP ? "=" : (k < keyP ? "↓" : "↑")) + ")",
                         bDiff = " (" + (b === budP ? "=" : (b < budP ? "↓" : "↑")) + ")";
                     localStorage.setItem("keyP", k);
