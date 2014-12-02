@@ -8,12 +8,13 @@
 // @namespace           localhost
 // @noframes
 // @run-at              document-end
-// @version             1.4.3.7
+// @version             1.4.3.8
 // ==/UserScript==
 
 (function () {
     /*********** SETTINGS ***********/
     var updateFreq = 3,              //[days] price refresh frequency
+        excludeCrates = 1,           //[boolean] exclude cheap crates?
         highlighting = 1;            //[boolean] turn on offer highlighting?
     /******** END OF SETTINGS *******/
 
@@ -44,7 +45,10 @@
                 e.insertAdjacentHTML("beforeend", "<i class='fa fa-money fa-inverse fa-border pull-left'></i>");
             if (e.hasAttribute("data-crate"))
                 text = "#" + e.getAttribute("data-crate") + ": ";
-            if (!price[0]) {
+            if (excludeCrates && price[1] === "exclude") {
+                text += "Excluded";
+            }
+            else if (!price[0]) {
                 if (e.getAttribute("data-special") === "Low craft #") {
                     e.insertAdjacentHTML("beforeend", "<i class='fa fa-exclamation-triangle fa-inverse " +
                                          "fa-border pull-left'>" + " #" + e.getAttribute("data-craft") + "</i>");
@@ -156,6 +160,13 @@
                     isPure = false;
                     price = 1 / 90;
                     original = "crate";
+            }
+        }
+        if (excludeCrates) {
+            if (ele.hasAttribute("data-crate") ||ele.getAttribute("data-name").contains("Stockpile Crate")) {
+                isPure = false;
+                price = 0;
+                original = "exclude";
             }
         }
         return [price, original, hasRange, isPure];
