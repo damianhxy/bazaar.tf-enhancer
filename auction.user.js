@@ -8,13 +8,13 @@
 // @namespace           localhost
 // @noframes
 // @run-at              document-end
-// @version             1.4.4.0
+// @version             1.4.4.1
 // ==/UserScript==
 
 (function () {
     /*********** SETTINGS ***********/
     var updateFreq = 3,              //[days] price refresh frequency
-        excludeCrates = 1,           //[boolean] exclude cheap crates?
+        excludeCrates = 0,           //[boolean] exclude cheap crates?
         highlighting = 1;            //[boolean] turn on offer highlighting?
     /******** END OF SETTINGS *******/
 
@@ -45,9 +45,8 @@
                 e.insertAdjacentHTML("beforeend", "<i class='fa fa-money fa-inverse fa-border pull-left'></i>");
             if (e.hasAttribute("data-crate"))
                 text = "#" + e.getAttribute("data-crate") + ": ";
-            if (excludeCrates && price[1] === "exclude") {
+            if (excludeCrates && price[1] === "exclude")
                 text += "Excluded";
-            }
             else if (!price[0]) {
                 if (e.getAttribute("data-special") === "Low craft #") {
                     e.insertAdjacentHTML("beforeend", "<i class='fa fa-exclamation-triangle fa-inverse " +
@@ -156,13 +155,13 @@
             else if (name === "Scrap Metal")
                 price = 1 / 9;
             else
-                if (ele.hasAttribute("data-crate")) {
+                if (ele.hasAttribute("data-crate") && +ele.getAttribute("data-crate") !== 1) {
                     isPure = false;
                     price = 1 / 90;
                     original = "crate";
             }
         }
-        if (excludeCrates) {
+        if (excludeCrates && +ele.getAttribute("data-crate") !== 1) {
             if (ele.hasAttribute("data-crate") || ele.getAttribute("data-name").contains("Crate")) {
                 if (price <= 5 / 90) {
                     price = 0;
@@ -177,7 +176,7 @@
     function round(num) {
         var val = +num;
         if (num > 5 / 90)
-            val = Math.floor(val) + (Math.round(val % 1 * 9)) / 9;
+            val = Math.floor(val) + Math.round(val % 1 * 9) / 9;
         return val;
     }
 
