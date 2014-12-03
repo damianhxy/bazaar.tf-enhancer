@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @noframes
 // @run-at              document-end
-// @version             1.4.3.9
+// @version             1.4.4.0
 // ==/UserScript==
 
 (function () {
@@ -165,6 +165,7 @@
         if (excludeCrates) {
             if (ele.hasAttribute("data-crate") || ele.getAttribute("data-name").contains("Crate")) {
                 if (price <= 5 / 90) {
+                    price = 0;
                     isPure = false;
                     original = "exclude";
                 }
