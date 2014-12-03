@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @noframes
 // @run-at              document-end
-// @version             1.4.3.8
+// @version             1.4.3.9
 // ==/UserScript==
 
 (function () {
@@ -163,10 +163,11 @@
             }
         }
         if (excludeCrates) {
-            if (ele.hasAttribute("data-crate") ||ele.getAttribute("data-name").contains("Stockpile Crate")) {
-                isPure = false;
-                price = 0;
-                original = "exclude";
+            if (ele.hasAttribute("data-crate") || ele.getAttribute("data-name").contains("Crate")) {
+                if (price <= 5 / 90) {
+                    isPure = false;
+                    original = "exclude";
+                }
             }
         }
         return [price, original, hasRange, isPure];
