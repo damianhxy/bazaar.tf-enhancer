@@ -8,13 +8,12 @@
 // @namespace           localhost
 // @noframes
 // @run-at              document-end
-// @version             1.4.4.1
+// @version             1.4.4.2
 // ==/UserScript==
 
 (function () {
     /*********** SETTINGS ***********/
     var updateFreq = 3,              //[days] price refresh frequency
-        excludeCrates = 0,           //[boolean] exclude cheap crates?
         highlighting = 1;            //[boolean] turn on offer highlighting?
     /******** END OF SETTINGS *******/
 
@@ -45,8 +44,6 @@
                 e.insertAdjacentHTML("beforeend", "<i class='fa fa-money fa-inverse fa-border pull-left'></i>");
             if (e.hasAttribute("data-crate"))
                 text = "#" + e.getAttribute("data-crate") + ": ";
-            if (excludeCrates && price[1] === "exclude")
-                text += "Excluded";
             else if (!price[0]) {
                 if (e.getAttribute("data-special") === "Low craft #") {
                     e.insertAdjacentHTML("beforeend", "<i class='fa fa-exclamation-triangle fa-inverse " +
@@ -71,8 +68,6 @@
                 text = +keyP.toFixed(2) + " Refined";
             else if (name.contains("Earbud"))
                 text = +budP.toFixed(2) + " Keys";
-            else if (price[1] === "crate")
-                text += "0.01 Refined";
             else {
                 var currency = e.getAttribute("data-price").split(" ")[1];
                 if (currency.contains("Weapon"))
@@ -155,20 +150,7 @@
             else if (name === "Scrap Metal")
                 price = 1 / 9;
             else
-                if (ele.hasAttribute("data-crate") && +ele.getAttribute("data-crate") !== 1) {
-                    isPure = false;
-                    price = 1 / 90;
-                    original = "crate";
-            }
-        }
-        if (excludeCrates && +ele.getAttribute("data-crate") !== 1) {
-            if (ele.hasAttribute("data-crate") || ele.getAttribute("data-name").contains("Crate")) {
-                if (price <= 5 / 90) {
-                    price = 0;
-                    isPure = false;
-                    original = "exclude";
-                }
-            }
+                isPure = false;
         }
         return [price, original, hasRange, isPure];
     }
