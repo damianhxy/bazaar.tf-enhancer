@@ -1,4 +1,4 @@
-bazaar-auction-value
+Bazaar.tf-Enhancer
 ====================
 
 Evaluates the value of auction items and offers
