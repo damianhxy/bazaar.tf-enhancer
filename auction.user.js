@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @noframes
 // @run-at              document-end
-// @version             1.4.4.2
+// @version             1.4.4.3
 // ==/UserScript==
 
 (function () {
@@ -44,7 +44,7 @@
                 e.insertAdjacentHTML("beforeend", "<i class='fa fa-money fa-inverse fa-border pull-left'></i>");
             if (e.hasAttribute("data-crate"))
                 text = "#" + e.getAttribute("data-crate") + ": ";
-            else if (!price[0]) {
+            if (!price[0]) {
                 if (e.getAttribute("data-special") === "Low craft #") {
                     e.insertAdjacentHTML("beforeend", "<i class='fa fa-exclamation-triangle fa-inverse " +
                                          "fa-border pull-left'>" + " #" + e.getAttribute("data-craft") + "</i>");
@@ -149,8 +149,6 @@
                 price = 1 / 3;
             else if (name === "Scrap Metal")
                 price = 1 / 9;
-            else
-                isPure = false;
         }
         return [price, original, hasRange, isPure];
     }
