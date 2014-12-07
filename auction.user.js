@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @noframes
 // @run-at              document-end
-// @version             1.4.4.3
+// @version             1.4.4.4
 // ==/UserScript==
 
 (function () {
@@ -263,7 +263,7 @@ try {
             Array.prototype.forEach.call(document.getElementsByClassName("btn-warning disabled"), function(e) {
                 e.parentNode.parentNode.parentNode.parentNode.style.borderColor = "orange";
             });
-            var accept = document.querySelector("btn-success disabled");
+            var accept = document.getElementsByClassName("btn-success disabled")[0];
             if (accept)
                 accept.parentNode.parentNode.parentNode.parentNode.style.borderColor = "lime";
         }
