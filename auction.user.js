@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @noframes
 // @run-at              document-end
-// @version             1.4.4.5
+// @version             1.4.4.6
 // ==/UserScript==
 
 (function () {
@@ -40,7 +40,7 @@
                 if (e.className.contains("q11") && count > 1)
                     e.insertAdjacentHTML("beforeend", "<i class='fa fa-cogs fa-inverse fa-border pull-left'></i>");
             }
-            if (name.contains("Australium"))
+            if (name.contains("Australium") && !name.contains("Gold"))
                 e.insertAdjacentHTML("beforeend", "<i class='fa fa-money fa-inverse fa-border pull-left'></i>");
             if (e.hasAttribute("data-crate"))
                 text = "#" + e.getAttribute("data-crate") + ": ";
