@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @noframes
 // @run-at              document-end
-// @version             1.4.4.6
+// @version             1.4.4.7
 // ==/UserScript==
 
 (function () {
@@ -61,8 +61,7 @@
                     text = "KS: ";
                 }
                 text += "Unpriced";
-            }
-            else if (name.contains("Metal"))
+            } else if (name.contains("Metal"))
                 text = price[0] + " Refined";
             else if (name.contains("Key"))
                 text = +keyP.toFixed(2) + " Refined";
@@ -125,8 +124,7 @@
                 var pts = data[0].split("-");
                 price = original = (+pts[0] + +pts[1]) / 2;
                 hasRange = true;
-            }
-            else
+            } else
                 price = original = +data[0];
             if (name.contains("Key") || name.contains("Earbud"))
                 isPure = true;
@@ -137,11 +135,9 @@
             else if (name.contains("Token")) {
                 price = 1 / 6;
                 isPure = true;
-            }
-            else if (!hasRange)
+            } else if (!hasRange)
                 price = round(price);
-        }
-        else {
+        } else {
             isPure = true;
             if (name === "Refined Metal")
                 price = 1;
@@ -182,8 +178,7 @@
                             alert("Invalid API key");
                             localStorage.removeItem("apikey");
                             update();
-                        }
-                        else
+                        } else
                             alert("Error: " + data.response.message);
                     }
                     var key = data.response.items["Mann Co. Supply Crate Key"]["prices"][6]["Tradable"]["Craftable"][0],
@@ -208,69 +203,67 @@
         console.info("Prices will update in " + days + " day(s), " + hours + " hour(s), and " + minutes + " min(s)");
     }
 
-try {
-    /******** SCRIPT GLOBALS ********/
-    var tradeView = document.getElementsByClassName("fa-reply").length,
-        tradeList = document.getElementsByClassName("fa-share").length,
-        isAuction = document.getElementsByClassName("fa-legal").length,
-        keyP = +localStorage.getItem("keyP"),
-        budP = +localStorage.getItem("budP");
-    update();
-    /****** END SCRIPT GLOBALS ******/
+    try {
+        /******** SCRIPT GLOBALS ********/
+        var tradeView = document.getElementsByClassName("fa-reply").length,
+            tradeList = document.getElementsByClassName("fa-share").length,
+            isAuction = document.getElementsByClassName("fa-legal").length,
+            keyP = +localStorage.getItem("keyP"),
+            budP = +localStorage.getItem("budP");
+        update();
+        /****** END SCRIPT GLOBALS ******/
 
-    Array.prototype.forEach.call(document.getElementsByClassName("item-number"), function(e) {
-        e.style.display = "none";
-    });
-    Array.prototype.forEach.call(document.getElementsByClassName("ks"), function(e) {
-        e.style.display = "none";
-    });
-
-    if (tradeList) {
-        Array.prototype.forEach.call(document.querySelectorAll("div[id^='trade-']"), function(e) {
-            annotate(e.querySelector(".offered-items").children);
-            if (!e.querySelector(".fa-legal"))
-                annotate(e.querySelector(".wanted-items").children);
+        Array.prototype.forEach.call(document.getElementsByClassName("item-number"), function(e) {
+            e.style.display = "none";
         });
-    }
-    else if (!isAuction && tradeView) {
-        annotate(document.querySelector(".offered-items").children);
-        annotate(document.querySelector(".wanted-items").children);
-        Array.prototype.forEach.call(document.getElementsByClassName("comment-offers"), function(e) {
-            annotate(e.firstElementChild.children);
-        });
-    }
-    else if (isAuction && tradeView) {
-        var data = document.createElement("li"),
-            itms = document.querySelector(".offered-items").children,
-            text = document.createTextNode(calc(itms));
-        annotate(itms);
-        data.setAttribute("style", "color: orange;");
-        data.appendChild(text);
-        document.querySelector(".trade-stats").appendChild(data);
-
-        Array.prototype.forEach.call(document.getElementsByClassName("comment-offers"), function(e) {
-            var data = document.createElement("span"),
-                itms = e.firstElementChild.children,
-                text = document.createTextNode(calc(itms)),
-                notes = e.previousElementSibling.lastElementChild;
-            annotate(itms);
-            data.setAttribute("style", "color: orange; float: right;");
-            data.appendChild(text);
-            notes.insertBefore(data, notes.firstElementChild);
+        Array.prototype.forEach.call(document.getElementsByClassName("ks"), function(e) {
+            e.style.display = "none";
         });
 
-        if (highlighting) {
-            Array.prototype.forEach.call(document.getElementsByClassName("btn-warning disabled"), function(e) {
-                e.parentNode.parentNode.parentNode.parentNode.style.borderColor = "orange";
+        if (tradeList) {
+            Array.prototype.forEach.call(document.querySelectorAll("div[id^='trade-']"), function(e) {
+                annotate(e.querySelector(".offered-items").children);
+                if (!e.querySelector(".fa-legal"))
+                    annotate(e.querySelector(".wanted-items").children);
             });
-            var accept = document.getElementsByClassName("btn-success disabled")[0];
-            if (accept)
-                accept.parentNode.parentNode.parentNode.parentNode.style.borderColor = "lime";
+        } else if (!isAuction && tradeView) {
+            annotate(document.querySelector(".offered-items").children);
+            annotate(document.querySelector(".wanted-items").children);
+            Array.prototype.forEach.call(document.getElementsByClassName("comment-offers"), function(e) {
+                annotate(e.firstElementChild.children);
+            });
+        } else if (isAuction && tradeView) {
+            var data = document.createElement("li"),
+                itms = document.querySelector(".offered-items").children,
+                text = document.createTextNode(calc(itms));
+            annotate(itms);
+            data.setAttribute("style", "color: orange;");
+            data.appendChild(text);
+            document.querySelector(".trade-stats").appendChild(data);
+
+            Array.prototype.forEach.call(document.getElementsByClassName("comment-offers"), function(e) {
+                var data = document.createElement("span"),
+                    itms = e.firstElementChild.children,
+                    text = document.createTextNode(calc(itms)),
+                    notes = e.previousElementSibling.lastElementChild;
+                annotate(itms);
+                data.setAttribute("style", "color: orange; float: right;");
+                data.appendChild(text);
+                notes.insertBefore(data, notes.firstElementChild);
+            });
+
+            if (highlighting) {
+                Array.prototype.forEach.call(document.getElementsByClassName("btn-warning disabled"), function(e) {
+                    e.parentNode.parentNode.parentNode.parentNode.style.borderColor = "orange";
+                });
+                var accept = document.getElementsByClassName("btn-success disabled")[0];
+                if (accept)
+                    accept.parentNode.parentNode.parentNode.parentNode.style.borderColor = "lime";
+            }
         }
+        console.info("Bazaar.tf Script Loaded. Version " + GM_info.script.version);
     }
-    console.info("Bazaar.tf Script Loaded. Version " + GM_info.script.version);
-}
-catch(e) {
-    alert("[An error has occured]\n" + e.message + "\n[Stack Trace]\n" + e.stack);
-}
+    catch(e) {
+        alert("[An error has occured]\n" + e.message + "\n[Stack Trace]\n" + e.stack);
+    }
 })();
