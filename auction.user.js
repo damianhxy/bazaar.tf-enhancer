@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @noframes
 // @run-at              document-end
-// @version             1.4.4.4
+// @version             1.4.4.5
 // ==/UserScript==
 
 (function () {
@@ -24,7 +24,7 @@
             var price = getPrice(e),
                 text = "",
                 name = e.getAttribute("data-name"),
-                details = e.getAttribute("data-details");
+                details = e.getAttribute("data-details") || "";
             if (price[0] * 100 % 1 >= 0.5 && !price[2])
                 price[0] -= 0.005;
             price[0] = +price[0].toFixed(2);
