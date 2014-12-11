@@ -5,7 +5,7 @@
 // @grant               GM_xmlhttpRequest
 // @include             /^http:\/\/bazaar\.tf.*/
 // @name                Bazaar.tf Enhancer
-// @namespace           localhost
+// @namespace           https://bitbucket.org/
 // @noframes
 // @run-at              document-end
 // @version             1.4.4.9
