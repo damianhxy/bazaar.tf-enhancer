@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @noframes
 // @run-at              document-end
-// @version             1.4.4.7
+// @version             1.4.4.8
 // ==/UserScript==
 
 (function () {
@@ -45,11 +45,8 @@
             if (e.hasAttribute("data-crate"))
                 text = "#" + e.getAttribute("data-crate") + ": ";
             if (!price[0]) {
-                if (e.getAttribute("data-special") === "Low craft #") {
-                    e.insertAdjacentHTML("beforeend", "<i class='fa fa-exclamation-triangle fa-inverse " +
-                                         "fa-border pull-left'>" + " #" + e.getAttribute("data-craft") + "</i>");
-                    text = "↓#: ";
-                }
+                if (e.getAttribute("data-special") === "Low craft #")
+                    text = "#" + e.getAttribute("data-craft") + ": ";
                 if (details.contains("Killstreak")) {
                     var colour = "#cd7f32";
                     if (details.contains("Specialized"))
