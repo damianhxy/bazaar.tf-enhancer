@@ -8,7 +8,7 @@
 // @namespace           localhost
 // @noframes
 // @run-at              document-end
-// @version             1.4.4.8
+// @version             1.4.4.9
 // ==/UserScript==
 
 (function () {
@@ -154,8 +154,10 @@
     }
 
     function update() {
-        if (document.getElementById("login"))
-            console.info("Backpack.tf Script Paused. Version " + GM_info.script.version);
+        if (document.getElementById("UserLoginForm")) {
+            console.info("Bazaar.tf Script Paused (Signed Out). Version " + GM_info.script.version);
+            return;
+        }
         if (!localStorage.getItem("apikey"))
             localStorage.setItem("apikey", prompt("API key not set, register yours from http://backpack.tf/api/"));
         if (localStorage.getItem("apikey").length !== 24) {
