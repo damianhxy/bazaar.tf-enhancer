@@ -3,12 +3,12 @@
 // @description         Helper script for Bazaar.tf
 // @downloadURL         https://bitbucket.org/damianhxy/bazaar.tf-enhancer/raw/master/auction.user.js
 // @grant               GM_xmlhttpRequest
-// @include             /^http:\/\/bazaar\.tf.*/
+// @include             /^http:\/\/bazaar\.tf.*$/
 // @name                Bazaar.tf Enhancer
-// @namespace           https://bitbucket.org/
+// @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.5.0
+// @version             1.4.5.1
 // ==/UserScript==
 
 (function () {
@@ -169,7 +169,7 @@
             (new Date() - (Date.parse(localStorage.getItem("lastupdt")) || 0) >= 864e5 * updateFreq)) {
             GM_xmlhttpRequest({
                 method: "GET",
-                url: "http://backpack.tf/api/IGetPrices/v4/?key=" + localStorage.apikey,
+                url: "http://backpack.tf/api/IGetPrices/v4/?key=" + localStorage.getItem("apikey"),
                 onload: function(e) {
                     var data = JSON.parse(e.response);
                     if (!data.response.success) {
@@ -177,11 +177,13 @@
                             alert("Invalid API key");
                             localStorage.removeItem("apikey");
                             update();
-                        } else
+                        } else {
                             alert("Error: " + data.response.message);
+                            return;
+                        }
                     }
-                    var key = data.response.items["Mann Co. Supply Crate Key"]["prices"][6]["Tradable"]["Craftable"][0],
-                        bud = data.response.items["Earbuds"]["prices"][6]["Tradable"]["Craftable"][0],
+                    var key = data.response.items["Mann Co. Supply Crate Key"].prices[6].Tradable.Craftable[0],
+                        bud = data.response.items.Earbuds.prices[6].Tradable.Craftable[0],
                         k = (key.value + (key.value_high || key.value)) / 2,
                         b = (bud.value + (bud.value_high || bud.value)) / 2,
                         kDiff = " (" + (k === keyP ? "=" : (k < keyP ? "↓" : "↑")) + ")",
@@ -212,10 +214,7 @@
         update();
         /****** END SCRIPT GLOBALS ******/
 
-        Array.prototype.forEach.call(document.getElementsByClassName("item-number"), function(e) {
-            e.style.display = "none";
-        });
-        Array.prototype.forEach.call(document.getElementsByClassName("ks"), function(e) {
+        Array.prototype.forEach.call(document.getElementsByClassName("item-number, ks"), function(e) {
             e.style.display = "none";
         });
 
@@ -236,7 +235,7 @@
                 itms = document.querySelector(".offered-items").children,
                 text = document.createTextNode(calc(itms));
             annotate(itms);
-            data.setAttribute("style", "color: orange;");
+            data.style = "color: orange;";
             data.appendChild(text);
             document.querySelector(".trade-stats").appendChild(data);
 
@@ -246,7 +245,7 @@
                     text = document.createTextNode(calc(itms)),
                     notes = e.previousElementSibling.lastElementChild;
                 annotate(itms);
-                data.setAttribute("style", "color: orange; float: right;");
+                data.style = "color: orange; float: right;";
                 data.appendChild(text);
                 notes.insertBefore(data, notes.firstElementChild);
             });
