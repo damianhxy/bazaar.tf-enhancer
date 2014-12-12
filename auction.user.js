@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.5.1
+// @version             1.4.5.2
 // ==/UserScript==
 
 (function () {
@@ -154,10 +154,8 @@
     }
 
     function update() {
-        if (document.getElementById("UserLoginForm")) {
-            console.info("Bazaar.tf Script Paused (Signed Out). Version " + GM_info.script.version);
-            return;
-        }
+        if (document.getElementById("UserLoginForm"))
+            return console.info("Bazaar.tf Script Paused (Signed Out). Version " + GM_info.script.version);
         if (!localStorage.getItem("apikey"))
             localStorage.setItem("apikey", prompt("API key not set, register yours from http://backpack.tf/api/"));
         if (localStorage.getItem("apikey").length !== 24) {
@@ -177,10 +175,8 @@
                             alert("Invalid API key");
                             localStorage.removeItem("apikey");
                             update();
-                        } else {
-                            alert("Error: " + data.response.message);
-                            return;
-                        }
+                        } else
+                            return alert("Error: " + data.response.message);
                     }
                     var key = data.response.items["Mann Co. Supply Crate Key"].prices[6].Tradable.Craftable[0],
                         bud = data.response.items.Earbuds.prices[6].Tradable.Craftable[0],
@@ -192,8 +188,7 @@
                     localStorage.setItem("budP", b);
                     alert("Prices updated, Keys: " + k + " Refined" + kDiff + ", Earbuds: " + b + " Keys" + bDiff);
                     localStorage.setItem("lastupdt", new Date());
-                    location.reload();
-                    return;
+                    return location.reload();
                 }
             });
         }
@@ -254,7 +249,7 @@
                 Array.prototype.forEach.call(document.getElementsByClassName("btn-warning disabled"), function(e) {
                     e.parentNode.parentNode.parentNode.parentNode.style.borderColor = "orange";
                 });
-                var accept = document.getElementsByClassName("btn-success disabled")[0];
+                var accept = document.querySelector(".btn-success.disabled");
                 if (accept)
                     accept.parentNode.parentNode.parentNode.parentNode.style.borderColor = "lime";
             }
@@ -262,6 +257,6 @@
         console.info("Bazaar.tf Script Loaded. Version " + GM_info.script.version);
     }
     catch(e) {
-        alert("[An error has occured]\n" + e.message + "\n[Stack Trace]\n" + e.stack);
+        alert("[A fatal error has occured]\n" + e.message + "\n[Stack Trace]\n" + e.stack);
     }
 })();
