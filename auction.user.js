@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.5.2
+// @version             1.4.5.3
 // ==/UserScript==
 
 (function () {
@@ -75,8 +75,8 @@
             }
             var txt = document.createElement("span"),
                 content = document.createTextNode(text);
-            txt.setAttribute("class", "item-text");
-            txt.setAttribute("style", "bottom: 0; left: 0; right: 0;");
+            txt.classList.add("item-text");
+            txt.style = "bottom: 0; left: 0; right: 0;";
             txt.appendChild(content);
             e.appendChild(txt);
         });
@@ -201,9 +201,9 @@
 
     try {
         /******** SCRIPT GLOBALS ********/
-        var tradeView = document.getElementsByClassName("fa-reply").length,
-            tradeList = document.getElementsByClassName("fa-share").length,
-            isAuction = document.getElementsByClassName("fa-legal").length,
+        var tradeView = document.querySelector(".fa-reply"),
+            tradeList = document.querySelector(".fa-share"),
+            isAuction = document.querySelector(".fa-legal"),
             keyP = +localStorage.getItem("keyP"),
             budP = +localStorage.getItem("budP");
         update();
