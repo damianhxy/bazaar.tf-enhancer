@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.5.3
+// @version             1.4.5.4
 // ==/UserScript==
 
 (function () {
@@ -209,7 +209,11 @@
         update();
         /****** END SCRIPT GLOBALS ******/
 
-        Array.prototype.forEach.call(document.getElementsByClassName("item-number, ks"), function(e) {
+        Array.prototype.forEach.call(document.getElementsByClassName("item-number"), function(e) {
+            e.style.display = "none";
+        });
+
+        Array.prototype.forEach.call(document.getElementsByClassName("ks"), function(e) {
             e.style.display = "none";
         });
 
