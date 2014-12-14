@@ -52,7 +52,7 @@
                         colour = "#c0c0c0";
                     else if (details.contains("Professional"))
                         colour = "#ffd700";
-                    e.appendChild(createIcon("bomb", "color: " + colour + "; background-color: white;"))
+                    e.appendChild(createIcon("bomb", "color: " + colour + "; background-color: white;"));
                     text = "Killstreak";
                 }
                 if (!text)
@@ -95,7 +95,7 @@
         }
         total = +total.toFixed(2);
         var string = (!allPure && total ? "~" : "") + total + " Refined";
-        if (total > +(keyP).toFixed(2)) {
+        if (total > +keyP.toFixed(2)) {
             string += "/ " + (total / keyP).toFixed(2) + " Keys";
             if (total > +(keyP * budP).toFixed(2))
                 string += "/ " + (total / (keyP * budP)).toFixed(2) + " Buds";
@@ -207,7 +207,6 @@
         /******** SCRIPT GLOBALS ********/
         var tradeView = document.querySelector(".fa-reply"),
             tradeList = document.querySelector(".fa-share"),
-            isAuction = document.querySelector(".fa-legal"),
             keyP = +localStorage.getItem("keyP"),
             budP = +localStorage.getItem("budP");
         update();
@@ -227,44 +226,45 @@
                 if (!e.querySelector(".fa-legal"))
                     annotate(e.querySelector(".wanted-items").children);
             });
-        } else if (!isAuction && tradeView) {
-            annotate(document.querySelector(".offered-items").children);
-            annotate(document.querySelector(".wanted-items").children);
-            Array.prototype.forEach.call(document.getElementsByClassName("comment-offers"), function(e) {
-                annotate(e.firstElementChild.children);
-            });
-        } else if (isAuction && tradeView) {
-            var data = document.createElement("li"),
-                itms = document.querySelector(".offered-items").children,
-                text = document.createTextNode(calc(itms));
-            annotate(itms);
-            data.style = "color: orange;";
-            data.appendChild(text);
-            document.querySelector(".trade-stats").appendChild(data);
-
-            Array.prototype.forEach.call(document.getElementsByClassName("comment-offers"), function(e) {
-                var data = document.createElement("span"),
-                    itms = e.firstElementChild.children,
-                    text = document.createTextNode(calc(itms)),
-                    notes = e.previousElementSibling.lastElementChild;
+        } else if (tradeView) {
+            if (document.querySelector(".fa-legal")) {
+                var data = document.createElement("li"),
+                    itms = document.querySelector(".offered-items").children,
+                    text = document.createTextNode(calc(itms));
                 annotate(itms);
-                data.style = "color: orange; float: right;";
+                data.style = "color: orange;";
                 data.appendChild(text);
-                notes.insertBefore(data, notes.firstElementChild);
-            });
+                document.querySelector(".trade-stats").appendChild(data);
 
-            if (highlighting) {
-                Array.prototype.forEach.call(document.getElementsByClassName("btn-warning disabled"), function(e) {
-                    e.parentNode.parentNode.parentNode.parentNode.style.borderColor = "orange";
+                Array.prototype.forEach.call(document.getElementsByClassName("comment-offers"), function(e) {
+                    var data = document.createElement("span"),
+                        itms = e.firstElementChild.children,
+                        text = document.createTextNode(calc(itms)),
+                        notes = e.previousElementSibling.lastElementChild;
+                    annotate(itms);
+                    data.style = "color: orange; float: right;";
+                    data.appendChild(text);
+                    notes.insertBefore(data, notes.firstElementChild);
                 });
-                var accept = document.querySelector(".btn-success.disabled");
-                if (accept)
-                    accept.parentNode.parentNode.parentNode.parentNode.style.borderColor = "lime";
+
+                if (highlighting) {
+                    Array.prototype.forEach.call(document.getElementsByClassName("btn-warning disabled"), function(e) {
+                        e.parentNode.parentNode.parentNode.parentNode.style.borderColor = "orange";
+                    });
+                    var accept = document.querySelector(".btn-success.disabled");
+                    if (accept)
+                        accept.parentNode.parentNode.parentNode.parentNode.style.borderColor = "lime";
+                }
+            } else {
+                annotate(document.querySelector(".offered-items").children);
+                annotate(document.querySelector(".wanted-items").children);
+                Array.prototype.forEach.call(document.getElementsByClassName("comment-offers"), function(e) {
+                    annotate(e.firstElementChild.children);
+                });
             }
         }
         console.info("Bazaar.tf Script Loaded. Version " + GM_info.script.version);
-    }
-    catch(e) {
+    } catch(e) {
         alert("[A fatal error has occured]\n" + e.message + "\n[Stack Trace]\n" + e.stack);
     }
 })();
