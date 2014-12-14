@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.5.6
+// @version             1.4.5.7
 // ==/UserScript==
 
 (function () {
@@ -55,8 +55,8 @@
                     e.appendChild(createIcon("bomb", "color: " + colour + "; background-color: white;"));
                     text = "Killstreak";
                 }
-                if (!text)
-                    text = "Unpriced";
+                if (e.hasAttribute("data-crate") || !text)
+                    text += "Unpriced";
             } else if (name.contains("Metal"))
                 text = price[0] + " Refined";
             else if (name.contains("Key"))
