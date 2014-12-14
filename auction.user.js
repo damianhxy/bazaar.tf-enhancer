@@ -32,16 +32,15 @@
                 var notes = e.getAttribute("data-notes"),
                     count = notes.match(/<\\\/p>/g).length;
                 if (notes.contains("Gifted"))
-                    e.insertAdjacentHTML("beforeend", "<i class='fa fa-gift fa-inverse fa-border pull-left'></i>");
+                    e.appendChild(createIcon("gift"));
                 if (notes.contains("Painted:") && !notes.contains(name))
-                    e.insertAdjacentHTML("beforeend", "<i class='fa fa-paint-brush fa-inverse fa-border " +
-                                         "pull-left'></i>");
+                    e.appendChild(createIcon("paint-brush"));
                 count -= (notes.match(/(Craft|Trad|Paint|Gift)(able|ed)/g) || "").length;
                 if (e.className.contains("q11") && count > 1)
-                    e.insertAdjacentHTML("beforeend", "<i class='fa fa-cogs fa-inverse fa-border pull-left'></i>");
+                    e.appendChild(createIcon("cogs"));
             }
             if (name.contains("Australium") && !name.contains("Gold"))
-                e.insertAdjacentHTML("beforeend", "<i class='fa fa-money fa-inverse fa-border pull-left'></i>");
+                e.appendChild(createIcon("money"));
             if (e.hasAttribute("data-crate"))
                 text = "#" + e.getAttribute("data-crate") + ": ";
             if (!price[0]) {
@@ -53,11 +52,11 @@
                         colour = "#c0c0c0";
                     else if (details.contains("Professional"))
                         colour = "#ffd700";
-                    e.insertAdjacentHTML("beforeend", "<i class='fa fa-bomb fa-border pull-left' " +
-                                         "style='color: " + colour + "; background-color: white'></i>");
-                    text = "KS: ";
+                    e.appendChild(createIcon("bomb", "color: " + colour + "; background-color: white;"))
+                    text = "Killstreak";
                 }
-                text += "Unpriced";
+                if (!text)
+                    text = "Unpriced";
             } else if (name.contains("Metal"))
                 text = price[0] + " Refined";
             else if (name.contains("Key"))
@@ -73,11 +72,10 @@
                 else
                     text += price[0] + " " + currency;
             }
-            var txt = document.createElement("span"),
-                content = document.createTextNode(text);
-            txt.classList.add("item-text");
+            var txt = document.createElement("span");
+            txt.className = "item-text";
             txt.style = "bottom: 0; left: 0; right: 0;";
-            txt.appendChild(content);
+            txt.appendChild(document.createTextNode(text));
             e.appendChild(txt);
         });
     }
@@ -88,8 +86,7 @@
         Array.prototype.forEach.call(trade, function(e) {
             var response = getPrice(e);
             total += response[0];
-            if (allPure)
-                allPure &= response[3];
+            allPure &= response[3];
         });
         if (!allPure) {
             total = round(total);
@@ -105,6 +102,13 @@
         }
         string += " in " + trade.length + " item" + (trade.length === 1 ? "" : "s");
         return string;
+    }
+
+    function createIcon(cls, style) {
+        var icon = document.createElement("i");
+        icon.className = "fa fa-" + cls + " fa-inverse fa-border pull-left";
+        icon.style = style;
+        return icon;
     }
 
     function getPrice(ele) {
