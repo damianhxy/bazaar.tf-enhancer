@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.5.4
+// @version             1.4.5.5
 // ==/UserScript==
 
 (function () {
@@ -45,7 +45,7 @@
                 text = "#" + e.getAttribute("data-crate") + ": ";
             if (!price[0]) {
                 if (e.getAttribute("data-special") === "Low craft #")
-                    text = "#" + e.getAttribute("data-craft") + ": ";
+                    text = "Lowcraft #" + e.getAttribute("data-craft");
                 if (details.contains("Killstreak")) {
                     var colour = "#cd7f32";
                     if (details.contains("Specialized"))
