@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.5.7
+// @version             1.4.5.8
 // ==/UserScript==
 
 (function () {
@@ -127,25 +127,23 @@
                 hasRange = true;
             } else
                 price = original = +data[0];
-            if (name.contains("Key") || name.contains("Earbud"))
+            if (name.contains("Token") || name.contains("Key") || name.contains("Earbud"))
                 isPure = true;
             if (data[1].contains("Key"))
                 price *= keyP;
             else if (data[1].contains("Earbud"))
                 price *= keyP * budP;
-            else if (name.contains("Token")) {
+            else if (name.contains("Token"))
                 price = 1 / 6;
-                isPure = true;
-            } else if (!hasRange)
+            else if (!hasRange)
                 price = round(price);
         } else {
-            isPure = true;
-            if (name === "Refined Metal")
-                price = 1;
-            else if (name === "Reclaimed Metal")
-                price = 1 / 3;
-            else if (name === "Scrap Metal")
-                price = 1 / 9;
+            ["Refined", "Reclaimed", "Scrap"].find(function(e, i) {
+                if (name.contains(e)) {
+                    price = 1 / Math.pow(3, i);
+                    return isPure = true;
+                }
+            });
         }
         return [price, original, hasRange, isPure];
     }
