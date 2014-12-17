@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.5.8
+// @version             1.4.5.9
 // ==/UserScript==
 
 (function () {
@@ -35,7 +35,7 @@
                     e.appendChild(createIcon("gift"));
                 if (notes.contains("Painted:") && !notes.contains(name))
                     e.appendChild(createIcon("paint-brush"));
-                count -= (notes.match(/(Craft|Trad|Paint|Gift)(able|ed)/g) || "").length;
+                count -= (notes.match(/(?:Craft|Trad|Paint|Gift)(?:able|ed)/g) || "").length;
                 if (e.className.contains("q11") && count > 1)
                     e.appendChild(createIcon("cogs"));
             }
@@ -246,12 +246,12 @@
                 });
 
                 if (highlighting) {
-                    Array.prototype.forEach.call(document.getElementsByClassName("btn-warning disabled"), function(e) {
-                        e.parentNode.parentNode.parentNode.parentNode.style.borderColor = "orange";
+                    Array.prototype.forEach.call(document.querySelectorAll("[id^='thread-']"), function(e) {
+                        if (e.querySelector(".btn-warning.disabled"))
+                            e.firstElementChild.style.borderColor = "orange";
+                        else if (e.querySelector(".btn-success.disabled"))
+                            e.firstElementChild.style.borderColor = "lime";
                     });
-                    var accept = document.querySelector(".btn-success.disabled");
-                    if (accept)
-                        accept.parentNode.parentNode.parentNode.parentNode.style.borderColor = "lime";
                 }
             } else {
                 annotate(document.querySelector(".offered-items").children);
