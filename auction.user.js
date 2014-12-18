@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.5.9
+// @version             1.4.6.0
 // ==/UserScript==
 
 (function () {
@@ -25,7 +25,7 @@
                 text = "",
                 name = e.getAttribute("data-name"),
                 details = e.getAttribute("data-details") || "";
-            if (price[0] * 100 % 1 >= 0.5 && !price[2])
+            if (price[0] % 1 >= 0.5 && !price[2])
                 price[0] -= 0.005;
             price[0] = +price[0].toFixed(2);
             if (e.hasAttribute("data-notes")) {
@@ -90,7 +90,7 @@
         });
         if (!allPure) {
             total = round(total);
-            if (total * 100 % 1 >= 0.5)
+            if (total % 1 >= 0.5)
                 total -= 0.005;
         }
         total = +total.toFixed(2);
@@ -233,26 +233,25 @@
                 data.style = "color: orange;";
                 data.appendChild(text);
                 document.querySelector(".trade-stats").appendChild(data);
-
-                Array.prototype.forEach.call(document.getElementsByClassName("comment-offers"), function(e) {
-                    var data = document.createElement("span"),
-                        itms = e.firstElementChild.children,
-                        text = document.createTextNode(calc(itms)),
-                        notes = e.previousElementSibling.lastElementChild;
-                    annotate(itms);
-                    data.style = "color: orange; float: right;";
-                    data.appendChild(text);
-                    notes.insertBefore(data, notes.firstElementChild);
-                });
-
-                if (highlighting) {
-                    Array.prototype.forEach.call(document.querySelectorAll("[id^='thread-']"), function(e) {
+                Array.prototype.forEach.call(document.querySelectorAll("[id^='thread-']"), function(e) {
+                    var offer = e.querySelector(".comment-offers");
+                    if (offer) {
+                        var data = document.createElement("span"),
+                            itms = offer.firstElementChild.children,
+                            text = document.createTextNode(calc(itms)),
+                            notes = offer.previousElementSibling.lastElementChild;
+                        annotate(itms);
+                        data.style = "color: orange; float: right;";
+                        data.appendChild(text);
+                        notes.insertBefore(data, notes.firstElementChild);
+                    }
+                    if (highlighting) {
                         if (e.querySelector(".btn-warning.disabled"))
                             e.firstElementChild.style.borderColor = "orange";
                         else if (e.querySelector(".btn-success.disabled"))
                             e.firstElementChild.style.borderColor = "lime";
-                    });
-                }
+                    }
+                });
             } else {
                 annotate(document.querySelector(".offered-items").children);
                 annotate(document.querySelector(".wanted-items").children);
