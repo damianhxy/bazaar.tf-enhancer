@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.6.0
+// @version             1.4.6.1
 // ==/UserScript==
 
 (function () {
@@ -82,10 +82,12 @@
 
     function calc(trade) {
         var total = 0,
+            unpriced = 0,
             allPure = true;
         Array.prototype.forEach.call(trade, function(e) {
             var response = getPrice(e);
             total += response[0];
+            if (!response[0]) unpriced++;
             allPure &= response[3];
         });
         if (!allPure) {
@@ -101,6 +103,7 @@
                 string += "/ " + (total / (keyP * budP)).toFixed(2) + " Buds";
         }
         string += " in " + trade.length + " item" + (trade.length === 1 ? "" : "s");
+        if (unpriced) string += " (" + unpriced + " unpriced)";
         return string;
     }
 
@@ -139,7 +142,7 @@
                 price = round(price);
         } else {
             ["Refined", "Reclaimed", "Scrap"].find(function(e, i) {
-                if (name.contains(e)) {
+                if (name.contains(e) && name.contains("Metal")) {
                     price = 1 / Math.pow(3, i);
                     return isPure = true;
                 }
