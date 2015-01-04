@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.6.2
+// @version             1.4.6.3
 // ==/UserScript==
 
 (function () {
@@ -35,7 +35,7 @@
                     e.appendChild(createIcon("gift"));
                 if (notes.contains("Painted:") && !notes.contains(name))
                     e.appendChild(createIcon("paint-brush"));
-                count -= (notes.match(/(?:Craft|Trad|Paint|Gift)(?:able|ed)/g) || "").length;
+                count -= (notes.match(/Tradable|(?:Craft|Gift|Paint)ed/g) || "").length;
                 if (e.className.contains("q11") && count > 1)
                     e.appendChild(createIcon("cogs"));
             }
@@ -55,20 +55,20 @@
                     e.appendChild(createIcon("bomb", "color: " + colour + "; background-color: white;"));
                     text = "Killstreak";
                 }
-                if (e.hasAttribute("data-crate") || !text)
+                if (!text || e.hasAttribute("data-crate"))
                     text += "Unpriced";
             } else if (name.contains("Metal"))
                 text = price[0] + " Refined";
             else if (name.contains("Key"))
-                text = +keyP.toFixed(2) + " Refined";
+                text = keyP.toFixed(2) + " Refined";
             else if (name.contains("Earbud"))
-                text = +budP.toFixed(2) + " Keys";
+                text = budP.toFixed(2) + " Keys";
             else {
                 var currency = e.getAttribute("data-price").split(" ")[1];
                 if (currency.contains("Weapon"))
                     text += "Any Weapon";
                 else if (currency.contains("Key") || currency.contains("Earbud"))
-                    text += +price[1].toFixed(2) + " " + currency;
+                    text += price[1].toFixed(2) + " " + currency;
                 else
                     text += price[0] + " " + currency;
             }
@@ -86,7 +86,10 @@
             allPure = true;
         Array.prototype.forEach.call(trade, function(e) {
             var response = getPrice(e);
-            total += response[0] || ++unpriced;
+            if (response[0])
+                total += response[0];
+            else
+                ++unpriced;
             allPure &= response[3];
         });
         if (!allPure) {
