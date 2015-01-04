@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.6.1
+// @version             1.4.6.2
 // ==/UserScript==
 
 (function () {
@@ -86,8 +86,7 @@
             allPure = true;
         Array.prototype.forEach.call(trade, function(e) {
             var response = getPrice(e);
-            total += response[0];
-            if (!response[0]) unpriced++;
+            total += response[0] || ++unpriced;
             allPure &= response[3];
         });
         if (!allPure) {
@@ -96,14 +95,15 @@
                 total -= 0.005;
         }
         total = +total.toFixed(2);
-        var string = (!allPure && total ? "~" : "") + total + " Refined";
+        var string = (total && !allPure ? "~" : "") + total + " Refined";
         if (total > +keyP.toFixed(2)) {
             string += "/ " + (total / keyP).toFixed(2) + " Keys";
             if (total > +(keyP * budP).toFixed(2))
                 string += "/ " + (total / (keyP * budP)).toFixed(2) + " Buds";
         }
         string += " in " + trade.length + " item" + (trade.length === 1 ? "" : "s");
-        if (unpriced) string += " (" + unpriced + " unpriced)";
+        if (unpriced)
+            string += " (" + unpriced + " unpriced)";
         return string;
     }
 
