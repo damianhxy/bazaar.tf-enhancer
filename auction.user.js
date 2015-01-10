@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.6.6
+// @version             1.4.6.7
 // ==/UserScript==
 
 (function () {
@@ -170,50 +170,52 @@
             localStorage.removeItem("apikey");
             update();
         }
-        if (!localStorage.getItem("keyP") || !localStorage.getItem("budP") ||
-            (new Date() - (Date.parse(localStorage.getItem("lastupdt")) || 0) >= 864e5 * updateFreq)) {
-            GM_xmlhttpRequest({
-                method: "GET",
-                url: "http://backpack.tf/api/IGetPrices/v4/?key=" + localStorage.getItem("apikey"),
-                onload: function(e) {
-                    var data = JSON.parse(e.response);
-                    if (!data.response.success) {
-                        if (data.response.message === "API key does not exist.") {
-                            alert("Invalid API key");
-                            localStorage.removeItem("apikey");
-                            update();
-                        } else
-                            return alert("Error: " + data.response.message);
-                    }
-                    var key = data.response.items["Mann Co. Supply Crate Key"].prices[6].Tradable.Craftable[0],
-                        bud = data.response.items.Earbuds.prices[6].Tradable.Craftable[0],
-                        k = (key.value + (key.value_high || key.value)) / 2,
-                        b = (bud.value + (bud.value_high || bud.value)) / 2,
-                        kDiff = " (" + (k === keyP ? "=" : (k < keyP ? "↓" : "↑")) + ")",
-                        bDiff = " (" + (b === budP ? "=" : (b < budP ? "↓" : "↑")) + ")";
-                    localStorage.setItem("keyP", k);
-                    localStorage.setItem("budP", b);
-                    alert("Prices updated, Keys: " + k + " Refined" + kDiff + ", Earbuds: " + b + " Keys" + bDiff);
-                    localStorage.setItem("lastupdt", new Date());
-                    return location.reload();
+        GM_xmlhttpRequest({
+            method: "GET",
+            url: "http://backpack.tf/api/IGetPrices/v4/?key=" + localStorage.getItem("apikey"),
+            onload: function(e) {
+                var data = JSON.parse(e.response);
+                if (!data.response.success) {
+                    if (data.response.message === "API key does not exist.") {
+                        alert("Invalid API key");
+                        localStorage.removeItem("apikey");
+                        update();
+                    } else
+                        return alert("Error: " + data.response.message);
                 }
-            });
-        }
-        var diff = 864e5 * updateFreq - (new Date() - Date.parse(localStorage.getItem("lastupdt"))),
-            days = Math.floor(diff / 864e5),
-            hours = Math.floor((diff % 864e5) / 36e5),
-            minutes = Math.floor((diff % 36e5) / 6e4);
-        console.info("Prices will update in " + days + " day(s), " + hours + " hour(s), and " + minutes + " min(s)");
+                var key = data.response.items["Mann Co. Supply Crate Key"].prices[6].Tradable.Craftable[0],
+                    bud = data.response.items.Earbuds.prices[6].Tradable.Craftable[0],
+                    k = (key.value + (key.value_high || key.value)) / 2,
+                    b = (bud.value + (bud.value_high || bud.value)) / 2,
+                    kDiff = " (" + (k === keyP ? "=" : (k < keyP ? "↓" : "↑")) + ")",
+                    bDiff = " (" + (b === budP ? "=" : (b < budP ? "↓" : "↑")) + ")";
+                localStorage.setItem("keyP", k);
+                localStorage.setItem("budP", b);
+                alert("Prices updated, Keys: " + k + " Refined" + kDiff + ", Earbuds: " + b + " Keys" + bDiff);
+                localStorage.setItem("lastupdt", new Date());
+                return location.reload();
+            }
+        });
     }
 
     try {
         /******** SCRIPT GLOBALS ********/
         var tradeView = document.querySelector(".fa-reply"),
             tradeList = document.querySelector(".fa-share"),
-            keyP = +localStorage.getItem("keyP"),
-            budP = +localStorage.getItem("budP");
-        update();
+            keyP = +localStorage.getItem("keyP") || update(),
+            budP = +localStorage.getItem("budP") || update(),
+            lastUpdt = new Date() - Date.parse(localStorage.getItem("lastupdt"));
         /****** END SCRIPT GLOBALS ******/
+
+        if (!lastUpdt || lastUpdt >= 864e5 * updateFreq)
+            update();
+        else {
+            var diff = 864e5 * updateFreq - lastUpdt,
+                days = Math.floor(diff / 864e5),
+                hours = Math.floor((diff % 864e5) / 36e5),
+                minutes = Math.floor((diff % 36e5) / 6e4);
+            console.info("Prices will update in " + days + " day(s), " + hours + " hour(s), and " + minutes + " min(s)");
+        }
 
         Array.prototype.forEach.call(document.getElementsByClassName("item-number"), function(e) {
             e.style.display = "none";
