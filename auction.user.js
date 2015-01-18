@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.6.7
+// @version             1.4.6.8
 // ==/UserScript==
 
 (function () {
@@ -133,13 +133,13 @@
                 hasRange = true;
             } else
                 price = original = +data[0];
-            if (name.contains("Token") || name.contains("Key") || name.contains("Earbud"))
+            if (name.match(/(?:Slot|Class) Token/) || name.contains("Key") || name.contains("Earbud"))
                 isPure = true;
             if (data[1].contains("Key"))
                 price *= keyP;
             else if (data[1].contains("Earbud"))
                 price *= keyP * budP;
-            else if (name.contains("Token"))
+            else if (name.match(/(?:Slot|Class) Token/))
                 price = 1 / 6;
             else if (!hasRange)
                 price = round(price);
