@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.6.8
+// @version             1.4.6.9
 // ==/UserScript==
 
 (function () {
@@ -25,7 +25,7 @@
                 text = "",
                 name = e.getAttribute("data-name"),
                 details = e.getAttribute("data-details") || "";
-            if (price[0] % 1 >= 0.5 && !price[2])
+            if (price[0] * 10 % 1 >= 0.5 && !price[2])
                 price[0] -= 0.005;
             price[0] = +price[0].toFixed(2);
             if (e.hasAttribute("data-notes")) {
@@ -86,15 +86,12 @@
             allPure = true;
         Array.prototype.forEach.call(trade, function(e) {
             var response = getPrice(e);
-            if (response[0])
-                total += response[0];
-            else
-                ++unpriced;
+            response[0] ? total += response[0] : unpriced++;
             allPure &= response[3];
         });
         if (!allPure) {
             total = round(total);
-            if (total % 1 >= 0.5)
+            if (total * 10 % 1 >= 0.5)
                 total -= 0.005;
         }
         total = +total.toFixed(2);
