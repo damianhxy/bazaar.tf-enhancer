@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.6.9
+// @version             1.4.7.0
 // ==/UserScript==
 
 (function () {
@@ -25,9 +25,7 @@
                 text = "",
                 name = e.getAttribute("data-name"),
                 details = e.getAttribute("data-details") || "";
-            if (price[0] * 10 % 1 >= 0.5 && !price[2])
-                price[0] -= 0.005;
-            price[0] = +price[0].toFixed(2);
+            price[0] = Math.floor(+price[0] * 100) / 100;
             if (e.hasAttribute("data-notes")) {
                 var notes = e.getAttribute("data-notes"),
                     count = notes.match(/<\\\/p>/g).length;
@@ -89,12 +87,7 @@
             response[0] ? total += response[0] : unpriced++;
             allPure &= response[3];
         });
-        if (!allPure) {
-            total = round(total);
-            if (total * 10 % 1 >= 0.5)
-                total -= 0.005;
-        }
-        total = +total.toFixed(2);
+        total = Math.floor(total * 100) / 100;
         var string = (total && !allPure ? "~" : "") + total + " Refined";
         if (total > +keyP.toFixed(2)) {
             string += "/ " + (total / keyP).toFixed(2) + " Keys";
