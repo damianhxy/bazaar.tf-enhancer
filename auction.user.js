@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.7.0
+// @version             1.4.7.1
 // ==/UserScript==
 
 (function () {
@@ -80,11 +80,10 @@
 
     function calc(trade) {
         var total = 0,
-            unpriced = 0,
             allPure = true;
         Array.prototype.forEach.call(trade, function(e) {
             var response = getPrice(e);
-            response[0] ? total += response[0] : unpriced++;
+            total += response[0];
             allPure &= response[3];
         });
         total = Math.floor(total * 100) / 100;
@@ -95,8 +94,6 @@
                 string += "/ " + (total / (keyP * budP)).toFixed(2) + " Buds";
         }
         string += " in " + trade.length + " item" + (trade.length === 1 ? "" : "s");
-        if (unpriced)
-            string += " (" + unpriced + " unpriced)";
         return string;
     }
 
@@ -225,11 +222,30 @@
             if (document.querySelector(".fa-legal")) {
                 var data = document.createElement("li"),
                     itms = document.querySelector(".offered-items").children,
-                    text = document.createTextNode(calc(itms));
+                    text = document.createTextNode(calc(itms)),
+                    paints = {};
                 annotate(itms);
-                data.style = "color: orange;";
+                data.style = "color: orange; cursor: pointer;";
                 data.appendChild(text);
                 document.querySelector(".trade-stats").appendChild(data);
+                Array.prototype.forEach.call(document.querySelectorAll("[data-paint]"), function(e) {
+                    var name = e.getAttribute("data-notes").split("<\\\/p>")[0].slice(12);
+                    paints[name] ? paints[name]++ : paints[name] = 1;
+                });
+                data.addEventListener("click", function() {
+                    var msg = "",
+                        pnt = 0,
+                        offered = document.querySelector(".offered-items");
+                    for (var paint in paints) {
+                        msg += "[" + ("0" + paints[paint]).slice(-2) + "] " + paint + "\n";
+                        pnt += paints[paint];
+                    }
+                    msg += "Painted: " + pnt + "\n";
+                    msg += "Unpriced: " + offered.querySelectorAll(".item:not([data-price])").length + "\n";
+                    msg += "Killstreaks: " + offered.getElementsByClassName("fa-bomb").length + "\n";
+                    msg += "Parted: " + offered.getElementsByClassName("fa-cogs").length + "\n";
+                    alert(msg);
+                });
                 Array.prototype.forEach.call(document.querySelectorAll("[id^='thread-']"), function(e) {
                     var offer = e.querySelector(".comment-offers");
                     if (offer) {
