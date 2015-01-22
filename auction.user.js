@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.7.1
+// @version             1.4.7.2
 // ==/UserScript==
 
 (function () {
@@ -93,7 +93,6 @@
             if (total > +(keyP * budP).toFixed(2))
                 string += "/ " + (total / (keyP * budP)).toFixed(2) + " Buds";
         }
-        string += " in " + trade.length + " item" + (trade.length === 1 ? "" : "s");
         return string;
     }
 
@@ -145,6 +144,29 @@
         if (num <= 5 / 90)
             return num;
         return Math.floor(num) + Math.ceil(num % 1 * 9) / 9;
+    }
+
+    function summary(txt, parent) {
+        var paints = {};
+        txt.style.cursor = "pointer";
+        Array.prototype.forEach.call(parent.querySelectorAll("[data-paint]"), function(e) {
+            var name = e.getAttribute("data-notes").split("<\\\/p>")[0].slice(12);
+            paints[name] ? paints[name]++ : paints[name] = 1;
+        });
+        txt.addEventListener("click", function() {
+            var msg = "",
+                pnt = 0;
+            for (var paint in paints) {
+                msg += "[" + ("0" + paints[paint]).slice(-2) + "] " + paint + "\n";
+                pnt += paints[paint];
+            }
+            msg += "Painted: " + pnt + "\n";
+            msg += "Unpriced: " + parent.querySelectorAll(".item:not([data-price])").length + "\n";
+            msg += "Killstreaks: " + parent.getElementsByClassName("fa-bomb").length + "\n";
+            msg += "Parted: " + parent.getElementsByClassName("fa-cogs").length + "\n";
+            msg += "Total Items: " + parent.children.length + "\n";
+            alert(msg);
+        });
     }
 
     function update() {
@@ -222,30 +244,12 @@
             if (document.querySelector(".fa-legal")) {
                 var data = document.createElement("li"),
                     itms = document.querySelector(".offered-items").children,
-                    text = document.createTextNode(calc(itms)),
-                    paints = {};
+                    text = document.createTextNode(calc(itms));
                 annotate(itms);
-                data.style = "color: orange; cursor: pointer;";
+                data.style = "color: orange;";
                 data.appendChild(text);
+                summary(data, document.querySelector(".offered-items"));
                 document.querySelector(".trade-stats").appendChild(data);
-                Array.prototype.forEach.call(document.querySelectorAll("[data-paint]"), function(e) {
-                    var name = e.getAttribute("data-notes").split("<\\\/p>")[0].slice(12);
-                    paints[name] ? paints[name]++ : paints[name] = 1;
-                });
-                data.addEventListener("click", function() {
-                    var msg = "",
-                        pnt = 0,
-                        offered = document.querySelector(".offered-items");
-                    for (var paint in paints) {
-                        msg += "[" + ("0" + paints[paint]).slice(-2) + "] " + paint + "\n";
-                        pnt += paints[paint];
-                    }
-                    msg += "Painted: " + pnt + "\n";
-                    msg += "Unpriced: " + offered.querySelectorAll(".item:not([data-price])").length + "\n";
-                    msg += "Killstreaks: " + offered.getElementsByClassName("fa-bomb").length + "\n";
-                    msg += "Parted: " + offered.getElementsByClassName("fa-cogs").length + "\n";
-                    alert(msg);
-                });
                 Array.prototype.forEach.call(document.querySelectorAll("[id^='thread-']"), function(e) {
                     var offer = e.querySelector(".comment-offers");
                     if (offer) {
@@ -256,6 +260,7 @@
                         annotate(itms);
                         data.style = "color: orange; float: right;";
                         data.appendChild(text);
+                        summary(data, e);
                         notes.insertBefore(data, notes.firstElementChild);
                     }
                     if (highlighting) {
