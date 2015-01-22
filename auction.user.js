@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.7.5
+// @version             1.4.7.6
 // ==/UserScript==
 
 (function () {
@@ -118,7 +118,7 @@
                 hasRange = true;
             } else
                 price = original = +data[0];
-            if (name.match(/(?:Slot|Class) Token/) || name.contains("Key") || name.contains("Earbud"))
+            if (name.match(/(?:Key|Earbud|(?:Slot|Class) Token)/))
                 isPure = true;
             if (data[1].contains("Key"))
                 price *= keyP;
@@ -164,6 +164,8 @@
             msg += "Unpriced: " + parent.querySelectorAll(".item:not([data-price])").length + "\n";
             msg += "Killstreaks: " + parent.getElementsByClassName("fa-bomb").length + "\n";
             msg += "Parted: " + parent.getElementsByClassName("fa-cogs").length + "\n";
+            msg += "Uncraftable: " + parent.querySelectorAll("[data-flag_cannot_craft]").length + "\n";
+            msg += "Untradable: " + parent.querySelectorAll("[data-flag_cannot_trade]").length + "\n";
             msg += "Total Items: " + parent.children.length + "\n";
             alert(msg);
         });
