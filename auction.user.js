@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.7.6
+// @version             1.4.7.7
 // ==/UserScript==
 
 (function () {
@@ -126,7 +126,7 @@
                 price *= keyP * budP;
             else if (name.match(/(?:Slot|Class) Token/))
                 price = 1 / 6;
-            else if (!hasRange)
+            if (!isPure)
                 price = round(price);
         } else {
             ["Refined", "Reclaimed", "Scrap"].find(function(e, i) {
@@ -161,7 +161,6 @@
                 pnt += paints[paint];
             }
             msg += "Painted: " + pnt + "\n";
-            msg += "Unpriced: " + parent.querySelectorAll(".item:not([data-price])").length + "\n";
             msg += "Killstreaks: " + parent.getElementsByClassName("fa-bomb").length + "\n";
             msg += "Parted: " + parent.getElementsByClassName("fa-cogs").length + "\n";
             msg += "Uncraftable: " + parent.querySelectorAll("[data-flag_cannot_craft]").length + "\n";
