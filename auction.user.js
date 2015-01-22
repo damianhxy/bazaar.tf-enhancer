@@ -8,13 +8,12 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.7.2
+// @version             1.4.7.3
 // ==/UserScript==
 
 (function () {
     /*********** SETTINGS ***********/
-    var updateFreq = 3,              //[days] price refresh frequency
-        highlighting = 1;            //[boolean] turn on offer highlighting?
+    var updateFreq = 3;              //[days] price refresh frequency
     /******** END OF SETTINGS *******/
 
     function annotate(trade) {
@@ -260,15 +259,13 @@
                         annotate(itms);
                         data.style = "color: orange; float: right;";
                         data.appendChild(text);
-                        summary(data, e);
+                        summary(data, offer.firstElementChild);
                         notes.insertBefore(data, notes.firstElementChild);
                     }
-                    if (highlighting) {
-                        if (e.querySelector(".btn-warning.disabled"))
-                            e.firstElementChild.style.borderColor = "orange";
-                        else if (e.querySelector(".btn-success.disabled"))
-                            e.firstElementChild.style.borderColor = "lime";
-                    }
+                    if (e.querySelector(".btn-warning.disabled"))
+                        e.firstElementChild.style.borderColor = "orange";
+                    else if (e.querySelector(".btn-success.disabled"))
+                        e.firstElementChild.style.borderColor = "lime";
                 });
             } else {
                 annotate(document.querySelector(".offered-items").children);
