@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.7.7
+// @version             1.4.7.8
 // ==/UserScript==
 
 (function () {
@@ -165,6 +165,7 @@
             msg += "Parted: " + parent.getElementsByClassName("fa-cogs").length + "\n";
             msg += "Uncraftable: " + parent.querySelectorAll("[data-flag_cannot_craft]").length + "\n";
             msg += "Untradable: " + parent.querySelectorAll("[data-flag_cannot_trade]").length + "\n";
+            msg += "Gifted: " + parent.querySelectorAll(".fa-gift").length + "\n";
             msg += "Total Items: " + parent.children.length + "\n";
             alert(msg);
         });
