@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.7.9
+// @version             1.4.8.0
 // ==/UserScript==
 
 (function () {
@@ -142,7 +142,7 @@
     function round(num) {
         if (num <= 5 / 90)
             return num;
-        return Math.floor(num) + Math.ceil(num % 1 * 9) / 9;
+        return Math.floor(num) + Math.ceil(num % 1 * 9 - 1e-14) / 9;
     }
 
     function summary(txt, parent) {
