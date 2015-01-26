@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.7.8
+// @version             1.4.7.9
 // ==/UserScript==
 
 (function () {
@@ -126,7 +126,7 @@
                 price *= keyP * budP;
             else if (name.match(/(?:Slot|Class) Token/))
                 price = 1 / 6;
-            if (!isPure)
+            if (!isPure && !hasRange)
                 price = round(price);
         } else {
             ["Refined", "Reclaimed", "Scrap"].find(function(e, i) {
