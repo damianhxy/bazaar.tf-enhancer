@@ -1,5 +1,5 @@
 // ==UserScript==
-// @copyright           2014, Damian Ho
+// @copyright           ©2014 - 2015, Damian Ho
 // @description         Helper script for Bazaar.tf
 // @downloadURL         https://bitbucket.org/damianhxy/bazaar.tf-enhancer/raw/master/auction.user.js
 // @grant               GM_xmlhttpRequest
@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.8.0
+// @version             1.4.8.1
 // ==/UserScript==
 
 (function () {
