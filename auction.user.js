@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.8.2
+// @version             1.4.8.3
 // ==/UserScript==
 
 (function () {
@@ -98,7 +98,7 @@
     function createIcon(cls, style) {
         var icon = document.createElement("i");
         icon.className = "fa fa-" + cls + " fa-inverse fa-border pull-left";
-        icon.style = "border-radius: 10px; " + style;
+        icon.style = "border-radius: 50%; " + style;
         return icon;
     }
 
@@ -192,7 +192,7 @@
                         localStorage.removeItem("apikey");
                         update();
                     } else
-                        return alert("Error: " + data.response.message);
+                        return alert("Error:\n" + data.response.message);
                 }
                 var key = data.response.items["Mann Co. Supply Crate Key"].prices[6].Tradable.Craftable[0],
                     bud = data.response.items.Earbuds.prices[6].Tradable.Craftable[0],
@@ -213,12 +213,12 @@
         /******** SCRIPT GLOBALS ********/
         var tradeView = document.querySelector(".fa-reply"),
             tradeList = document.querySelector(".fa-share"),
-            keyP = +localStorage.getItem("keyP") || update(),
-            budP = +localStorage.getItem("budP") || update(),
+            keyP = +localStorage.getItem("keyP"),
+            budP = +localStorage.getItem("budP"),
             lastUpdt = new Date() - Date.parse(localStorage.getItem("lastupdt"));
         /****** END SCRIPT GLOBALS ******/
 
-        if (!lastUpdt || lastUpdt >= 864e5 * updateFreq)
+        if (!(lastUpdt && keyP && budP && lastUpdt < 864e5 * updateFreq))
             update();
         else {
             var diff = 864e5 * updateFreq - lastUpdt,
