@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.8.4
+// @version             1.4.8.5
 // ==/UserScript==
 
 (function () {
@@ -146,22 +146,22 @@
     }
 
     function summary(txt, parent) {
-        var paints = {};
+        var paints = new Map();
         txt.style.cursor = "pointer";
         Array.prototype.forEach.call(parent.querySelectorAll("[data-paint]"), function(e) {
             var name = e.getAttribute("data-notes").split("<\\\/p>")[0].slice(13);
             if (name !== e.getAttribute("data-name"))
-                paints[name] ? paints[name]++ : paints[name] = 1;
+                paints.set(name, paints.has(name) ? paints[name] + 1 : 1);
         });
         txt.addEventListener("click", function() {
             var msg = "",
                 pnt = 0;
-            for (var paint in paints) {
-                msg += "[" + ("0" + paints[paint]).slice(-2) + "] " + paint + "\n";
-                pnt += paints[paint];
+            for (var [paint, count] of paints) {
+                msg += "[" + ("0" + count).slice(-2) + "] " + paint + "\n";
+                pnt += count;
             }
             msg += "Painted: " + pnt + "\n";
-            msg += "Killstreaks: " + parent.getElementsByClassName("fa-bomb").length + "\n";
+            msg += "Killstreaked: " + parent.getElementsByClassName("fa-bomb").length + "\n";
             msg += "Parted: " + parent.getElementsByClassName("fa-cogs").length + "\n";
             msg += "Uncraftable: " + parent.querySelectorAll("[data-flag_cannot_craft]").length + "\n";
             msg += "Untradable: " + parent.querySelectorAll("[data-flag_cannot_trade]").length + "\n";
