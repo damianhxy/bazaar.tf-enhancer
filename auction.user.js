@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.8.6
+// @version             1.4.8.7
 // ==/UserScript==
 
 (function () {
@@ -190,7 +190,7 @@
                     if (data.response.message === "API key does not exist.") {
                         alert("Invalid API key");
                         localStorage.removeItem("apikey");
-                        update();
+                        return update();
                     } else
                         return alert("Error:\n" + data.response.message);
                 }
@@ -218,9 +218,7 @@
             lastUpdt = new Date() - Date.parse(localStorage.getItem("lastupdt"));
         /****** END SCRIPT GLOBALS ******/
 
-        if (!(lastUpdt && keyP && budP && lastUpdt < 864e5 * updateFreq))
-            update();
-        else {
+        if (lastUpdt && refP && keyP && budP && lastUpdt < 864e5 * updateFreq || update()) {
             var diff = 864e5 * updateFreq - lastUpdt,
                 days = Math.floor(diff / 864e5),
                 hours = Math.floor((diff % 864e5) / 36e5),
