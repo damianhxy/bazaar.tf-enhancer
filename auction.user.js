@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.8.5
+// @version             1.4.8.6
 // ==/UserScript==
 
 (function () {
@@ -151,7 +151,7 @@
         Array.prototype.forEach.call(parent.querySelectorAll("[data-paint]"), function(e) {
             var name = e.getAttribute("data-notes").split("<\\\/p>")[0].slice(13);
             if (name !== e.getAttribute("data-name"))
-                paints.set(name, paints.has(name) ? paints[name] + 1 : 1);
+                paints.set(name, (paints.get(name) || 0) + 1);
         });
         txt.addEventListener("click", function() {
             var msg = "",
