@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.8.7
+// @version             1.4.8.8
 // ==/UserScript==
 
 (function () {
@@ -98,7 +98,7 @@
     function createIcon(cls, style) {
         var icon = document.createElement("i");
         icon.className = "fa fa-" + cls + " fa-inverse fa-border pull-left";
-        icon.style = "border-radius: 50%; " + style;
+        icon.style = "border-radius: 50%;" + (style ? " " + style : "");
         return icon;
     }
 
