@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.8.8
+// @version             1.4.8.9
 // ==/UserScript==
 
 (function () {
@@ -44,11 +44,11 @@
                 if (e.getAttribute("data-special") === "Low craft #")
                     text = "Lowcraft #" + e.getAttribute("data-craft");
                 if (details.contains("Killstreak")) {
-                    var colour = "#cd7f32";
+                    var colour = "darkgoldenrod";
                     if (details.contains("Specialized"))
-                        colour = "#c0c0c0";
+                        colour = "darkgray";
                     else if (details.contains("Professional"))
-                        colour = "#ffd700";
+                        colour = "gold";
                     e.appendChild(createIcon("bomb", "color: " + colour + "; background-color: white;"));
                     text = "Killstreak";
                 }
@@ -218,7 +218,7 @@
             lastUpdt = new Date() - Date.parse(localStorage.getItem("lastupdt"));
         /****** END SCRIPT GLOBALS ******/
 
-        if (lastUpdt && refP && keyP && budP && lastUpdt < 864e5 * updateFreq || update()) {
+        if (lastUpdt && keyP && budP && lastUpdt < 864e5 * updateFreq || update()) {
             var diff = 864e5 * updateFreq - lastUpdt,
                 days = Math.floor(diff / 864e5),
                 hours = Math.floor((diff % 864e5) / 36e5),
