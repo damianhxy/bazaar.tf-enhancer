@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.8.9
+// @version             1.4.9.0
 // ==/UserScript==
 
 (function () {
@@ -215,10 +215,10 @@
             tradeList = document.querySelector(".fa-share"),
             keyP = +localStorage.getItem("keyP"),
             budP = +localStorage.getItem("budP"),
-            lastUpdt = new Date() - Date.parse(localStorage.getItem("lastupdt"));
+            lastUpdt = new Date() - Date.parse(localStorage.getItem("lastupdt")) || 0;
         /****** END SCRIPT GLOBALS ******/
 
-        if (lastUpdt && keyP && budP && lastUpdt < 864e5 * updateFreq || update()) {
+        if (keyP && budP && lastUpdt < 864e5 * updateFreq || update()) {
             var diff = 864e5 * updateFreq - lastUpdt,
                 days = Math.floor(diff / 864e5),
                 hours = Math.floor((diff % 864e5) / 36e5),
