@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.9.0
+// @version             1.4.9.1
 // ==/UserScript==
 
 (function () {
@@ -142,23 +142,23 @@
     function round(num) {
         if (num <= 5 / 90)
             return num;
-        return Math.floor(num) + Math.ceil(num % 1 * 9 - 1e-14) / 9;
+        return Math.floor(num) + Math.round(num % 1 * 9) / 9;
     }
 
     function summary(txt, parent) {
-        var paints = new Map();
+        var paints = {};
         txt.style.cursor = "pointer";
         Array.prototype.forEach.call(parent.querySelectorAll("[data-paint]"), function(e) {
             var name = e.getAttribute("data-notes").split("<\\\/p>")[0].slice(13);
             if (name !== e.getAttribute("data-name"))
-                paints.set(name, (paints.get(name) || 0) + 1);
+                paints[name] = (paints[name] || 0) + 1;
         });
         txt.addEventListener("click", function() {
             var msg = "",
                 pnt = 0;
-            for (var [paint, count] of paints) {
-                msg += "[" + ("0" + count).slice(-2) + "] " + paint + "\n";
-                pnt += count;
+            for (var paint in paints) {
+                msg += "[" + ("0" + paints[paint]).slice(-2) + "] " + paint + "\n";
+                pnt += paints[paint];
             }
             msg += "Painted: " + pnt + "\n";
             msg += "Killstreaked: " + parent.getElementsByClassName("fa-bomb").length + "\n";
@@ -203,7 +203,7 @@
                 localStorage.setItem("keyP", k);
                 localStorage.setItem("budP", b);
                 alert("Prices updated, Keys: " + k + " Refined" + kDiff + ", Earbuds: " + b + " Keys" + bDiff);
-                localStorage.setItem("lastupdt", new Date());
+                localStorage.setItem("lastupdt", Date.now());
                 return location.reload();
             }
         });
@@ -215,7 +215,7 @@
             tradeList = document.querySelector(".fa-share"),
             keyP = +localStorage.getItem("keyP"),
             budP = +localStorage.getItem("budP"),
-            lastUpdt = new Date() - Date.parse(localStorage.getItem("lastupdt")) || 0;
+            lastUpdt = Date.now() - (+localStorage.getItem("lastupdt") || 0);
         /****** END SCRIPT GLOBALS ******/
 
         if (keyP && budP && lastUpdt < 864e5 * updateFreq || update()) {
