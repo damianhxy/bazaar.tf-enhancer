@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.9.3
+// @version             1.4.9.4
 // ==/UserScript==
 
 (function () {
@@ -17,7 +17,7 @@
     /******** END OF SETTINGS *******/
 
     function annotate(trade) {
-        Array.prototype.forEach.call(trade, function(e) {
+        Array.prototype.forEach.call(trade, e => {
             if (+e.getAttribute("data-defindex") < 0 || e.getAttribute("data-game") !== "440")
                 return;
             if (e.querySelector(".item-number"))
@@ -84,7 +84,7 @@
     function calc(trade) {
         var total = 0,
             allPure = true;
-        Array.prototype.forEach.call(trade, function(e) {
+        Array.prototype.forEach.call(trade, e => {
             var response = getPrice(e);
             total += response[0];
             allPure &= response[3];
@@ -103,7 +103,7 @@
         if (predicate())
             callback();
         else
-            setTimeout(function() {
+            setTimeout(() => {
                 check(predicate, callback)
             }, 500);
     }
@@ -142,7 +142,7 @@
             if (!isPure && !hasRange)
                 price = round(price);
         } else {
-            ["Refined", "Reclaimed", "Scrap"].find(function(e, i) {
+            ["Refined", "Reclaimed", "Scrap"].find((e, i) => {
                 if (name.contains(e) && name.contains("Metal")) {
                     price = 1 / Math.pow(3, i);
                     return isPure = true;
@@ -162,12 +162,12 @@
     function createSummary(txt, parent) {
         var paints = {};
         txt.style.cursor = "pointer";
-        Array.prototype.forEach.call(parent.querySelectorAll("[data-paint]"), function(e) {
+        Array.prototype.forEach.call(parent.querySelectorAll("[data-paint]"), e => {
             var name = e.getAttribute("data-notes").split("<\\\/p>")[0].slice(13);
             if (name !== e.getAttribute("data-name"))
                 paints[name] = (paints[name] || 0) + 1;
         });
-        txt.addEventListener("click", function() {
+        txt.addEventListener("click", () => {
             var msg = "",
                 pnt = 0;
             for (var paint in paints) {
@@ -198,7 +198,7 @@
         GM_xmlhttpRequest({
             method: "GET",
             url: "http://backpack.tf/api/IGetPrices/v4/?key=" + localStorage.getItem("apikey"),
-            onload: function(e) {
+            onload: e => {
                 var data = JSON.parse(e.response);
                 if (!data.response.success) {
                     if (data.response.message === "API key does not exist.") {
@@ -242,9 +242,9 @@
         }
 
         if (backpack)
-            check(function() {
+            check(() => {
                 return !document.querySelector(".fa-spinner");
-            }, function() {
+            }, () => {
                   annotate(document.querySelectorAll(".item:not(.placeholder-icon)"));
             });
         else if (tradeList || tradeView)
@@ -256,7 +256,7 @@
                 data.appendChild(document.createTextNode(calc(document.querySelector(".offered-items").children)));
                 createSummary(data, document.querySelector(".offered-items"));
                 document.querySelector(".trade-stats").appendChild(data);
-                Array.prototype.forEach.call(document.querySelectorAll("[id^='thread-']"), function(e) {
+                Array.prototype.forEach.call(document.querySelectorAll("[id^='thread-']"), e => {
                     var offer = e.querySelector(".comment-offers");
                     if (offer) {
                         var data = document.createElement("span"),
