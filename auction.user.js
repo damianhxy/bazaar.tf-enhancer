@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.9.4
+// @version             1.4.9.5
 // ==/UserScript==
 
 (function () {
@@ -252,7 +252,7 @@
         if (tradeView) {
             if (document.querySelector(".fa-legal")) {
                 var data = document.createElement("li");
-                data.style = "color: orange;";
+                data.style.color = "orange";
                 data.appendChild(document.createTextNode(calc(document.querySelector(".offered-items").children)));
                 createSummary(data, document.querySelector(".offered-items"));
                 document.querySelector(".trade-stats").appendChild(data);
