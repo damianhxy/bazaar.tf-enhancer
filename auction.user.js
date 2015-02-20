@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.9.2
+// @version             1.4.9.3
 // ==/UserScript==
 
 (function () {
@@ -20,6 +20,10 @@
         Array.prototype.forEach.call(trade, function(e) {
             if (+e.getAttribute("data-defindex") < 0 || e.getAttribute("data-game") !== "440")
                 return;
+            if (e.querySelector(".item-number"))
+                e.querySelector(".item-number").style.display = "none";
+            if (e.querySelector(".ks"))
+                e.querySelector(".ks").style.display = "none";
             var price = getPrice(e),
                 text = "",
                 name = e.getAttribute("data-name"),
@@ -95,6 +99,15 @@
         return string;
     }
 
+    function check(predicate, callback) {
+        if (predicate())
+            callback();
+        else
+            setTimeout(function() {
+                check(predicate, callback)
+            }, 500);
+    }
+
     function createIcon(cls, style) {
         var icon = document.createElement("i");
         icon.className = "fa fa-" + cls + " fa-inverse fa-border pull-left";
@@ -146,7 +159,7 @@
         return Math.floor(num) + Math.round((num % 1 * 9).toFixed(2)) / 9;
     }
 
-    function summary(txt, parent) {
+    function createSummary(txt, parent) {
         var paints = {};
         txt.style.cursor = "pointer";
         Array.prototype.forEach.call(parent.querySelectorAll("[data-paint]"), function(e) {
@@ -216,6 +229,7 @@
             tradeList = document.querySelector(".fa-share"),
             keyP = +localStorage.getItem("keyP"),
             budP = +localStorage.getItem("budP"),
+            backpack = /^http:\/\/bazaar\.tf\/backpack\/\d{17}$/.test(document.URL),
             lastUpdt = Date.now() - (+localStorage.getItem("lastupdt") || 0);
         /****** END SCRIPT GLOBALS ******/
 
@@ -227,53 +241,35 @@
             console.info("Prices will update in " + days + " day(s), " + hours + " hour(s), and " + minutes + " min(s)");
         }
 
-        Array.prototype.forEach.call(document.getElementsByClassName("item-number"), function(e) {
-            e.style.display = "none";
-        });
-
-        Array.prototype.forEach.call(document.getElementsByClassName("ks"), function(e) {
-            e.style.display = "none";
-        });
-
-        if (tradeList) {
-            Array.prototype.forEach.call(document.querySelectorAll("div[id^='trade-']"), function(e) {
-                annotate(e.querySelector(".offered-items").children);
-                if (!e.querySelector(".fa-legal"))
-                    annotate(e.querySelector(".wanted-items").children);
+        if (backpack)
+            check(function() {
+                return !document.querySelector(".fa-spinner");
+            }, function() {
+                  annotate(document.querySelectorAll(".item:not(.placeholder-icon)"));
             });
-        } else if (tradeView) {
+        else if (tradeList || tradeView)
+            annotate(document.getElementsByClassName("item"));
+        if (tradeView) {
             if (document.querySelector(".fa-legal")) {
-                var data = document.createElement("li"),
-                    itms = document.querySelector(".offered-items").children,
-                    text = document.createTextNode(calc(itms));
-                annotate(itms);
+                var data = document.createElement("li");
                 data.style = "color: orange;";
-                data.appendChild(text);
-                summary(data, document.querySelector(".offered-items"));
+                data.appendChild(document.createTextNode(calc(document.querySelector(".offered-items").children)));
+                createSummary(data, document.querySelector(".offered-items"));
                 document.querySelector(".trade-stats").appendChild(data);
                 Array.prototype.forEach.call(document.querySelectorAll("[id^='thread-']"), function(e) {
                     var offer = e.querySelector(".comment-offers");
                     if (offer) {
                         var data = document.createElement("span"),
-                            itms = offer.firstElementChild.children,
-                            text = document.createTextNode(calc(itms)),
                             notes = offer.previousElementSibling.lastElementChild;
-                        annotate(itms);
                         data.style = "color: orange; float: right;";
-                        data.appendChild(text);
-                        summary(data, offer.firstElementChild);
+                        data.appendChild(document.createTextNode(calc(offer.firstElementChild.children)));
+                        createSummary(data, offer.firstElementChild);
                         notes.insertBefore(data, notes.firstElementChild);
                     }
                     if (e.querySelector(".btn-warning.disabled"))
                         e.firstElementChild.style.borderColor = "orange";
                     else if (e.querySelector(".btn-success.disabled"))
                         e.firstElementChild.style.borderColor = "lime";
-                });
-            } else {
-                annotate(document.querySelector(".offered-items").children);
-                annotate(document.querySelector(".wanted-items").children);
-                Array.prototype.forEach.call(document.getElementsByClassName("comment-offers"), function(e) {
-                    annotate(e.firstElementChild.children);
                 });
             }
         }
