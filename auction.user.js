@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.9.6
+// @version             1.4.9.7
 // ==/UserScript==
 
 (function () {
@@ -37,7 +37,7 @@
                 if (notes.contains("Painted:") && !notes.contains(name))
                     e.appendChild(createIcon("paint-brush"));
                 count -= (notes.match(/Tradable|(?:Craft|Gift|Paint)ed/g) || "").length;
-                if (e.className.contains("q11") && count > 1)
+                if (e.classList.contains("q11") && count > 1)
                     e.appendChild(createIcon("cogs"));
             }
             if (name.contains("Australium") && !name.contains("Gold"))
@@ -74,7 +74,7 @@
                     text += price[0] + " " + currency;
             }
             var txt = document.createElement("span");
-            txt.className = "item-text";
+            txt.classList.add("item-text");
             txt.style = "bottom: 0; left: 0; right: 0;";
             txt.appendChild(document.createTextNode(text));
             e.appendChild(txt);
@@ -110,7 +110,7 @@
 
     function createIcon(cls, style) {
         var icon = document.createElement("i");
-        icon.className = "fa fa-" + cls + " fa-inverse fa-border pull-left";
+        icon.classList.add("fa", "fa-" + cls, "fa-inverse", "fa-border", "pull-left");
         icon.style = "border-radius: 50%;" + (style ? " " + style : "");
         return icon;
     }
@@ -251,20 +251,20 @@
         if (tradeView) {
             if (document.querySelector(".fa-legal")) {
                 var data = document.createElement("li"),
-                    offeredItems = document.querySelector(".offered-items");
+                    offered = document.querySelector(".offered-items");
                 data.style.color = "orange";
-                data.appendChild(document.createTextNode(calc(offeredItems.children)));
-                createSummary(data, offeredItems);
+                data.appendChild(document.createTextNode(calc(offered.children)));
+                createSummary(data, offered);
                 document.querySelector(".trade-stats").appendChild(data);
                 Array.prototype.forEach.call(document.querySelectorAll("[id^='thread-']"), e => {
                     var offer = e.querySelector(".comment-offers");
                     if (offer) {
                         var data = document.createElement("span"),
-                            offeredItems = offer.firstElementChild;
+                            offered = offer.firstElementChild;
                             notes = offer.previousElementSibling.lastElementChild;
                         data.style = "color: orange; float: right;";
-                        data.appendChild(document.createTextNode(calc(offeredItems.children)));
-                        createSummary(data, offeredItems);
+                        data.appendChild(document.createTextNode(calc(offered.children)));
+                        createSummary(data, offered);
                         notes.insertBefore(data, notes.firstElementChild);
                     }
                     if (e.querySelector(".btn-warning.disabled"))
