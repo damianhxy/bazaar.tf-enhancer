@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.9.5
+// @version             1.4.9.6
 // ==/UserScript==
 
 (function () {
@@ -104,7 +104,7 @@
             callback();
         else
             setTimeout(() => {
-                check(predicate, callback)
+                check(predicate, callback);
             }, 500);
     }
 
@@ -142,12 +142,11 @@
             if (!isPure && !hasRange)
                 price = round(price);
         } else {
-            ["Refined", "Reclaimed", "Scrap"].find((e, i) => {
-                if (name.contains(e) && name.contains("Metal")) {
-                    price = 1 / Math.pow(3, i);
-                    return isPure = true;
-                }
-            });
+            var index = ["Refined Metal", "Reclaimed Metal", "Scrap Metal"].findIndex(e => e === name);
+            if (index !== -1) {
+                isPure = true;
+                price = 1 / Math.pow(3, index);
+            }
         }
         return [price, original, hasRange, isPure];
     }
@@ -155,7 +154,7 @@
     function round(num) {
         if (num <= 5 / 90)
             return num;
-        num += num * 10 % 1 / 90
+        num += num * 10 % 1 / 90;
         return Math.floor(num) + Math.round((num % 1 * 9).toFixed(2)) / 9;
     }
 
@@ -227,9 +226,9 @@
         /******** SCRIPT GLOBALS ********/
         var tradeView = document.querySelector(".fa-reply"),
             tradeList = document.querySelector(".fa-share"),
+            backpack = /^http:\/\/bazaar\.tf\/backpack\/\d{17}$/.test(document.URL),
             keyP = +localStorage.getItem("keyP"),
             budP = +localStorage.getItem("budP"),
-            backpack = /^http:\/\/bazaar\.tf\/backpack\/\d{17}$/.test(document.URL),
             lastUpdt = Date.now() - (+localStorage.getItem("lastupdt") || 0);
         /****** END SCRIPT GLOBALS ******/
 
@@ -251,19 +250,21 @@
             annotate(document.getElementsByClassName("item"));
         if (tradeView) {
             if (document.querySelector(".fa-legal")) {
-                var data = document.createElement("li");
+                var data = document.createElement("li"),
+                    offeredItems = document.querySelector(".offered-items");
                 data.style.color = "orange";
-                data.appendChild(document.createTextNode(calc(document.querySelector(".offered-items").children)));
-                createSummary(data, document.querySelector(".offered-items"));
+                data.appendChild(document.createTextNode(calc(offeredItems.children)));
+                createSummary(data, offeredItems);
                 document.querySelector(".trade-stats").appendChild(data);
                 Array.prototype.forEach.call(document.querySelectorAll("[id^='thread-']"), e => {
                     var offer = e.querySelector(".comment-offers");
                     if (offer) {
                         var data = document.createElement("span"),
+                            offeredItems = offer.firstElementChild;
                             notes = offer.previousElementSibling.lastElementChild;
                         data.style = "color: orange; float: right;";
-                        data.appendChild(document.createTextNode(calc(offer.firstElementChild.children)));
-                        createSummary(data, offer.firstElementChild);
+                        data.appendChild(document.createTextNode(calc(offeredItems.children)));
+                        createSummary(data, offeredItems);
                         notes.insertBefore(data, notes.firstElementChild);
                     }
                     if (e.querySelector(".btn-warning.disabled"))
