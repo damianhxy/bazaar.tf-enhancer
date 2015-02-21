@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.9.7
+// @version             1.4.9.8
 // ==/UserScript==
 
 (function () {
@@ -37,7 +37,7 @@
                 if (notes.contains("Painted:") && !notes.contains(name))
                     e.appendChild(createIcon("paint-brush"));
                 count -= (notes.match(/Tradable|(?:Craft|Gift|Paint)ed/g) || "").length;
-                if (e.classList.contains("q11") && count > 1)
+                if (e.classList.contains("q11-440") && count > 1)
                     e.appendChild(createIcon("cogs"));
             }
             if (name.contains("Australium") && !name.contains("Gold"))
@@ -179,7 +179,7 @@
             msg += "Uncraftable: " + parent.querySelectorAll("[data-flag_cannot_craft]").length + "\n";
             msg += "Untradable: " + parent.querySelectorAll("[data-flag_cannot_trade]").length + "\n";
             msg += "Gifted: " + parent.querySelectorAll(".fa-gift").length + "\n";
-            msg += "Total Items: " + parent.children.length + "\n";
+            msg += "Total Items: " + parent.childElementCount + "\n";
             alert(msg);
         });
     }
