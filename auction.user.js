@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.9.8
+// @version             1.4.9.9
 // ==/UserScript==
 
 (function () {
@@ -43,35 +43,35 @@
             if (name.contains("Australium") && !name.contains("Gold"))
                 e.appendChild(createIcon("money"));
             if (e.hasAttribute("data-crate"))
-                text = "#" + e.getAttribute("data-crate") + ": ";
+                text = `#${e.getAttribute("data-crate")}: `;
             if (!price[0]) {
                 if (e.getAttribute("data-special") === "Low craft #")
-                    text = "Lowcraft #" + e.getAttribute("data-craft");
+                    text = `Lowcraft #${e.getAttribute("data-craft")}`;
                 if (details.contains("Killstreak")) {
                     var colour = "darkgoldenrod";
                     if (details.contains("Specialized"))
                         colour = "darkgray";
                     else if (details.contains("Professional"))
                         colour = "gold";
-                    e.appendChild(createIcon("bomb", "color: " + colour + "; background-color: white;"));
+                    e.appendChild(createIcon("bomb", `color: ${colour}; background-color: white;`));
                     text = "Killstreak";
                 }
                 if (!text || e.hasAttribute("data-crate"))
                     text += "Unpriced";
             } else if (name.contains("Metal"))
-                text = price[0] + " Refined";
+                text = `${price[0]} Refined`;
             else if (name.contains("Key"))
-                text = keyP.toFixed(2) + " Refined";
+                text = `${keyP.toFixed(2)} Refined`;
             else if (name.contains("Earbud"))
-                text = budP.toFixed(2) + " Keys";
+                text = `${budP.toFixed(2)} Keys`;
             else {
                 var currency = e.getAttribute("data-price").split(" ")[1];
                 if (currency.contains("Weapon"))
                     text += "Any Weapon";
                 else if (currency.contains("Key") || currency.contains("Earbud"))
-                    text += price[1].toFixed(2) + " " + currency;
+                    text += `${price[1].toFixed(2)} ${currency}`;
                 else
-                    text += price[0] + " " + currency;
+                    text += `${price[0]} ${currency}`;
             }
             var txt = document.createElement("span");
             txt.classList.add("item-text");
@@ -90,11 +90,11 @@
             allPure &= response[3];
         });
         total = Math.floor(round(total) * 100) / 100;
-        var string = (total && !allPure ? "~" : "") + total + " Refined";
+        var string = `${total && !allPure ? "~" : ""} ${total} Refined`;
         if (total > +keyP.toFixed(2)) {
-            string += "/ " + (total / keyP).toFixed(2) + " Keys";
+            string += `/ ${(total / keyP).toFixed(2)} Keys`;
             if (total > +(keyP * budP).toFixed(2))
-                string += "/ " + (total / (keyP * budP)).toFixed(2) + " Buds";
+                string += `/ ${(total / (keyP * budP)).toFixed(2)} Buds`;
         }
         return string;
     }
@@ -110,8 +110,8 @@
 
     function createIcon(cls, style) {
         var icon = document.createElement("i");
-        icon.classList.add("fa", "fa-" + cls, "fa-inverse", "fa-border", "pull-left");
-        icon.style = "border-radius: 50%;" + (style ? " " + style : "");
+        icon.classList.add("fa", `fa-${cls}`, "fa-inverse", "fa-border", "pull-left");
+        icon.style = `border-radius: 50%;${style ? " " + style : ""}`;
         return icon;
     }
 
@@ -142,8 +142,8 @@
             if (!isPure && !hasRange)
                 price = round(price);
         } else {
-            var index = ["Refined Metal", "Reclaimed Metal", "Scrap Metal"].findIndex(e => e === name);
-            if (index !== -1) {
+            var index = ["Refined", "Reclaimed", "Scrap"].findIndex(e => `${e} Metal` === name);
+            if (~ index) {
                 isPure = true;
                 price = 1 / Math.pow(3, index);
             }
@@ -170,23 +170,23 @@
             var msg = "",
                 pnt = 0;
             for (var paint in paints) {
-                msg += "[" + ("0" + paints[paint]).slice(-2) + "] " + paint + "\n";
+                msg += `[${("0" + paints[paint].slice(-2))}] ${paint}\n`;
                 pnt += paints[paint];
             }
-            msg += "Painted: " + pnt + "\n";
-            msg += "Killstreaked: " + parent.getElementsByClassName("fa-bomb").length + "\n";
-            msg += "Parted: " + parent.getElementsByClassName("fa-cogs").length + "\n";
-            msg += "Uncraftable: " + parent.querySelectorAll("[data-flag_cannot_craft]").length + "\n";
-            msg += "Untradable: " + parent.querySelectorAll("[data-flag_cannot_trade]").length + "\n";
-            msg += "Gifted: " + parent.querySelectorAll(".fa-gift").length + "\n";
-            msg += "Total Items: " + parent.childElementCount + "\n";
+            msg += `Painted: ${pnt}\n`;
+            msg += `Killstreaked: ${parent.getElementsByClassName("fa-bomb").length}\n`;
+            msg += `Parted: ${parent.getElementsByClassName("fa-cogs").length}\n`;
+            msg += `Uncraftable: ${parent.querySelectorAll("[data-flag_cannot_craft]").length}\n`;
+            msg += `Untradable: ${parent.querySelectorAll("[data-flag_cannot_trade]").length}\n`;
+            msg += `Gifted: ${parent.querySelectorAll(".fa-gift").length}\n`;
+            msg += `Total Items: ${parent.childElementCount}\n`;
             alert(msg);
         });
     }
 
     function update() {
         if (document.getElementById("UserLoginForm"))
-            return console.info("Bazaar.tf Script Paused (Signed Out). Version " + GM_info.script.version);
+            return console.info(`Bazaar.tf Script Paused (Signed Out). Version ${GM_info.script.version}`);
         if (!localStorage.getItem("apikey"))
             localStorage.setItem("apikey", prompt("API key not set, register yours from http://backpack.tf/api/"));
         if (localStorage.getItem("apikey").length !== 24) {
@@ -196,7 +196,7 @@
         }
         GM_xmlhttpRequest({
             method: "GET",
-            url: "http://backpack.tf/api/IGetPrices/v4/?key=" + localStorage.getItem("apikey"),
+            url: `http://backpack.tf/api/IGetPrices/v4/?key=${localStorage.getItem("apikey")}`,
             onload: e => {
                 var data = JSON.parse(e.response);
                 if (!data.response.success) {
@@ -205,17 +205,17 @@
                         localStorage.removeItem("apikey");
                         return update();
                     } else
-                        return alert("Error:\n" + data.response.message);
+                        return alert(`Error:\n${data.response.message}`);
                 }
                 var key = data.response.items["Mann Co. Supply Crate Key"].prices[6].Tradable.Craftable[0],
                     bud = data.response.items.Earbuds.prices[6].Tradable.Craftable[0],
                     k = (key.value + (key.value_high || key.value)) / 2,
                     b = (bud.value + (bud.value_high || bud.value)) / 2,
-                    kDiff = " (" + (k === keyP ? "=" : (k < keyP ? "↓" : "↑")) + ")",
-                    bDiff = " (" + (b === budP ? "=" : (b < budP ? "↓" : "↑")) + ")";
+                    kDiff = ` (${k === keyP ? "=" : k < keyP ? "↓" : "↑"})`,
+                    bDiff = ` (${b === budP ? "=" : b < budP ? "↓" : "↑"})`;
                 localStorage.setItem("keyP", k);
                 localStorage.setItem("budP", b);
-                alert("Prices updated, Keys: " + k + " Refined" + kDiff + ", Earbuds: " + b + " Keys" + bDiff);
+                alert(`Prices updated, Keys: ${k} Refined ${kDiff}, Earbuds: ${b} Keys ${bDiff}`);
                 localStorage.setItem("lastupdt", Date.now());
                 return location.reload();
             }
@@ -237,18 +237,23 @@
                 days = Math.floor(diff / 864e5),
                 hours = Math.floor((diff % 864e5) / 36e5),
                 minutes = Math.floor((diff % 36e5) / 6e4);
-            console.info("Prices will update in " + days + " day(s), " + hours + " hour(s), and " + minutes + " min(s)");
+            console.info(`Prices will update in ${days} day(s), ${hours} hour(s) and ${minutes} min(s)`);
         }
 
         if (backpack)
-            check(() => {
-                return !document.querySelector(".fa-spinner");
-            }, () => {
-                  annotate(document.querySelectorAll(".item:not(.placeholder-icon)"));
-            });
+            check(() => !document.querySelector(".fa-spinner"),
+                  () => annotate(document.querySelectorAll(".item:not(.placeholder-icon)")));
         else if (tradeList || tradeView)
             annotate(document.getElementsByClassName("item"));
-        if (tradeView) {
+        if (tradeList) {
+            Array.prototype.forEach.call(document.querySelectorAll("[data-type='more-items-icon']"), e => {
+                var parent = e.parentNode;
+                e.addEventListener("click", () => {
+                    check(() => !document.querySelector(".progress"),
+                          () => annotate(parent.children));
+                });
+            });
+        } else if (tradeView) {
             if (document.querySelector(".fa-legal")) {
                 var data = document.createElement("li"),
                     offered = document.querySelector(".offered-items");
@@ -260,7 +265,7 @@
                     var offer = e.querySelector(".comment-offers");
                     if (offer) {
                         var data = document.createElement("span"),
-                            offered = offer.firstElementChild;
+                            offered = offer.firstElementChild,
                             notes = offer.previousElementSibling.lastElementChild;
                         data.style = "color: orange; float: right;";
                         data.appendChild(document.createTextNode(calc(offered.children)));
@@ -274,8 +279,8 @@
                 });
             }
         }
-        console.info("Bazaar.tf Script Loaded. Version " + GM_info.script.version);
+        console.info(`Bazaar.tf Script Loaded. Version ${GM_info.script.version}`);
     } catch(e) {
-        alert("[A fatal error has occured]\n" + e.message + "\n[Stack Trace]\n" + e.stack);
+        alert(`[A fatal error has occured]\n${e.message}\n[Stack Trace]\n${e.stack}`);
     }
 })();
