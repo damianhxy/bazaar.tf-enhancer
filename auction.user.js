@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.5.0.1
+// @version             1.5.0.2
 // ==/UserScript==
 
 (function () {
@@ -191,7 +191,7 @@
         }
         GM_xmlhttpRequest({
             method: "GET",
-            url: `backpack.tf/api/IGetPrices/v4/?key=${localStorage.getItem("apikey")}`,
+            url: `http://backpack.tf/api/IGetPrices/v4/?key=${localStorage.getItem("apikey")}`,
             onload: e => {
                 var data = JSON.parse(e.response);
                 if (!data.response.success) {
