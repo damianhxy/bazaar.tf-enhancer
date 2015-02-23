@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.4.9.9
+// @version             1.5.0.0
 // ==/UserScript==
 
 (function () {
@@ -100,12 +100,7 @@
     }
 
     function check(predicate, callback) {
-        if (predicate())
-            callback();
-        else
-            setTimeout(() => {
-                check(predicate, callback);
-            }, 500);
+        predicate() ? callback() : setTimeout(() => check(predicate, callback), 500);
     }
 
     function createIcon(cls, style) {
@@ -170,7 +165,7 @@
             var msg = "",
                 pnt = 0;
             for (var paint in paints) {
-                msg += `[${("0" + paints[paint].slice(-2))}] ${paint}\n`;
+                msg += `[${("0" + paints[paint]).slice(-2)}] ${paint}\n`;
                 pnt += paints[paint];
             }
             msg += `Painted: ${pnt}\n`;
@@ -179,7 +174,7 @@
             msg += `Uncraftable: ${parent.querySelectorAll("[data-flag_cannot_craft]").length}\n`;
             msg += `Untradable: ${parent.querySelectorAll("[data-flag_cannot_trade]").length}\n`;
             msg += `Gifted: ${parent.querySelectorAll(".fa-gift").length}\n`;
-            msg += `Total Items: ${parent.childElementCount}\n`;
+            msg += `Item Count: ${parent.childElementCount}\n`;
             alert(msg);
         });
     }
@@ -253,31 +248,28 @@
                           () => annotate(parent.children));
                 });
             });
-        } else if (tradeView) {
-            if (document.querySelector(".fa-legal")) {
-                var data = document.createElement("li"),
-                    offered = document.querySelector(".offered-items");
-                data.style.color = "orange";
-                data.appendChild(document.createTextNode(calc(offered.children)));
-                createSummary(data, offered);
-                document.querySelector(".trade-stats").appendChild(data);
-                Array.prototype.forEach.call(document.querySelectorAll("[id^='thread-']"), e => {
-                    var offer = e.querySelector(".comment-offers");
-                    if (offer) {
-                        var data = document.createElement("span"),
-                            offered = offer.firstElementChild,
-                            notes = offer.previousElementSibling.lastElementChild;
-                        data.style = "color: orange; float: right;";
-                        data.appendChild(document.createTextNode(calc(offered.children)));
-                        createSummary(data, offered);
-                        notes.insertBefore(data, notes.firstElementChild);
-                    }
-                    if (e.querySelector(".btn-warning.disabled"))
-                        e.firstElementChild.style.borderColor = "orange";
-                    else if (e.querySelector(".btn-success.disabled"))
-                        e.firstElementChild.style.borderColor = "lime";
-                });
-            }
+        } else if (tradeView && document.querySelector(".fa-legal")) {
+            var data = document.createElement("li"),
+                offered = document.querySelector(".offered-items");
+            data.style.color = "orange";
+            data.appendChild(document.createTextNode(calc(offered.children)));
+            createSummary(data, offered);
+            document.querySelector(".trade-stats").appendChild(data);
+            Array.prototype.forEach.call(document.querySelectorAll("[id^='thread-']"), e => {
+                if (e.querySelector(".comment-offers")) {
+                    var data = document.createElement("span"),
+                        offered = e.querySelector(".item-list"),
+                        notes = e.querySelector(".comment-content");
+                    data.style = "color: orange; float: right;";
+                    data.appendChild(document.createTextNode(calc(offered.children)));
+                    createSummary(data, offered);
+                    notes.insertBefore(data, notes.firstChild);
+                }
+                if (e.querySelector(".btn-warning.disabled"))
+                    e.firstElementChild.style.borderColor = "orange";
+                else if (e.querySelector(".btn-success.disabled"))
+                    e.firstElementChild.style.borderColor = "lime";
+            });
         }
         console.info(`Bazaar.tf Script Loaded. Version ${GM_info.script.version}`);
     } catch(e) {
