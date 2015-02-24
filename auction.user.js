@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.5.0.3
+// @version             1.5.0.4
 // ==/UserScript==
 
 (function () {
@@ -260,7 +260,7 @@
                 if (e.querySelector(".comment-offers")) {
                     var data = document.createElement("span"),
                         offered = e.querySelector(".item-list"),
-                        notes = e.querySelector(".comment-content");
+                        notes = e.querySelector(".comment-content:not(.top-small-margin)");
                     data.style = "color: orange; float: right;";
                     data.appendChild(document.createTextNode(calc(offered.children)));
                     createSummary(data, offered);
