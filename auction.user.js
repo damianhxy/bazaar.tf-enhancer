@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.5.0.2
+// @version             1.5.0.3
 // ==/UserScript==
 
 (function () {
@@ -20,14 +20,15 @@
         Array.prototype.forEach.call(trade, e => {
             if (+e.getAttribute("data-defindex") < 0 || e.getAttribute("data-game") !== "440")
                 return;
-            if (e.querySelector(".item-number"))
-                e.querySelector(".item-number").style.display = "none";
-            if (e.querySelector(".ks"))
-                e.querySelector(".ks").style.display = "none";
             var price = getPrice(e),
                 text = "",
                 name = e.getAttribute("data-name"),
-                details = e.getAttribute("data-details") || "";
+                details = e.getAttribute("data-details") || "",
+                extra = e.querySelector(".item-number");
+            if (extra && !extra.textContent.contains("x"))
+                extra.style.display = "none";
+            if (e.querySelector(".ks"))
+                e.querySelector(".ks").style.display = "none";
             price[0] = Math.floor(round(+price[0]) * 100) / 100;
             if (e.hasAttribute("data-notes")) {
                 var notes = e.getAttribute("data-notes"),
