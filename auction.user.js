@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.5.0.4
+// @version             1.5.0.5
 // ==/UserScript==
 
 (function () {
@@ -55,7 +55,8 @@
                     else if (details.contains("Professional"))
                         colour = "gold";
                     e.appendChild(createIcon("bomb", `color: ${colour}; background-color: white;`));
-                    text = "Killstreak";
+                    if (!text)
+                        text = "Killstreak";
                 }
                 if (!text || e.hasAttribute("data-crate"))
                     text += "Unpriced";
