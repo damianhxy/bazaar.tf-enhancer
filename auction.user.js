@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.5.0.5
+// @version             1.5.0.6
 // ==/UserScript==
 
 (function () {
@@ -26,9 +26,9 @@
                 details = e.getAttribute("data-details") || "",
                 extra = e.querySelector(".item-number");
             if (extra && !extra.textContent.contains("x"))
-                extra.style.display = "none";
+                extra.remove();
             if (e.querySelector(".ks"))
-                e.querySelector(".ks").style.display = "none";
+                e.querySelector(".ks").remove();
             price[0] = Math.floor(round(+price[0]) * 100) / 100;
             if (e.hasAttribute("data-notes")) {
                 var notes = e.getAttribute("data-notes"),
