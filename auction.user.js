@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.5.0.6
+// @version             1.5.0.7
 // ==/UserScript==
 
 (function () {
@@ -30,19 +30,6 @@
             if (e.querySelector(".ks"))
                 e.querySelector(".ks").remove();
             price[0] = Math.floor(round(+price[0]) * 100) / 100;
-            if (e.hasAttribute("data-notes")) {
-                var notes = e.getAttribute("data-notes"),
-                    count = notes.match(/<\\\/p>/g).length;
-                if (notes.contains("Gifted"))
-                    e.appendChild(createIcon("gift"));
-                if (notes.contains("Painted:") && !notes.contains(name))
-                    e.appendChild(createIcon("paint-brush"));
-                count -= (notes.match(/Tradable|(?:Craft|Gift|Paint)ed/g) || "").length;
-                if (e.classList.contains("q11-440") && count > 1)
-                    e.appendChild(createIcon("cogs"));
-            }
-            if (name.contains("Australium") && !name.contains("Gold"))
-                e.appendChild(createIcon("money"));
             if (e.hasAttribute("data-crate"))
                 text = `#${e.getAttribute("data-crate")}: `;
             if (!price[0]) {
@@ -74,6 +61,21 @@
                     text += `${price[1].toFixed(2)} ${currency}`;
                 else
                     text += `${price[0]} ${currency}`;
+            }
+            if (e.hasAttribute("data-notes")) {
+                var notes = e.getAttribute("data-notes"),
+                    count = notes.match(/<\\\/p>/g).length;
+                if (notes.contains("Gifted"))
+                    e.appendChild(createIcon("gift"));
+                if (notes.contains("Painted:") && !notes.contains(name))
+                    e.appendChild(createIcon("paint-brush"));
+                count -= (notes.match(/Tradable|(?:Craft|Gift|Paint)ed/g) || "").length + e.hasAttribute("data-spells");
+                if (e.classList.contains("q11-440") && count > 1)
+                    e.appendChild(createIcon("cogs"));
+            }
+            if (e.hasAttribute("data-spells")) {
+                e.querySelector(".spell").remove();
+                e.appendChild(createIcon("moon-o"));
             }
             var txt = document.createElement("span");
             txt.classList.add("item-text");
@@ -173,9 +175,10 @@
             msg += `Painted: ${pnt}\n`;
             msg += `Killstreaked: ${parent.getElementsByClassName("fa-bomb").length}\n`;
             msg += `Parted: ${parent.getElementsByClassName("fa-cogs").length}\n`;
+            msg += `Gifted: ${parent.querySelectorAll(".fa-gift").length}\n`;
+            msg += `Spelled: ${parent.querySelectorAll("[data-spells]").length}\n`;
             msg += `Uncraftable: ${parent.querySelectorAll("[data-flag_cannot_craft]").length}\n`;
             msg += `Untradable: ${parent.querySelectorAll("[data-flag_cannot_trade]").length}\n`;
-            msg += `Gifted: ${parent.querySelectorAll(".fa-gift").length}\n`;
             msg += `Item Count: ${parent.childElementCount}\n`;
             alert(msg);
         });
