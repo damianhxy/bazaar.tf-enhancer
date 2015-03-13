@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.5.0.7
+// @version             1.5.0.8
 // ==/UserScript==
 
 (function () {
@@ -35,18 +35,16 @@
             if (!price[0]) {
                 if (e.getAttribute("data-special") === "Low craft #")
                     text = `Lowcraft #${e.getAttribute("data-craft")}`;
-                if (details.contains("Killstreak")) {
-                    var colour = "darkgoldenrod";
-                    if (details.contains("Specialized"))
-                        colour = "darkgray";
-                    else if (details.contains("Professional"))
-                        colour = "gold";
-                    e.appendChild(createIcon("bomb", `color: ${colour}; background-color: white;`));
-                    if (!text)
-                        text = "Killstreak";
-                }
                 if (!text || e.hasAttribute("data-crate"))
                     text += "Unpriced";
+            } else if (details.contains("Killstreak")) {
+                var colour = "darkgoldenrod";
+                if (details.contains("Specialized"))
+                    colour = "darkgray";
+                else if (details.contains("Professional"))
+                    colour = "gold";
+                e.appendChild(createIcon("bomb", `color: ${colour}; background-color: white;`));
+                text = text || "Killstreak";
             } else if (name.contains("Metal"))
                 text = `${price[0]} Refined`;
             else if (name.contains("Key"))
