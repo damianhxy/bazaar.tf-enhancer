@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.5.0.8
+// @version             1.5.0.9
 // ==/UserScript==
 
 (function () {
@@ -32,26 +32,25 @@
             price[0] = Math.floor(round(+price[0]) * 100) / 100;
             if (e.hasAttribute("data-crate"))
                 text = `#${e.getAttribute("data-crate")}: `;
-            if (!price[0]) {
-                if (e.getAttribute("data-special") === "Low craft #")
+            if (name.contains("#") || details.contains("Killstreak")) {
+                if (name.contains("#"))
                     text = `Lowcraft #${e.getAttribute("data-craft")}`;
-                if (!text || e.hasAttribute("data-crate"))
-                    text += "Unpriced";
-            } else if (details.contains("Killstreak")) {
-                var colour = "darkgoldenrod";
-                if (details.contains("Specialized"))
-                    colour = "darkgray";
-                else if (details.contains("Professional"))
-                    colour = "gold";
-                e.appendChild(createIcon("bomb", `color: ${colour}; background-color: white;`));
-                text = text || "Killstreak";
+                else {
+                    var colour = "darkgoldenrod";
+                    if (details.contains("Specialized"))
+                        colour = "darkgray";
+                    else if (details.contains("Professional"))
+                        colour = "gold";
+                    e.appendChild(createIcon("bomb", `color: ${colour}; background-color: white;`));
+                    text = "Killstreak";
+                }
             } else if (name.contains("Metal"))
                 text = `${price[0]} Refined`;
             else if (name.contains("Key"))
                 text = `${keyP.toFixed(2)} Refined`;
             else if (name.contains("Earbud"))
                 text = `${budP.toFixed(2)} Keys`;
-            else {
+            else if (price[0]) {
                 var currency = e.getAttribute("data-price").split(" ")[1];
                 if (currency.contains("Weapon"))
                     text += "Any Weapon";
@@ -59,7 +58,8 @@
                     text += `${price[1].toFixed(2)} ${currency}`;
                 else
                     text += `${price[0]} ${currency}`;
-            }
+            } else
+                text += "Unpriced";
             if (e.hasAttribute("data-notes")) {
                 var notes = e.getAttribute("data-notes"),
                     count = notes.match(/<\\\/p>/g).length;
