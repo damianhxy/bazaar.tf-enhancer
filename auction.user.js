@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.5.1.0
+// @version             1.5.1.1
 // ==/UserScript==
 
 (function () {
@@ -35,7 +35,7 @@
             if (name.contains("#") || details.contains("Killstreak")) {
                 if (name.contains("#"))
                     text = `Lowcraft #${e.getAttribute("data-craft")}`;
-                else {
+                if (details.contains("Killstreak")) {
                     var colour = "darkgoldenrod";
                     if (details.contains("Specialized"))
                         colour = "darkgray";
