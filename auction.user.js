@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.5.1.1
+// @version             1.5.1.2
 // ==/UserScript==
 
 (function () {
@@ -46,15 +46,11 @@
                 }
             } else if (name.contains("Metal"))
                 text = `${price[0]} Refined`;
-            else if (name.contains("Key"))
-                text = `${keyP.toFixed(2)} Refined`;
-            else if (name.contains("Earbud"))
-                text = `${budP.toFixed(2)} Keys`;
             else if (price[0]) {
                 var currency = e.getAttribute("data-price").split(" ")[1];
                 if (currency.contains("Weapon"))
                     text += "Any Weapon";
-                else if (currency.contains("Key") || currency.contains("Earbud"))
+                else if (currency.contains("Key"))
                     text += `${price[1].toFixed(2)} ${currency}`;
                 else
                     text += `${price[0]} ${currency}`;
@@ -93,11 +89,8 @@
         });
         total = Math.floor(round(total) * 100) / 100;
         var string = `${total && !allPure ? "~" : ""} ${total} Refined`;
-        if (total > +keyP.toFixed(2)) {
+        if (total > +keyP.toFixed(2))
             string += `/ ${(total / keyP).toFixed(2)} Keys`;
-            if (total > +(keyP * budP).toFixed(2))
-                string += `/ ${(total / (keyP * budP)).toFixed(2)} Buds`;
-        }
         return string;
     }
 
@@ -128,12 +121,10 @@
                 hasRange = true;
             } else
                 price = original = +data[0];
-            if (name.match(/(?:Key|Earbud|(?:Slot|Class) Token)/))
+            if (name.match(/(?:Key|(?:Slot|Class) Token)/))
                 isPure = true;
             if (data[1].contains("Key"))
                 price *= keyP;
-            else if (data[1].contains("Earbud"))
-                price *= keyP * budP;
             else if (name.match(/(?:Slot|Class) Token/))
                 price = 1 / 6;
             if (!isPure && !hasRange)
@@ -206,14 +197,10 @@
                         return alert(`Error:\n${data.response.message}`);
                 }
                 var key = data.response.items["Mann Co. Supply Crate Key"].prices[6].Tradable.Craftable[0],
-                    bud = data.response.items.Earbuds.prices[6].Tradable.Craftable[0],
                     k = (key.value + (key.value_high || key.value)) / 2,
-                    b = (bud.value + (bud.value_high || bud.value)) / 2,
-                    kDiff = ` (${k === keyP ? "=" : k < keyP ? "↓" : "↑"})`,
-                    bDiff = ` (${b === budP ? "=" : b < budP ? "↓" : "↑"})`;
+                    kDiff = ` (${k === keyP ? "=" : k < keyP ? "↓" : "↑"})`;
                 localStorage.setItem("keyP", k);
-                localStorage.setItem("budP", b);
-                alert(`Prices updated, Keys: ${k} Refined ${kDiff}, Earbuds: ${b} Keys ${bDiff}`);
+                alert(`Prices updated, Keys: ${k} Refined ${kDiff}`);
                 localStorage.setItem("lastupdt", Date.now());
                 return location.reload();
             }
@@ -226,11 +213,10 @@
             tradeList = document.querySelector(".fa-share"),
             backpack = /^http:\/\/bazaar\.tf\/backpack\/\d{17}$/.test(document.URL),
             keyP = +localStorage.getItem("keyP"),
-            budP = +localStorage.getItem("budP"),
             lastUpdt = Date.now() - (+localStorage.getItem("lastupdt") || 0);
         /****** END SCRIPT GLOBALS ******/
 
-        if (keyP && budP && lastUpdt < 864e5 * updateFreq || update()) {
+        if (keyP && lastUpdt < 864e5 * updateFreq || update()) {
             var diff = 864e5 * updateFreq - lastUpdt,
                 days = Math.floor(diff / 864e5),
                 hours = Math.floor((diff % 864e5) / 36e5),
