@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.5.1.2
+// @version             1.5.1.3
 // ==/UserScript==
 
 (function () {
@@ -147,23 +147,30 @@
     }
 
     function createSummary(txt, parent) {
-        var paints = {};
+        var paints = {},
+            parts = {};
         txt.style.cursor = "pointer";
         Array.prototype.forEach.call(parent.querySelectorAll("[data-paint]"), e => {
             var name = e.getAttribute("data-notes").split("<\\\/p>")[0].slice(13);
             if (name !== e.getAttribute("data-name"))
                 paints[name] = (paints[name] || 0) + 1;
         });
+        Array.prototype.forEach.call(parent.querySelectorAll(".fa-cogs"), e => {
+            var itemParts = e.parentNode.getAttribute("data-notes").match(/<p>.+?:/g).slice(1);
+            itemParts = itemParts.map(f => f.substr(3, f.length - 4));
+            itemParts.forEach(f => {
+                parts[f] = (parts[f] || 0) + 1;
+            });
+        });
         txt.addEventListener("click", () => {
-            var msg = "",
-                pnt = 0;
-            for (var paint in paints) {
+            var msg = "";
+            msg += `Painted: ${Object.keys(paints).length}\n`;
+            for (var paint in paints)
                 msg += `[${("0" + paints[paint]).slice(-2)}] ${paint}\n`;
-                pnt += paints[paint];
-            }
-            msg += `Painted: ${pnt}\n`;
             msg += `Killstreaked: ${parent.getElementsByClassName("fa-bomb").length}\n`;
-            msg += `Parted: ${parent.getElementsByClassName("fa-cogs").length}\n`;
+            msg += `Parted: ${parent.getElementsByClassName("fa-cogs").length} [Parts: ${Object.keys(parts).length}]\n`;
+            for (var part in parts)
+                msg += `[${("0" + parts[part]).slice(-2)}] ${part}\n`;
             msg += `Gifted: ${parent.querySelectorAll(".fa-gift").length}\n`;
             msg += `Spelled: ${parent.querySelectorAll("[data-spells]").length}\n`;
             msg += `Uncraftable: ${parent.querySelectorAll("[data-flag_cannot_craft]").length}\n`;
