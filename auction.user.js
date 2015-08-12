@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.5.1.3
+// @version             1.5.1.4
 // ==/UserScript==
 
 (function () {
@@ -24,7 +24,8 @@
                 text = "",
                 name = e.getAttribute("data-name"),
                 details = e.getAttribute("data-details") || "",
-                extra = e.querySelector(".item-number");
+                extra = e.querySelector(".item-number"),
+                specialText = e.getAttribute("data-special") === "Low Craft #" || details.contains("Killstreak");
             if (extra && !extra.textContent.contains("x"))
                 extra.remove();
             if (e.querySelector(".ks"))
@@ -32,8 +33,8 @@
             price[0] = Math.floor(round(+price[0]) * 100) / 100;
             if (e.hasAttribute("data-crate"))
                 text = `#${e.getAttribute("data-crate")}: `;
-            if (name.contains("#") || details.contains("Killstreak")) {
-                if (name.contains("#"))
+            if (specialText) {
+                if (e.getAttribute("data-special") === "Low Craft #")
                     text = `Lowcraft #${e.getAttribute("data-craft")}`;
                 if (details.contains("Killstreak")) {
                     var colour = "darkgoldenrod";
