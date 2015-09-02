@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.5.1.5
+// @version             1.5.1.6
 // ==/UserScript==
 
 (function () {
@@ -246,7 +246,7 @@
                           () => annotate(parent.children));
                 });
             });
-        } else if (tradeView && document.querySelector(".fa-legal")) {
+        } else if (tradeView) {
             var data = document.createElement("li"),
                 offered = document.querySelector(".offered-items");
             data.style.color = "orange";
