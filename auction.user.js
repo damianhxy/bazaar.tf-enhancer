@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.5.1.4
+// @version             1.5.1.5
 // ==/UserScript==
 
 (function () {
@@ -208,7 +208,8 @@
                     k = (key.value + (key.value_high || key.value)) / 2,
                     kDiff = ` (${k === keyP ? "=" : k < keyP ? "↓" : "↑"})`;
                 localStorage.setItem("keyP", k);
-                alert(`Prices updated, Keys: ${k} Refined ${kDiff}`);
+                if (k !== keyP)
+                    alert(`Prices updated, Keys: ${k} Refined ${kDiff}`);
                 localStorage.setItem("lastupdt", Date.now());
                 return location.reload();
             }
