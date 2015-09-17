@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.5.1.6
+// @version             1.5.1.7
 // ==/UserScript==
 
 (function () {
@@ -196,20 +196,13 @@
             url: `http://backpack.tf/api/IGetPrices/v4/?key=${localStorage.getItem("apikey")}`,
             onload: e => {
                 var data = JSON.parse(e.response);
-                if (!data.response.success) {
-                    if (data.response.message === "API key does not exist.") {
-                        alert("Invalid API key");
-                        localStorage.removeItem("apikey");
-                        return update();
-                    } else
-                        return alert(`Error:\n${data.response.message}`);
-                }
+                if (!data.response.success)
+                    return console.info(`Error:\n${data.response.message}`);
                 var key = data.response.items["Mann Co. Supply Crate Key"].prices[6].Tradable.Craftable[0],
                     k = (key.value + (key.value_high || key.value)) / 2,
                     kDiff = ` (${k === keyP ? "=" : k < keyP ? "↓" : "↑"})`;
                 localStorage.setItem("keyP", k);
-                if (k !== keyP)
-                    alert(`Prices updated, Keys: ${k} Refined ${kDiff}`);
+                console.info(`Prices updated, Keys: ${k} Refined ${kDiff}`);
                 localStorage.setItem("lastupdt", Date.now());
                 return location.reload();
             }
