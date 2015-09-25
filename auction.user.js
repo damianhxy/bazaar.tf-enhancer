@@ -204,7 +204,6 @@
                 localStorage.setItem("keyP", k);
                 console.info(`Prices updated, Keys: ${k} Refined ${kDiff}`);
                 localStorage.setItem("lastupdt", Date.now());
-                return location.reload();
             }
         });
     }
