@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.5.1.8
+// @version             1.5.1.9
 // ==/UserScript==
 
 (function () {
@@ -185,7 +185,7 @@
         if (document.getElementById("UserLoginForm"))
             return console.info(`Bazaar.tf Script Paused (Signed Out). Version ${GM_info.script.version}`);
         if (!localStorage.getItem("apikey"))
-            localStorage.setItem("apikey", prompt("API key not set, register yours from http://backpack.tf/api/"));
+            localStorage.setItem("apikey", prompt("API key not set, register yours from http://backpack.tf/developer/"));
         if (localStorage.getItem("apikey").length !== 24) {
             alert("Incorrect API key length");
             localStorage.removeItem("apikey");
