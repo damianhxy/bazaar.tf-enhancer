@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.5.1.9
+// @version             1.5.2.0
 // ==/UserScript==
 
 (function () {
@@ -255,10 +255,10 @@
                     createSummary(data, offered);
                     notes.insertBefore(data, notes.firstChild);
                 }
-                if (e.querySelector(".btn-warning.disabled"))
-                    e.firstElementChild.style.borderColor = "orange";
-                else if (e.querySelector(".btn-success.disabled"))
+                if (e.querySelector(".btn-success.disabled"))
                     e.firstElementChild.style.borderColor = "lime";
+                else if (e.querySelector(".btn-warning.disabled"))
+                    e.firstElementChild.style.borderColor = "orange";
             });
         }
         console.info(`Bazaar.tf Script Loaded. Version ${GM_info.script.version}`);
