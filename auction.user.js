@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.5.2.3
+// @version             1.5.2.4
 // ==/UserScript==
 
 (function () {
@@ -65,7 +65,7 @@
                 if (notes.includes("Painted:") && !notes.includes(name))
                     e.appendChild(createIcon("paint-brush"));
                 count -= (notes.match(/Tradable|(?:Craft|Gift|Paint|Festiviz)ed/g) || "").length;
-                if (e.classList.includes("q11-440") && count > 1)
+                if (e.classList.contains("q11-440") && count > 1)
                     e.appendChild(createIcon("cogs"));
             }
             if (e.hasAttribute("data-spells")) {
