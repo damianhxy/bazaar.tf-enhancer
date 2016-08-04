@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.5.2.2
+// @version             1.5.2.3
 // ==/UserScript==
 
 (function () {
@@ -25,8 +25,8 @@
                 name = e.getAttribute("data-name"),
                 details = e.getAttribute("data-details") || "",
                 extra = e.querySelector(".item-number"),
-                specialText = e.getAttribute("data-special") === "Low Craft #" || details.contains("Killstreak");
-            if (extra && !extra.textContent.contains("x"))
+                specialText = e.getAttribute("data-special") === "Low Craft #" || details.includes("Killstreak");
+            if (extra && !extra.textContent.includes("x"))
                 extra.remove();
             if (e.querySelector(".ks"))
                 e.querySelector(".ks").remove();
@@ -36,22 +36,22 @@
             if (specialText) {
                 if (e.getAttribute("data-special") === "Low Craft #")
                     text = `Lowcraft #${e.getAttribute("data-craft")}`;
-                if (details.contains("Killstreak")) {
+                if (details.includes("Killstreak")) {
                     var colour = "darkgoldenrod";
-                    if (details.contains("Specialized"))
+                    if (details.includes("Specialized"))
                         colour = "darkgray";
-                    else if (details.contains("Professional"))
+                    else if (details.includes("Professional"))
                         colour = "gold";
                     e.appendChild(createIcon("bomb", `color: ${colour}; background-color: white;`));
                     text = "Killstreak";
                 }
-            } else if (name.contains("Metal"))
+            } else if (name.includes("Metal"))
                 text = `${price[0]} Refined`;
             else if (price[0]) {
                 var currency = e.getAttribute("data-price").split(" ")[1];
-                if (currency.contains("Weapon"))
+                if (currency.includes("Weapon"))
                     text += "Any Weapon";
-                else if (currency.contains("Key"))
+                else if (currency.includes("Key"))
                     text += `${price[1].toFixed(2)} ${currency}`;
                 else
                     text += `${price[0]} ${currency}`;
@@ -60,12 +60,12 @@
             if (e.hasAttribute("data-notes")) {
                 var notes = e.getAttribute("data-notes"),
                     count = notes.match(/<\\\/p>/g).length;
-                if (notes.contains("Gifted"))
+                if (notes.includes("Gifted"))
                     e.appendChild(createIcon("gift"));
-                if (notes.contains("Painted:") && !notes.contains(name))
+                if (notes.includes("Painted:") && !notes.includes(name))
                     e.appendChild(createIcon("paint-brush"));
                 count -= (notes.match(/Tradable|(?:Craft|Gift|Paint|Festiviz)ed/g) || "").length;
-                if (e.classList.contains("q11-440") && count > 1)
+                if (e.classList.includes("q11-440") && count > 1)
                     e.appendChild(createIcon("cogs"));
             }
             if (e.hasAttribute("data-spells")) {
@@ -116,7 +116,7 @@
             var data = ele.getAttribute("data-price").split(" ");
             if (data[0] === "Any")
                 price = 1 / 18;
-            else if (data[0].contains("-")) {
+            else if (data[0].includes("-")) {
                 var pts = data[0].split("-");
                 price = original = (+pts[0] + +pts[1]) / 2;
                 hasRange = true;
@@ -124,7 +124,7 @@
                 price = original = +data[0];
             if (name.match(/(?:Key|(?:Slot|Class) Token)/))
                 isPure = true;
-            if (data[1].contains("Key"))
+            if (data[1].includes("Key"))
                 price *= keyP;
             else if (name.match(/(?:Slot|Class) Token/))
                 price = 1 / 6;
