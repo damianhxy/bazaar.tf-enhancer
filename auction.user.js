@@ -1,5 +1,5 @@
 // ==UserScript==
-// @copyright           ©2014 - 2015, Damian Ho
+// @copyright           ©2014 - 2017, Damian Ho
 // @description         Helper script for Bazaar.tf
 // @downloadURL         https://bitbucket.org/damianhxy/bazaar.tf-enhancer/raw/master/auction.user.js
 // @grant               GM_xmlhttpRequest
@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.5.2.4
+// @version             1.5.2.5
 // ==/UserScript==
 
 (function () {
@@ -106,6 +106,22 @@
         return icon;
     }
 
+    function getAPIPrice(name) {
+        var data = JSON.parse(localStorage.prices);
+        var item = data.response.items[name];
+        if (!item)
+            item = data.response.items[`Strange Part: ${name}`];
+        if (!item)
+            item = data.response.items[`Strange Cosmetic Part: ${name}`];
+        var obj = item.prices[6].Tradable.Craftable[0];
+
+        var currency = obj.currency;
+        var value = obj.value;
+        if (currency === "keys")
+            value *= keyP;
+        return value;
+    }
+
     function getPrice(ele) {
         var price = 0,
             original = 0,
@@ -160,18 +176,27 @@
             var itemParts = e.parentNode.getAttribute("data-notes").match(/<p>.+?:/g).slice(1);
             itemParts = itemParts.map(f => f.substr(3, f.length - 4));
             itemParts.forEach(f => {
-                parts[f] = (parts[f] || 0) + 1;
+                if (f !== "Points Scored") // In case strange cosmetic is painted
+                    parts[f] = (parts[f] || 0) + 1;
             });
         });
         txt.addEventListener("click", () => {
             var msg = "";
+            var paintValue = 0;
+            var partValue = 0;
             msg += `Painted: ${Object.keys(paints).length}\n`;
-            for (var paint in paints)
+            for (var paint in paints) {
                 msg += `[${("0" + paints[paint]).slice(-2)}] ${paint}\n`;
+                paintValue += getAPIPrice(paint) * paints[paint];
+            }
+            msg += `Total paint value: ${Math.floor(round(paintValue / 2) * 100) / 100}\n`;
             msg += `Killstreaked: ${parent.getElementsByClassName("fa-bomb").length}\n`;
             msg += `Parted: ${parent.getElementsByClassName("fa-cogs").length} [Parts: ${Object.keys(parts).length}]\n`;
-            for (var part in parts)
+            for (var part in parts) {
                 msg += `[${("0" + parts[part]).slice(-2)}] ${part}\n`;
+                partValue += getAPIPrice(part) * parts[part];
+            }
+            msg += `Total part value: ${Math.floor(round(partValue / 2) * 100) / 100}\n`;
             msg += `Gifted: ${parent.querySelectorAll(".fa-gift").length}\n`;
             msg += `Spelled: ${parent.querySelectorAll("[data-spells]").length}\n`;
             msg += `Uncraftable: ${parent.querySelectorAll("[data-flag_cannot_craft]").length}\n`;
@@ -198,6 +223,7 @@
                 var data = JSON.parse(e.response);
                 if (!data.response.success)
                     return console.info(`Error:\n${data.response.message}`);
+                localStorage.setItem("prices", e.response);
                 var key = data.response.items["Mann Co. Supply Crate Key"].prices[6].Tradable.Craftable[0],
                     k = (key.value + (key.value_high || key.value)) / 2,
                     kDiff = ` (${k === keyP ? "=" : k < keyP ? "↓" : "↑"})`;
