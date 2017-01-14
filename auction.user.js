@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.5.2.5
+// @version             1.5.2.6
 // ==/UserScript==
 
 (function () {
@@ -30,7 +30,7 @@
                 extra.remove();
             if (e.querySelector(".ks"))
                 e.querySelector(".ks").remove();
-            price[0] = Math.floor(round(+price[0]) * 100) / 100;
+            price[0] = trunc(round(+price[0]));
             if (e.hasAttribute("data-crate"))
                 text = `#${e.getAttribute("data-crate")}: `;
             if (specialText) {
@@ -88,7 +88,7 @@
             total += response[0];
             allPure &= response[3];
         });
-        total = Math.floor(round(total) * 100) / 100;
+        total = trunc(round(total));
         var string = `${total && !allPure ? "~" : ""} ${total} Refined`;
         if (total > +keyP.toFixed(2))
             string += `/ ${(total / keyP).toFixed(2)} Keys`;
@@ -163,6 +163,10 @@
         return Math.floor(num) + Math.round((num % 1 * 9).toFixed(2)) / 9;
     }
 
+    function trunc(num) {
+        return Math.floor(num * 100) / 100;
+    }
+
     function createSummary(txt, parent) {
         var paints = {},
             parts = {};
@@ -189,14 +193,14 @@
                 msg += `[${("0" + paints[paint]).slice(-2)}] ${paint}\n`;
                 paintValue += getAPIPrice(paint) * paints[paint];
             }
-            msg += `Total paint value: ${Math.floor(round(paintValue / 2) * 100) / 100}\n`;
+            msg += `Total paint value: ${trunc(round(paintValue / 2))} Refined\n`;
             msg += `Killstreaked: ${parent.getElementsByClassName("fa-bomb").length}\n`;
             msg += `Parted: ${parent.getElementsByClassName("fa-cogs").length} [Parts: ${Object.keys(parts).length}]\n`;
             for (var part in parts) {
                 msg += `[${("0" + parts[part]).slice(-2)}] ${part}\n`;
                 partValue += getAPIPrice(part) * parts[part];
             }
-            msg += `Total part value: ${Math.floor(round(partValue / 2) * 100) / 100}\n`;
+            msg += `Total part value: ${trunc(round(partValue / 2))} Refined\n`;
             msg += `Gifted: ${parent.querySelectorAll(".fa-gift").length}\n`;
             msg += `Spelled: ${parent.querySelectorAll("[data-spells]").length}\n`;
             msg += `Uncraftable: ${parent.querySelectorAll("[data-flag_cannot_craft]").length}\n`;
