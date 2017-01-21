@@ -8,7 +8,7 @@
 // @namespace           https://bitbucket.org/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.5.2.6
+// @version             1.5.2.7
 // ==/UserScript==
 
 (function () {
@@ -113,6 +113,8 @@
             item = data.response.items[`Strange Part: ${name}`];
         if (!item)
             item = data.response.items[`Strange Cosmetic Part: ${name}`];
+        if (!item)
+            return 0;
         var obj = item.prices[6].Tradable.Craftable[0];
 
         var currency = obj.currency;
