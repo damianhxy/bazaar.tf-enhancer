@@ -1,35 +1,42 @@
 // ==UserScript==
-// @copyright           ©2014 - 2017, Damian Ho
+// @copyright           ©2014-2026, Damian Ho
 // @description         Helper script for Bazaar.tf
-// @downloadURL         https://bitbucket.org/damianhxy/bazaar.tf-enhancer/raw/master/auction.user.js
+// @downloadURL         https://raw.githubusercontent.com/damianhxy/bazaar.tf-enhancer/master/auction.user.js
+// @connect             backpack.tf
+// @grant               GM_info
 // @grant               GM_xmlhttpRequest
-// @include             /^https:\/\/bazaar\.tf.*$/
+// @homepageURL         https://github.com/damianhxy/bazaar.tf-enhancer
+// @match               https://bazaar.tf/*
 // @name                Bazaar.tf Enhancer
-// @namespace           https://bitbucket.org/damianhxy
+// @namespace           https://github.com/damianhxy
 // @noframes
 // @run-at              document-end
-// @version             1.5.2.7
+// @supportURL          https://github.com/damianhxy/bazaar.tf-enhancer/issues
+// @updateURL           https://raw.githubusercontent.com/damianhxy/bazaar.tf-enhancer/master/auction.user.js
+// @version             1.6.0
 // ==/UserScript==
 
 (function () {
+    "use strict";
     /*********** SETTINGS ***********/
-    var updateFreq = 3;              //[days] price refresh frequency
+    const updateFreq = 3;              //[days] price refresh frequency
     /******** END OF SETTINGS *******/
 
     function annotate(trade) {
-        Array.prototype.forEach.call(trade, e => {
+        [...trade].forEach(e => {
             if (+e.getAttribute("data-defindex") < 0 || e.getAttribute("data-game") !== "440")
                 return;
-            var price = getPrice(e),
-                text = "",
-                name = e.getAttribute("data-name"),
+            const price = getPrice(e);
+            let text = "";
+            const name = e.getAttribute("data-name"),
                 details = e.getAttribute("data-details") || "",
                 extra = e.querySelector(".item-number"),
                 specialText = e.getAttribute("data-special") === "Low Craft #" || details.includes("Killstreak");
             if (extra && !extra.textContent.includes("x"))
                 extra.remove();
-            if (e.querySelector(".ks"))
-                e.querySelector(".ks").remove();
+            const ks = e.querySelector(".ks");
+            if (ks)
+                ks.remove();
             price[0] = trunc(round(+price[0]));
             if (e.hasAttribute("data-crate"))
                 text = `#${e.getAttribute("data-crate")}: `;
@@ -37,7 +44,7 @@
                 if (e.getAttribute("data-special") === "Low Craft #")
                     text = `Lowcraft #${e.getAttribute("data-craft")}`;
                 if (details.includes("Killstreak")) {
-                    var colour = "darkgoldenrod";
+                    let colour = "darkgoldenrod";
                     if (details.includes("Specialized"))
                         colour = "darkgray";
                     else if (details.includes("Professional"))
@@ -48,7 +55,7 @@
             } else if (name.includes("Metal"))
                 text = `${price[0]} Refined`;
             else if (price[0]) {
-                var currency = e.getAttribute("data-price").split(" ")[1];
+                const currency = e.getAttribute("data-price").split(" ")[1];
                 if (currency.includes("Weapon"))
                     text += "Any Weapon";
                 else if (currency.includes("Key"))
@@ -58,8 +65,8 @@
             } else
                 text += "Unpriced";
             if (e.hasAttribute("data-notes")) {
-                var notes = e.getAttribute("data-notes"),
-                    count = notes.match(/<\\\/p>/g).length;
+                const notes = e.getAttribute("data-notes");
+                let count = notes.match(/<\\\/p>/g).length;
                 if (notes.includes("Gifted"))
                     e.appendChild(createIcon("gift"));
                 if (notes.includes("Painted:") && !notes.includes(name))
@@ -69,10 +76,11 @@
                     e.appendChild(createIcon("cogs"));
             }
             if (e.hasAttribute("data-spells")) {
-                e.querySelector(".spell").remove();
+                const spell = e.querySelector(".spell");
+                if (spell) spell.remove();
                 e.appendChild(createIcon("moon-o"));
             }
-            var txt = document.createElement("span");
+            const txt = document.createElement("span");
             txt.classList.add("item-text");
             txt.style = "bottom: 0; left: 0; right: 0;";
             txt.appendChild(document.createTextNode(text));
@@ -81,15 +89,15 @@
     }
 
     function calc(trade) {
-        var total = 0,
+        let total = 0,
             allPure = true;
-        Array.prototype.forEach.call(trade, e => {
-            var response = getPrice(e);
+        [...trade].forEach(e => {
+            const response = getPrice(e);
             total += response[0];
-            allPure &= response[3];
+            allPure = allPure && response[3];
         });
         total = trunc(round(total));
-        var string = `${total && !allPure ? "~" : ""} ${total} Refined`;
+        let string = `${total && !allPure ? "~" : ""} ${total} Refined`;
         if (total > +keyP.toFixed(2))
             string += `/ ${(total / keyP).toFixed(2)} Keys`;
         return string;
@@ -100,42 +108,41 @@
     }
 
     function createIcon(cls, style) {
-        var icon = document.createElement("i");
+        const icon = document.createElement("i");
         icon.classList.add("fa", `fa-${cls}`, "fa-inverse", "fa-border", "pull-left");
         icon.style = `border-radius: 50%;${style ? " " + style : ""}`;
         return icon;
     }
 
     function getAPIPrice(name) {
-        var data = JSON.parse(localStorage.prices);
-        var item = data.response.items[name];
+        const data = JSON.parse(localStorage.getItem("prices"));
+        let item = data.response.items[name];
         if (!item)
             item = data.response.items[`Strange Part: ${name}`];
         if (!item)
             item = data.response.items[`Strange Cosmetic Part: ${name}`];
         if (!item)
             return 0;
-        var obj = item.prices[6].Tradable.Craftable[0];
+        const obj = item.prices[6].Tradable.Craftable[0];
 
-        var currency = obj.currency;
-        var value = obj.value;
-        if (currency === "keys")
+        let value = obj.value;
+        if (obj.currency === "keys")
             value *= keyP;
         return value;
     }
 
     function getPrice(ele) {
-        var price = 0,
+        let price = 0,
             original = 0,
             hasRange = false,
-            isPure = false,
-            name = ele.getAttribute("data-name");
+            isPure = false;
+        const name = ele.getAttribute("data-name");
         if (ele.hasAttribute("data-price")) {
-            var data = ele.getAttribute("data-price").split(" ");
+            const data = ele.getAttribute("data-price").split(" ");
             if (data[0] === "Any")
                 price = 1 / 18;
             else if (data[0].includes("-")) {
-                var pts = data[0].split("-");
+                const pts = data[0].split("-");
                 price = original = (+pts[0] + +pts[1]) / 2;
                 hasRange = true;
             } else
@@ -149,8 +156,8 @@
             if (!isPure && !hasRange)
                 price = round(price);
         } else {
-            var index = ["Refined", "Reclaimed", "Scrap"].findIndex(e => `${e} Metal` === name);
-            if (~ index) {
+            const index = ["Refined", "Reclaimed", "Scrap"].findIndex(e => `${e} Metal` === name);
+            if (index !== -1) {
                 isPure = true;
                 price = 1 / Math.pow(3, index);
             }
@@ -170,35 +177,35 @@
     }
 
     function createSummary(txt, parent) {
-        var paints = {},
+        const paints = {},
             parts = {};
         txt.style.cursor = "pointer";
-        Array.prototype.forEach.call(parent.querySelectorAll("[data-paint]"), e => {
-            var name = e.getAttribute("data-notes").split("<\\\/p>")[0].slice(13);
+        [...parent.querySelectorAll("[data-paint]")].forEach(e => {
+            const name = e.getAttribute("data-notes").split("<\\\/p>")[0].slice(13);
             if (name !== e.getAttribute("data-name"))
                 paints[name] = (paints[name] || 0) + 1;
         });
-        Array.prototype.forEach.call(parent.querySelectorAll(".fa-cogs"), e => {
-            var itemParts = e.parentNode.getAttribute("data-notes").match(/<p>.+?:/g).slice(1);
-            itemParts = itemParts.map(f => f.substr(3, f.length - 4));
+        [...parent.querySelectorAll(".fa-cogs")].forEach(e => {
+            const itemParts = e.parentNode.getAttribute("data-notes").match(/<p>.+?:/g).slice(1)
+                .map(f => f.substr(3, f.length - 4));
             itemParts.forEach(f => {
                 if (f !== "Points Scored") // In case strange cosmetic is painted
                     parts[f] = (parts[f] || 0) + 1;
             });
         });
         txt.addEventListener("click", () => {
-            var msg = "";
-            var paintValue = 0;
-            var partValue = 0;
+            let msg = "";
+            let paintValue = 0;
             msg += `Painted: ${Object.keys(paints).length}\n`;
-            for (var paint in paints) {
+            for (const paint in paints) {
                 msg += `[${("0" + paints[paint]).slice(-2)}] ${paint}\n`;
                 paintValue += getAPIPrice(paint) * paints[paint];
             }
             msg += `Total paint value: ${trunc(round(paintValue / 2))} Refined\n`;
             msg += `Killstreaked: ${parent.getElementsByClassName("fa-bomb").length}\n`;
             msg += `Parted: ${parent.getElementsByClassName("fa-cogs").length} [Parts: ${Object.keys(parts).length}]\n`;
-            for (var part in parts) {
+            let partValue = 0;
+            for (const part in parts) {
                 msg += `[${("0" + parts[part]).slice(-2)}] ${part}\n`;
                 partValue += getAPIPrice(part) * parts[part];
             }
@@ -215,22 +222,26 @@
     function update() {
         if (document.getElementById("UserLoginForm"))
             return console.info(`Bazaar.tf Script Paused (Signed Out). Version ${GM_info.script.version}`);
-        if (!localStorage.getItem("apikey"))
-            localStorage.setItem("apikey", prompt("API key not set, register yours from http://backpack.tf/developer/"));
-        if (localStorage.getItem("apikey").length !== 24) {
+        let apiKey = localStorage.getItem("apikey");
+        if (!apiKey) {
+            apiKey = prompt("API key not set, register yours from https://backpack.tf/developer/");
+            if (!apiKey) return;
+            localStorage.setItem("apikey", apiKey);
+        }
+        if (apiKey.length !== 24) {
             alert("Incorrect API key length");
             localStorage.removeItem("apikey");
-            update();
+            return;
         }
         GM_xmlhttpRequest({
             method: "GET",
-            url: `http://backpack.tf/api/IGetPrices/v4/?key=${localStorage.getItem("apikey")}`,
+            url: `https://backpack.tf/api/IGetPrices/v4/?key=${apiKey}`,
             onload: e => {
-                var data = JSON.parse(e.response);
+                const data = JSON.parse(e.response);
                 if (!data.response.success)
                     return console.info(`Error:\n${data.response.message}`);
                 localStorage.setItem("prices", e.response);
-                var key = data.response.items["Mann Co. Supply Crate Key"].prices[6].Tradable.Craftable[0],
+                const key = data.response.items["Mann Co. Supply Crate Key"].prices[6].Tradable.Craftable[0],
                     k = (key.value + (key.value_high || key.value)) / 2,
                     kDiff = ` (${k === keyP ? "=" : k < keyP ? "↓" : "↑"})`;
                 localStorage.setItem("keyP", k);
@@ -240,17 +251,22 @@
         });
     }
 
+    let keyP;
+    let lastUpdt;
+
     try {
         /******** SCRIPT GLOBALS ********/
-        var tradeView = document.querySelector(".fa-reply"),
+        const tradeView = document.querySelector(".fa-reply"),
             tradeList = document.querySelector(".fa-share"),
-            backpack = /^http:\/\/bazaar\.tf\/backpack\/\d{17}$/.test(document.URL),
-            keyP = +localStorage.getItem("keyP"),
-            lastUpdt = Date.now() - (+localStorage.getItem("lastupdt") || 0);
+            backpack = /^https:\/\/bazaar\.tf\/backpack\/\d{17}$/.test(document.URL);
+        keyP = +localStorage.getItem("keyP");
+        lastUpdt = Date.now() - (+localStorage.getItem("lastupdt") || 0);
         /****** END SCRIPT GLOBALS ******/
 
-        if (keyP && lastUpdt < 864e5 * updateFreq || update()) {
-            var diff = 864e5 * updateFreq - lastUpdt,
+        if (!keyP || lastUpdt >= 864e5 * updateFreq) {
+            update();
+        } else {
+            const diff = 864e5 * updateFreq - lastUpdt,
                 days = Math.floor(diff / 864e5),
                 hours = Math.floor((diff % 864e5) / 36e5),
                 minutes = Math.floor((diff % 36e5) / 6e4);
@@ -263,23 +279,23 @@
         else if (tradeList || tradeView)
             annotate(document.getElementsByClassName("item"));
         if (tradeList) {
-            Array.prototype.forEach.call(document.querySelectorAll("[data-type='more-items-icon']"), e => {
-                var parent = e.parentNode;
+            [...document.querySelectorAll("[data-type='more-items-icon']")].forEach(e => {
+                const parent = e.parentNode;
                 e.addEventListener("click", () => {
                     check(() => !document.querySelector(".progress"),
                           () => annotate(parent.children));
                 });
             });
         } else if (tradeView) {
-            var data = document.createElement("li"),
+            const data = document.createElement("li"),
                 offered = document.querySelector(".offered-items");
             data.style.color = "orange";
             data.appendChild(document.createTextNode(calc(offered.children)));
             createSummary(data, offered);
             document.querySelector(".trade-stats").appendChild(data);
-            Array.prototype.forEach.call(document.querySelectorAll("[id^='thread-']"), e => {
+            [...document.querySelectorAll("[id^='thread-']")].forEach(e => {
                 if (e.querySelector(".comment-offers")) {
-                    var data = document.createElement("span"),
+                    const data = document.createElement("span"),
                         offered = e.querySelector(".item-list"),
                         notes = e.querySelector(".comment-content:not(.top-small-margin)");
                     data.style = "color: orange; float: right;";
@@ -294,7 +310,7 @@
             });
         }
         console.info(`Bazaar.tf Script Loaded. Version ${GM_info.script.version}`);
-    } catch(e) {
-        alert(`[A fatal error has occured]\n${e.message}\n[Stack Trace]\n${e.stack}`);
+    } catch (e) {
+        alert(`[A fatal error has occurred]\n${e.message}\n[Stack Trace]\n${e.stack}`);
     }
 })();
