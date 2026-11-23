@@ -13,7 +13,7 @@
 // @run-at              document-end
 // @supportURL          https://github.com/damianhxy/bazaar.tf-enhancer/issues
 // @updateURL           https://raw.githubusercontent.com/damianhxy/bazaar.tf-enhancer/master/auction.user.js
-// @version             1.6.0
+// @version             1.6.1
 // ==/UserScript==
 
 (function () {
@@ -243,36 +243,31 @@
                 localStorage.setItem("prices", e.response);
                 const key = data.response.items["Mann Co. Supply Crate Key"].prices[6].Tradable.Craftable[0],
                     k = (key.value + (key.value_high || key.value)) / 2,
-                    kDiff = ` (${k === keyP ? "=" : k < keyP ? "↓" : "↑"})`;
+                    kDiff = ` (${k === keyP ? "=" : k < keyP ? "↓" : "↑"})`,
+                    firstRun = !keyP;
                 localStorage.setItem("keyP", k);
                 console.info(`Prices updated, Keys: ${k} Refined ${kDiff}`);
                 localStorage.setItem("lastupdt", Date.now());
+                keyP = k;
+                if (firstRun) {
+                    try {
+                        run();
+                    } catch (err) {
+                        fatal(err);
+                    }
+                }
             }
         });
     }
 
-    let keyP;
-    let lastUpdt;
+    function fatal(e) {
+        alert(`[A fatal error has occurred]\n${e.message}\n[Stack Trace]\n${e.stack}`);
+    }
 
-    try {
-        /******** SCRIPT GLOBALS ********/
+    function run() {
         const tradeView = document.querySelector(".fa-reply"),
             tradeList = document.querySelector(".fa-share"),
             backpack = /^https:\/\/bazaar\.tf\/backpack\/\d{17}$/.test(document.URL);
-        keyP = +localStorage.getItem("keyP");
-        lastUpdt = Date.now() - (+localStorage.getItem("lastupdt") || 0);
-        /****** END SCRIPT GLOBALS ******/
-
-        if (!keyP || lastUpdt >= 864e5 * updateFreq) {
-            update();
-        } else {
-            const diff = 864e5 * updateFreq - lastUpdt,
-                days = Math.floor(diff / 864e5),
-                hours = Math.floor((diff % 864e5) / 36e5),
-                minutes = Math.floor((diff % 36e5) / 6e4);
-            console.info(`Prices will update in ${days} day(s), ${hours} hour(s) and ${minutes} min(s)`);
-        }
-
         if (backpack)
             check(() => !document.querySelector(".fa-spinner"),
                   () => annotate(document.querySelectorAll(".item:not(.placeholder-icon)")));
@@ -310,7 +305,31 @@
             });
         }
         console.info(`Bazaar.tf Script Loaded. Version ${GM_info.script.version}`);
+    }
+
+    let keyP;
+    let lastUpdt;
+
+    try {
+        /******** SCRIPT GLOBALS ********/
+        keyP = +localStorage.getItem("keyP");
+        lastUpdt = Date.now() - (+localStorage.getItem("lastupdt") || 0);
+        /****** END SCRIPT GLOBALS ******/
+
+        if (!keyP || lastUpdt >= 864e5 * updateFreq) {
+            update();
+        } else {
+            const diff = 864e5 * updateFreq - lastUpdt,
+                days = Math.floor(diff / 864e5),
+                hours = Math.floor((diff % 864e5) / 36e5),
+                minutes = Math.floor((diff % 36e5) / 6e4);
+            console.info(`Prices will update in ${days} day(s), ${hours} hour(s) and ${minutes} min(s)`);
+        }
+
+        // Without a cached key price nothing priced in keys can be valued; annotate once the first download lands
+        if (keyP)
+            run();
     } catch (e) {
-        alert(`[A fatal error has occurred]\n${e.message}\n[Stack Trace]\n${e.stack}`);
+        fatal(e);
     }
 })();
